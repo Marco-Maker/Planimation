@@ -2,9 +2,11 @@
 [Tt]emp/
 [Bb]uild/
 [Bb]uilds/
+[Ll]ogs/
 Obj/
 *.csproj
 *.unityproj
 *.sln
 *.user
 .vscode/
+*.log
