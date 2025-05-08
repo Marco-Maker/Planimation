@@ -4,13 +4,6 @@ using UnityEngine;
 using TMPro;
 using System;
 
-[Serializable]
-public class PDDLDomain
-{
-    public string name;
-    
-}
-
 public class Planner : MonoBehaviour
 {
 
@@ -35,53 +28,11 @@ public class Planner : MonoBehaviour
 
     private void Start()
     {
-        GetCurrentDirectory();
         string path = Directory.GetCurrentDirectory();
         solverJarPath = path + pddlFolderPath + solverName;
         outputPlanPath = path + pddlFolderPath + outputFileName;
         domainPath = path + pddlFolderPath + domainName;
         problemPath = path + pddlFolderPath + problemName;
-        Display();
-    }
-
-    public void GeneratePlan()
-    {
-        if (!File.Exists(solverJarPath))
-        {
-            UnityEngine.Debug.LogError("Solver jar non trovato: " + solverJarPath);
-            return;
-        }
-
-        string args = $"-jar .{pddlFolderPath + solverName} -domain .{pddlFolderPath + domainName} -problem .{pddlFolderPath + problemName} {additionalParameters}";
-
-        UnityEngine.Debug.Log(args);
-
-        ProcessStartInfo startInfo = new ProcessStartInfo
-        {
-            FileName = "java",
-            Arguments = args,
-            RedirectStandardOutput = true,
-            UseShellExecute = false,
-            CreateNoWindow = true
-        };
-
-        try
-        {
-            using (Process process = new Process { StartInfo = startInfo })
-            {
-                process.Start();
-
-                string output = process.StandardOutput.ReadToEnd();
-                process.WaitForExit();
-
-                File.WriteAllText(outputPlanPath, output);
-                UnityEngine.Debug.Log("Piano generato e salvato in: " + outputPlanPath);
-            }
-        }
-        catch (System.Exception e)
-        {
-            UnityEngine.Debug.LogError("Errore durante l'esecuzione del planner: " + e.Message);
-        }
     }
 
     public void Display()
@@ -103,11 +54,38 @@ public class Planner : MonoBehaviour
         textField.text = content;
     }
 
-    public string GetCurrentDirectory()
+    public void RunShellCommand()
     {
-        string path = Directory.GetCurrentDirectory();
-        UnityEngine.Debug.Log("Path corrente: " + path);
-        return path;
+        string args = $"java -jar .{pddlFolderPath + solverName} -domain .{pddlFolderPath + domainName} -problem .{pddlFolderPath + problemName} {additionalParameters}";
+        ExecuteCommand(args);
     }
 
+    private void ExecuteCommand(string command)
+    {
+    #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+            ProcessStartInfo psi = new ProcessStartInfo("cmd.exe", "/c " + command);
+    #elif UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX || UNITY_STANDALONE_LINUX
+            ProcessStartInfo psi = new ProcessStartInfo("/bin/bash", "-c \"" + command + "\"");
+    #else
+            Debug.LogWarning("Piattaforma non supportata.");
+            return;
+    #endif
+        psi.WorkingDirectory = Directory.GetCurrentDirectory();
+        psi.RedirectStandardOutput = true;
+        psi.RedirectStandardError = true;
+        psi.UseShellExecute = false;
+        psi.CreateNoWindow = true;
+
+        Process proc = new Process();
+        proc.StartInfo = psi;
+        proc.Start();
+
+        string output = proc.StandardOutput.ReadToEnd();
+        string error = proc.StandardError.ReadToEnd();
+        proc.WaitForExit();
+        File.WriteAllText("." + pddlFolderPath + outputFileName, output);
+        if (!string.IsNullOrEmpty(error))
+            UnityEngine.Debug.LogError("Errore: " + error);
+        Display();
+    }
 }

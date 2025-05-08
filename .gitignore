@@ -3,6 +3,7 @@
 [Bb]uild/
 [Bb]uilds/
 [Ll]ogs/
+[Uu]serSettings/
 Obj/
 *.csproj
 *.unityproj
@@ -10,3 +11,7 @@ Obj/
 *.user
 .vscode/
 *.log
+.vs/*
+*.suo
+*.db
+*.vsidx

@@ -341,7 +341,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1363657601}
         m_TargetAssemblyTypeName: Planner, Assembly-CSharp
-        m_MethodName: GeneratePlan
+        m_MethodName: RunShellCommand
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

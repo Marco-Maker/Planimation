@@ -1,0 +1,40 @@
+Domain parsed
+Problem parsed
+Grounding..
+Grounding Time: 10
+Aibr Preprocessing
+|F|:9
+|X|:0
+|A|:12
+|P|:0
+|E|:0
+H1 Setup Time (msec): 2
+Setting horizon to:NaN
+Running Greedy Best First Search
+h(n = s_0)=6.0
+ g(n)= 2.0 h(n)=5.0
+ g(n)= 3.0 h(n)=3.0
+ g(n)= 5.0 h(n)=2.0
+ g(n)= 6.0 h(n)=1.0
+ g(n)= 7.0 h(n)=0.0
+Problem Solved
+
+Found Plan:
+0.0: (pick Ball2 roomA left)
+1.0: (move roomA roomB)
+2.0: (drop Ball2 roomB left)
+3.0: (move roomB roomA)
+4.0: (pick Ball1 roomA left)
+5.0: (move roomA roomB)
+6.0: (drop Ball1 roomB left)
+
+Plan-Length:7
+Metric (Search):7.0
+Planning Time (msec): 103
+Heuristic Time (msec): 1
+Search Time (msec): 8
+Expanded Nodes:8
+States Evaluated:16
+Fixed constraint violations during search (zero-crossing):0
+Number of Dead-Ends detected:7
+Number of Duplicates detected:6
