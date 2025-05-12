@@ -34,6 +34,7 @@ public class Planner : MonoBehaviour
         domainPath = path + pddlFolderPath + domainName;
         problemPath = path + pddlFolderPath + problemName;
         UnityEngine.Debug.Log(ProblemToGenerator.printDictionary(problemPath));
+        UnityEngine.Debug.Log(ProblemToGenerator.printDictionaryInit(problemPath));
     }
 
     public void Display()

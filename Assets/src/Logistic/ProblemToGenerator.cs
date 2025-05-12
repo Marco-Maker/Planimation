@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using UnityEngine;
 
 public class ProblemToGenerator : MonoBehaviour
@@ -25,11 +26,8 @@ public class ProblemToGenerator : MonoBehaviour
             {
                 if (line.StartsWith("(:") || line.StartsWith(")"))
                 {
-                    // fine della sezione objects
                     break;
                 }
-                Debug.Log(line);
-                // Accumula la linea nel caso ci siano più righe
                 string[] parts = line.Split('-');
                 if (parts.Length == 2)
                 {
@@ -47,15 +45,74 @@ public class ProblemToGenerator : MonoBehaviour
         return objects;
     }
 
+    public static Dictionary<string, List<string>> pddlInit(string pddlProblemFilePath)
+    {
+        Dictionary<string, List<string>> atoms = new Dictionary<string, List<string>>();
+        bool initStarted = false;
+        string[] lines = File.ReadAllLines(pddlProblemFilePath);
+        foreach (string rawLine in lines)
+        {
+            string line = rawLine.Trim();
+
+            if (line.StartsWith("(:init"))
+            {
+                initStarted = true;
+                line = line.Replace("(:init", "").Trim();
+            }
+
+            if (initStarted)
+            {
+                if (line.StartsWith("(:") || line.StartsWith(")"))
+                {
+                    break;
+                }
+                string[] parts = line.Split(new[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length > 0)
+                {
+                    string atom = parts[0].Trim();
+                    if (!atoms.ContainsKey(atom))
+                        atoms[atom] = new List<string>();
+
+                    atoms[atom].AddRange(parts);
+                    atoms[atom].Remove(atom);
+                }
+            }
+        }
+        return atoms;
+    }
+
+
     public static string printDictionary(string problemPath)
     {
         Dictionary<string, List<string>> objects = pddlObjects(problemPath);
         string print = "";
         foreach (string rawLine in objects.Keys)
         {
-            print += "Key: " + rawLine + " Value: " + objects[rawLine].ToString() + "\n";
-            
+            print += "Key: " + rawLine + " Value: ";
+            foreach (string value in objects[rawLine])
+            {
+                print += value + " ";
+            }
+            print += "\n";
         }
+
+        return print;
+    }
+
+    public static string printDictionaryInit(string problemPath)
+    {
+        Dictionary<string, List<string>> objects = pddlInit(problemPath);
+        string print = "";
+        foreach (string rawLine in objects.Keys)
+        {
+            print += "Key: " + rawLine + " Value: ";
+            foreach (string value in objects[rawLine])
+            {
+                print += value + " ";
+            }
+            print += "\n";
+        }
+
         return print;
     }
 }
