@@ -17,7 +17,7 @@ public class Planner : MonoBehaviour
     [SerializeField] private string solverName = "enhsp-20.jar";
     [SerializeField] private string outputFileName = "output_plan.txt";
     [SerializeField] private string domainName = @"2025-03-03-PDDL\domain-gripper.pddl";
-    [SerializeField] private string problemName = @"2025-03-03-PDDL\problem-g1.pddl";
+    [SerializeField] private string problemName = @"2025-03-03-PDDL\problem-g1-types.pddl";
 
     // Parametri aggiuntivi se richiesti dal solver
     [SerializeField] private string additionalParameters = ""; // es: "--search-timeout 30"
@@ -33,6 +33,7 @@ public class Planner : MonoBehaviour
         outputPlanPath = path + pddlFolderPath + outputFileName;
         domainPath = path + pddlFolderPath + domainName;
         problemPath = path + pddlFolderPath + problemName;
+        UnityEngine.Debug.Log(ProblemToGenerator.printDictionary(problemPath));
     }
 
     public void Display()

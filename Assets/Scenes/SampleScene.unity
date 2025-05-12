@@ -1506,7 +1506,7 @@ MonoBehaviour:
   solverName: enhsp-20.jar
   outputFileName: output_plan.txt
   domainName: 2025-03-03-PDDL\domain-gripper.pddl
-  problemName: 2025-03-03-PDDL\problem-g1.pddl
+  problemName: 2025-03-03-PDDL\problem-g1-types.pddl
   additionalParameters: 
   domainField: {fileID: 734101207}
   problemField: {fileID: 59266928}
