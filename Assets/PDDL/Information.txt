@@ -1,0 +1,142 @@
+_____________________________________________________________________________________________________________
+					LOGISTIC INFORMATION
+_____________________________________________________________________________________________________________
+
+Logistic - Normal
+
+oggetti:
+truck
+airplane
+package
+airport
+location
+city
+
+predicati:
+in-city place city //place si trova in city
+at obj place //obj si trova in place
+in pkg veh //il package si trova dentro un veicolo, truck o airplane
+link cityA cityB //controllare se due città sono collegate da una strada
+
+Logistic - Numeric
+
+oggetti:
+
+predicati:
+
+funzioni:
+
+Logistic - Temporal
+
+oggetti:
+
+predicati:
+
+funzioni:
+
+_____________________________________________________________________________________________________________
+
+GOAL:
+at package location
+
+_____________________________________________________________________________________________________________
+					ELEVATOR INFORMATION
+_____________________________________________________________________________________________________________
+
+Elevator - Normal
+
+oggetti:
+floor
+person
+elevator
+
+predicati:
+at-person person floor  // indica a che piano si trova person
+target 			// indica dove vuole andare person
+reached			// persona ha raggiunto il target
+in 			// person si trova in elevator
+above
+at-elevator		// indica a che piano si trova elevator
+full 			// se con capacity se senza allora non ci vuole
+
+
+Elevator - Numeric
+
+oggetti:
+person
+elevator
+
+predicati:
+reached person 		
+in elevator person 	
+
+funzioni:
+at-elevator elevator 	
+at-person person 	
+target person 		
+weight person 		//peso della persona
+passengers elevator 	// indica il numero di passeggeri in elevator
+load elevator 		// peso attuale di elevator
+capacity elevator 	// massimo numero di passeggeri
+max-load elevator 	// massimo peso per elevator
+floors 			// indica il numero di piani
+
+Elevator - Temporal
+
+
+
+_____________________________________________________________________________________________________________
+
+GOAL:
+reached person 		// per ogni persona
+
+
+_____________________________________________________________________________________________________________
+					ROBOT INFORMATION
+_____________________________________________________________________________________________________________
+
+Robot - Normal
+
+oggetti:
+room
+ball/obj
+gripper
+
+predicati:
+at-robby room 		// il robot si trova in room
+at ball room 		// ball si trova in room
+free gripper 		// gripper è vuoto
+carry ball gripper 	// ball si trova in gripper
+allowed robot room 	// indica se un robot può entrare in room
+connected roomA roomB 	// roomA e B sono collegate
+
+Robot - Numeric
+
+oggetti:
+
+predicati:
+
+funzioni:
+
+Robot - Temporal
+
+oggetti:
+room
+ball/obj
+robot
+
+predicati:
+at-robby room 
+at ball room 
+free gripper 
+carry ball gripper
+
+
+funzioni:
+move-time robot
+battery robot
+
+_____________________________________________________________________________________________________________
+
+GOAL:
+at ball room //per ogni palla si ha che la palla si deve trovare in un'altra stanza

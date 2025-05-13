@@ -11,6 +11,12 @@ public class ObjectItem
     public TextMeshProUGUI number;
 }
 
+public class ObjectToAdd
+{
+    public string name;
+    public int number;
+}
+
 [Serializable]
 public class Predicates
 {
@@ -36,6 +42,7 @@ public class MenuManager : MonoBehaviour
     [SerializeField] private List<ObjectItem> logisticObjects;
     [SerializeField] private List<ObjectItem> robotObjects;
     [SerializeField] private List<ObjectItem> elevatorObjects;
+    private List<ObjectToAdd> objectsToAdd;
     
     [Header("PREDICATES")]
     [SerializeField] private GameObject predicateField;
@@ -55,6 +62,7 @@ public class MenuManager : MonoBehaviour
     {
         predicatesAvailable = new Dictionary<string, List<string>>();
         predicatesToAdd = new List<PredicateToAdd>();
+        objectsToAdd = new List<ObjectToAdd>();
     }
 
     public void OpenPredicateField(string name)
