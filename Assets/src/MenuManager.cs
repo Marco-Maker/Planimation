@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
 using TMPro;
 using UnityEngine;
 
@@ -21,13 +22,22 @@ public class ObjectToAdd
 public class Predicates
 {
     public string name;
-    public int problem;// 0 = logistic, 1 = robot, 2 = elevator
+    public int variant; // 0 = normal, 1 = numeric, 2 = temporal
     public List<string> values;
 }
 
 public class PredicateToAdd
 {
     public string name;
+    public List<string> values;
+}
+
+[Serializable]
+public class Goals
+{
+    public string problemName;
+    public string name;
+    public int problem; // 0 = logistic, 1 = robot, 2 = elevator
     public List<string> values;
 }
 public class MenuManager : MonoBehaviour
@@ -46,7 +56,10 @@ public class MenuManager : MonoBehaviour
     
     [Header("PREDICATES")]
     [SerializeField] private GameObject predicateField;
-    [SerializeField] private List<Predicates> predicatesList;
+    [SerializeField] private List<Predicates> logisticPredicatesList;
+    [SerializeField] private List<Predicates> robotPredicatesList;
+    [SerializeField] private List<Predicates> elevatorPredicatesList;
+    private List<Predicates> predicatesList;
     private Dictionary<string, List<string>> predicatesAvailable;
     private List<PredicateToAdd> predicatesToAdd;
 
@@ -55,6 +68,10 @@ public class MenuManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI fieldList;
     [SerializeField] private GameObject fieldOptions;
     [SerializeField] private GameObject predicateOptionPrefab;
+
+    [Header("GOALS")]
+    [SerializeField] private GameObject goalsField;
+    [SerializeField] private List<Goals> goalsList;
 
     private int currentProblem = -1; // -1 = no problem selected, 0 = logistic, 1 = robot, 2 = elevator
 
@@ -73,6 +90,18 @@ public class MenuManager : MonoBehaviour
 
     private void FillPredicates(string name)
     {
+        switch (currentProblem)
+        {
+            case 0:
+                predicatesList = logisticPredicatesList;
+                break;
+            case 1:
+                predicatesList = robotPredicatesList;
+                break;
+            case 2:
+                predicatesList = elevatorPredicatesList;
+                break;
+        }
         foreach (var predicate in predicatesList)
         {
             if(predicate.name == name)
