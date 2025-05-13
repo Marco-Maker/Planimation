@@ -759,6 +759,30 @@ PrefabInstance:
       propertyPath: m_Name
       value: Laundry room
       objectReference: {fileID: 0}
+    - target: {fileID: 7108270980030412700, guid: 1b0e80bedc7fbe2449b4e5e24392afce, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.018
+      objectReference: {fileID: 0}
+    - target: {fileID: 7108270980030412700, guid: 1b0e80bedc7fbe2449b4e5e24392afce, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.018
+      objectReference: {fileID: 0}
+    - target: {fileID: 7108270980030412700, guid: 1b0e80bedc7fbe2449b4e5e24392afce, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.018
+      objectReference: {fileID: 0}
+    - target: {fileID: 7108270980030412700, guid: 1b0e80bedc7fbe2449b4e5e24392afce, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 9.023
+      objectReference: {fileID: 0}
+    - target: {fileID: 7108270980030412700, guid: 1b0e80bedc7fbe2449b4e5e24392afce, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.829
+      objectReference: {fileID: 0}
+    - target: {fileID: 7108270980030412700, guid: 1b0e80bedc7fbe2449b4e5e24392afce, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -19.513
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
