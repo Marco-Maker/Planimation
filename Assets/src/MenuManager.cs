@@ -274,4 +274,9 @@ public class MenuManager : MonoBehaviour
                 break;
         }
     }
+
+    public void OpenGoalsTab()
+    {
+
+    }
 }
