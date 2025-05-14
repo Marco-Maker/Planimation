@@ -71,6 +71,9 @@ public class MenuManager : MonoBehaviour
 
     [Header("GOALS")]
     [SerializeField] private GameObject goalsField;
+    [SerializeField] private GameObject logisticGoalsField;
+    [SerializeField] private GameObject robotGoalsField;
+    [SerializeField] private GameObject elevatorGoalsField;
     [SerializeField] private List<Goals> goalsList;
 
     private int currentProblem = -1; // -1 = no problem selected, 0 = logistic, 1 = robot, 2 = elevator
@@ -304,8 +307,34 @@ public class MenuManager : MonoBehaviour
         }
     }
 
-    public void OpenGoalsTab()
+    public void OpenGoals()
     {
+        goalsField.SetActive(true);
+        switch (currentProblem)
+        {
+            case 0:
+                logisticGoalsField.SetActive(true);
+                robotGoalsField.SetActive(false);
+                elevatorGoalsField.SetActive(false);
+                break;
+            case 1:
+                logisticGoalsField.SetActive(false);
+                robotGoalsField.SetActive(true);
+                elevatorGoalsField.SetActive(false);
+                break;
+            case 2:
+                logisticGoalsField.SetActive(false);
+                robotGoalsField.SetActive(false);
+                elevatorGoalsField.SetActive(true);
+                break;
+        }
+    }
 
+    public void CloseGoals()
+    {
+        goalsField.SetActive(false);
+        logisticGoalsField.SetActive(false);
+        robotGoalsField.SetActive(false);
+        elevatorGoalsField.SetActive(false);
     }
 }
