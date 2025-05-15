@@ -13,6 +13,7 @@ public sealed class PlanInfo
 
     private List<ObjectToAdd> objects;
     private List<PredicateToAdd> predicates;
+    private List<GoalToAdd> goals;
     private PlanInfo(){}
 
     public static PlanInfo GetInstance()
@@ -47,5 +48,13 @@ public sealed class PlanInfo
     public List<PredicateToAdd> GetPredicates()
     {
         return predicates;
+    }
+    public void SetGoals(List<GoalToAdd> goals)
+    {
+        this.goals = goals;
+    }
+    public List<GoalToAdd> GetGoals()
+    {
+        return goals;
     }
 }

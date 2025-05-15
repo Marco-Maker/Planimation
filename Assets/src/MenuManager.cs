@@ -52,6 +52,12 @@ public class Goals
     public List<GoalInput> dropdown;
 }
 
+public class GoalToAdd
+{
+    public string name;
+    public List<string> values;
+}
+
 public class MenuManager : MonoBehaviour
 {
     [Header("COMPOSER")]
@@ -83,11 +89,12 @@ public class MenuManager : MonoBehaviour
 
     [Header("GOALS")]
     [SerializeField] private GameObject goalsField;
+    [SerializeField] private TextMeshProUGUI goalsText;
     [SerializeField] private GameObject logisticGoalsField;
     [SerializeField] private GameObject robotGoalsField;
     [SerializeField] private GameObject elevatorGoalsField;
     [SerializeField] private List<Goals> goalsList;
-    private List<Goals> goalsAvailable;
+    private List<GoalToAdd> goalsToAdd;
 
     private int currentProblem = -1; // -1 = no problem selected, 0 = logistic, 1 = robot, 2 = elevator
 
@@ -96,6 +103,7 @@ public class MenuManager : MonoBehaviour
         predicatesAvailable = new Dictionary<string, List<string>>();
         predicatesToAdd = new List<PredicateToAdd>();
         objectsToAdd = new List<ObjectToAdd>();
+        goalsToAdd = new List<GoalToAdd>();
     }
 
     public void OpenPredicateField(string name)
@@ -128,7 +136,6 @@ public class MenuManager : MonoBehaviour
         }
         fieldTitle.text = name;
         fieldList.text = "";
-        Debug.Log("Length: " + predicatesToAdd.Count);
         foreach (var predicate in predicatesToAdd)
         {
             if (predicate.name == name)
@@ -171,7 +178,6 @@ public class MenuManager : MonoBehaviour
             p.values = new List<string>(); 
             GameObject options = GameObject.Find("PredicateInputOptions");
             p.name = fieldTitle.text;
-            //Debug.Log(p.name);
             foreach (Transform child in options.transform)
             {
                 for(int i = 0; i < child.childCount; i++) {
@@ -180,7 +186,6 @@ public class MenuManager : MonoBehaviour
                         for(int j = 0; j < child.GetChild(j).childCount; j++)
                         {
                             string val = child.GetChild(j).GetComponent<TMP_Dropdown>().options[child.GetChild(j).GetComponent<TMP_Dropdown>().value].text;
-                            //Debug.Log(val);
                             p.values.Add(val);
                         }
                     }
@@ -229,6 +234,10 @@ public class MenuManager : MonoBehaviour
         logisticComposer.SetActive(false);
         robotComposer.SetActive(false);
         elevatorComposer.SetActive(false);
+        objectsToAdd.Clear();
+        predicatesToAdd.Clear();
+        goalsToAdd.Clear();
+        goalsText.text = "";
         currentProblem = -1;
     }
 
@@ -403,6 +412,50 @@ public class MenuManager : MonoBehaviour
         }
     }
 
+    public void AddGoal()
+    {
+        GoalToAdd g = new GoalToAdd();
+        g.values = new List<string>();
+        GameObject options = new GameObject(); //GameObject.Find("GoalsInputOptions")
+        switch (currentProblem)
+        {
+            case 0:
+                options = GameObject.Find("LogisticGoalInputOptions");
+                break;
+            case 1:
+                options = GameObject.Find("RobotGoalInputOptions");
+                break;
+            case 2:
+                options = GameObject.Find("ElevatorGoalInputOptions");
+                break;
+        }
+        foreach (Transform child in options.transform)
+        {
+            if (child.name == "GoalName") { 
+                g.name = child.GetComponent<TextMeshProUGUI>().text.ToLower();
+            }else if (child.name.Contains("Input"))
+            {
+                g.values.Add(child.GetComponentInChildren<TMP_Dropdown>().options[child.GetComponentInChildren<TMP_Dropdown>().value].text);
+            }
+        }
+        goalsToAdd.Add(g);
+        UpdateGoalText();
+    }
+
+    private void UpdateGoalText()
+    {
+        goalsText.text = "";
+        foreach (var g in goalsToAdd)
+        {
+            goalsText.text += g.name + " ";
+            foreach (var value in g.values)
+            {
+                goalsText.text += value + " ";
+            }
+            goalsText.text += "\n";
+        }
+    }
+
     public void CloseGoals()
     {
         goalsField.SetActive(false);
@@ -415,7 +468,10 @@ public class MenuManager : MonoBehaviour
     {
         PlanInfo.GetInstance().SetObjects(objectsToAdd);
         PlanInfo.GetInstance().SetPredicates(predicatesToAdd);
-        //PlanInfo.GetInstance().SetGoals(logisticGoalsField.GetComponent<GoalsSetter>().GetGoals());
+        PlanInfo.GetInstance().SetGoals(goalsToAdd);
+        objectsToAdd.Clear();
+        predicatesToAdd.Clear();
+        goalsToAdd.Clear();
         switch (currentProblem)
         {
             case 0:
