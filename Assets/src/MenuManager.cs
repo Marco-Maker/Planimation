@@ -3,19 +3,23 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Net.Http.Headers;
 using TMPro;
+using UnityEditor.Animations;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 [Serializable]
 public class ObjectItem
 {
     public string name;
+    public string type;
     public TextMeshProUGUI number;
 }
 
 public class ObjectToAdd
 {
     public string name;
-    public int number;
+    public string type;
 }
 
 [Serializable]
@@ -33,13 +37,21 @@ public class PredicateToAdd
 }
 
 [Serializable]
+public class GoalInput
+{
+    public string value;
+    public GameObject dropdown;
+}
+
+[Serializable]
 public class Goals
 {
     public string problemName;
     public string name;
     public int problem; // 0 = logistic, 1 = robot, 2 = elevator
-    public List<string> values;
+    public List<GoalInput> dropdown;
 }
+
 public class MenuManager : MonoBehaviour
 {
     [Header("COMPOSER")]
@@ -53,7 +65,7 @@ public class MenuManager : MonoBehaviour
     [SerializeField] private List<ObjectItem> robotObjects;
     [SerializeField] private List<ObjectItem> elevatorObjects;
     private List<ObjectToAdd> objectsToAdd;
-    
+
     [Header("PREDICATES")]
     [SerializeField] private GameObject predicateField;
     [SerializeField] private List<Predicates> logisticPredicatesList;
@@ -75,6 +87,7 @@ public class MenuManager : MonoBehaviour
     [SerializeField] private GameObject robotGoalsField;
     [SerializeField] private GameObject elevatorGoalsField;
     [SerializeField] private List<Goals> goalsList;
+    private List<Goals> goalsAvailable;
 
     private int currentProblem = -1; // -1 = no problem selected, 0 = logistic, 1 = robot, 2 = elevator
 
@@ -97,12 +110,15 @@ public class MenuManager : MonoBehaviour
         {
             case 0:
                 predicatesList = logisticPredicatesList;
+                FillObjectsToAdd(logisticObjects);
                 break;
             case 1:
                 predicatesList = robotPredicatesList;
+                FillObjectsToAdd(robotObjects);
                 break;
             case 2:
                 predicatesList = elevatorPredicatesList;
+                FillObjectsToAdd(elevatorObjects);
                 break;
         }
         foreach (var predicate in predicatesList)
@@ -112,12 +128,12 @@ public class MenuManager : MonoBehaviour
         }
         fieldTitle.text = name;
         fieldList.text = "";
+        Debug.Log("Length: " + predicatesToAdd.Count);
         foreach (var predicate in predicatesToAdd)
         {
-            Debug.Log(predicate.name + " " + predicate.values.Count);
             if (predicate.name == name)
             {
-                fieldList.text = name + " ";
+                fieldList.text += name + " ";
                 foreach (var value in predicate.values)
                 {
                     fieldList.text += value + " ";
@@ -132,23 +148,19 @@ public class MenuManager : MonoBehaviour
                 {
                     GameObject obj = Instantiate(predicateOptionPrefab, fieldOptions.transform);
                     obj.transform.GetComponentInChildren<PredicateInputSetter>().SetLabel(value);
-                    //Questa è la parte da finire che gestice il dropdown
-                    //obj.transform.GetChild(1).GetComponent<TMP_Dropdown>().ClearOptions();
-                    /*List<string> options = new List<string>();
-                    foreach (var predicate in predicatesList)
+                    obj.transform.GetComponentInChildren<TMP_Dropdown>().ClearOptions();
+                    List<string> options = new List<string>();
+                    foreach (var o in objectsToAdd)
                     {
-                        if (predicate.name == name)
+                        if (o.type.Contains(value) || o.name.Contains(value))
                         {
-                            foreach (var value in predicate.values)
-                            {
-                                options.Add(value);
-                            }
+                            options.Add(o.name);
                         }
+
                     }
-                    obj.transform.GetChild(1).GetComponent<TMP_Dropdown>().AddOptions(options);*/
+                    obj.transform.GetComponentInChildren<TMP_Dropdown>().AddOptions(options);
                 }
         }
-        
     }
 
     public void ClosePredicateField(bool add)
@@ -156,22 +168,24 @@ public class MenuManager : MonoBehaviour
         if (add)
         {
             PredicateToAdd p = new PredicateToAdd();
-            GameObject options = GameObject.Find("PredicatesInputOptions");
+            p.values = new List<string>(); 
+            GameObject options = GameObject.Find("PredicateInputOptions");
+            p.name = fieldTitle.text;
+            //Debug.Log(p.name);
             foreach (Transform child in options.transform)
             {
-                if (child.name == "Title")
-                {
-                    p.name = child.GetComponent<TextMeshProUGUI>().text;
-                }
-                else if (child.name == "InputOptions")
-                {
-                    List<string> values = new List<string>();
-                    foreach (Transform value in child)
+                for(int i = 0; i < child.childCount; i++) {
+                    if (child.GetChild(i).name == "Dropdown")
                     {
-                        values.Add(value.GetComponent<TMP_Dropdown>().options[value.GetComponent<TMP_Dropdown>().value].text);
+                        for(int j = 0; j < child.GetChild(j).childCount; j++)
+                        {
+                            string val = child.GetChild(j).GetComponent<TMP_Dropdown>().options[child.GetChild(j).GetComponent<TMP_Dropdown>().value].text;
+                            //Debug.Log(val);
+                            p.values.Add(val);
+                        }
                     }
-                    p.values = values;
                 }
+                
             }
             predicatesToAdd.Add(p);
         }
@@ -310,23 +324,82 @@ public class MenuManager : MonoBehaviour
     public void OpenGoals()
     {
         goalsField.SetActive(true);
+        
         switch (currentProblem)
         {
             case 0:
                 logisticGoalsField.SetActive(true);
                 robotGoalsField.SetActive(false);
                 elevatorGoalsField.SetActive(false);
+                FillObjectsToAdd(logisticObjects);
                 break;
             case 1:
                 logisticGoalsField.SetActive(false);
                 robotGoalsField.SetActive(true);
                 elevatorGoalsField.SetActive(false);
+                FillObjectsToAdd(robotObjects);
                 break;
             case 2:
                 logisticGoalsField.SetActive(false);
                 robotGoalsField.SetActive(false);
                 elevatorGoalsField.SetActive(true);
+                FillObjectsToAdd(elevatorObjects);
                 break;
+        }
+        FillGoals();
+
+    }
+
+    private void FillObjectsToAdd(List<ObjectItem> l)
+    {
+        objectsToAdd.Clear();
+        foreach (var obj in l)
+        {
+            int count = int.Parse(obj.number.text);
+            if (count > 0)
+            {
+                for (int i = 1; i <= count; i++)
+                {
+                    ObjectToAdd o = new ObjectToAdd();
+                    o.name = obj.name.ToLower() + i;
+                    o.type = obj.type;
+                    objectsToAdd.Add(o);
+                }
+            }
+        }
+    }
+    private void FillGoals()
+    {
+        foreach (var g in goalsList)
+        {
+            if (g.problem == currentProblem)
+            {
+                foreach (var input in g.dropdown)
+                {
+                    TMP_Dropdown dropdown = input.dropdown.GetComponentInChildren<TMP_Dropdown>();
+
+                    if (dropdown != null)
+                    {
+                        dropdown.ClearOptions(); // Rimuove opzioni precedenti
+
+                        List<string> options = new List<string>();
+                        foreach (var obj in objectsToAdd)
+                        {
+                            if (obj.name.StartsWith(input.value))
+                            {
+                                options.Add(obj.name); 
+                            }
+                            
+                        }
+
+                        dropdown.AddOptions(options);
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Dropdown TMP non trovato in " + input.dropdown.name);
+                    }
+                }
+            }
         }
     }
 
@@ -336,5 +409,25 @@ public class MenuManager : MonoBehaviour
         logisticGoalsField.SetActive(false);
         robotGoalsField.SetActive(false);
         elevatorGoalsField.SetActive(false);
+    }
+
+    public void Simulate()
+    {
+        PlanInfo.GetInstance().SetObjects(objectsToAdd);
+        PlanInfo.GetInstance().SetPredicates(predicatesToAdd);
+        //PlanInfo.GetInstance().SetGoals(logisticGoalsField.GetComponent<GoalsSetter>().GetGoals());
+        switch (currentProblem)
+        {
+            case 0:
+                SceneManager.LoadScene("LogisticScene");
+                break;
+            case 1:
+                SceneManager.LoadScene("RobotScene");
+                break;
+            case 2:
+                SceneManager.LoadScene("ElevatorScene");
+                break;
+        }
+        
     }
 }

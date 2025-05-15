@@ -4,10 +4,13 @@ using UnityEngine;
 
 public class LogisticProblemGenerator : MonoBehaviour
 {
+
+    [SerializeField] private GameObject truckPrefab;
+    [SerializeField] private GameObject vanPrefab;
+    [SerializeField] private GameObject packagePrefab;
     [SerializeField] private GameObject cityPrefab;
     [SerializeField] private GameObject locationPrefab;
     [SerializeField] private GameObject airportPrefab;
-    [SerializeField] private GameObject hubPrefab;
     [SerializeField] private GameObject bridgePrefab;
 
     [SerializeField] private int numberOfCities = 3;
@@ -29,44 +32,88 @@ public class LogisticProblemGenerator : MonoBehaviour
 
     void GenerateMap()
     {
-        for (int i = 0; i < numberOfCities; i++)
-        {
-            Vector3 cityPosition = new Vector3(i * citySpacing, 0, 0);
-            GameObject city = Instantiate(cityPrefab, cityPosition, Quaternion.identity, transform);
-            city.name = $"City_{i}";
-            cityList.Add(city);
+        Dictionary<string, List<string>> objectMap = new Dictionary<string, List<string>>();
 
-            for (int j = 0; j < locationsPerCity; j++)
+        // Classifica gli oggetti
+        foreach (var o in PlanInfo.GetInstance().GetObjects())
+        {
+            Debug.Log(o.name);
+            string key = "";
+
+            if (o.name.StartsWith("city"))
+                key = "cities";
+            else if (o.name.StartsWith("location"))
+                key = "locations";
+            else if (o.name.StartsWith("airport"))
+                key = "airports";
+            else if (o.name.StartsWith("hub"))
+                key = "hubs";
+            else if (o.name.StartsWith("truck"))
+                key = "trucks";
+            else if (o.name.StartsWith("van"))
+                key = "vans";
+            else if (o.name.StartsWith("package"))
+                key = "packages";
+            else if (o.name.StartsWith("airplane"))
+                key = "airplanes";
+
+            if (!string.IsNullOrEmpty(key))
             {
-                float angle = j * Mathf.PI * 2 / locationsPerCity;
-                Vector3 offset = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * locationRadius;
-                GameObject location = Instantiate(locationPrefab, cityPosition + offset, Quaternion.identity, city.transform);
-                location.name = $"Location_{i}_{j}";
+                if (!objectMap.ContainsKey(key))
+                    objectMap[key] = new List<string>();
+
+                objectMap[key].Add(o.name);
+            }
+        }
+
+        // Crea le città
+        List<GameObject> cityList = new List<GameObject>();
+        if (objectMap.ContainsKey("cities"))
+        {
+            for (int i = 0; i < objectMap["cities"].Count; i++)
+            {
+                Vector3 cityPosition = new Vector3(i * citySpacing, 0, 0);
+                GameObject city = Instantiate(cityPrefab, cityPosition, Quaternion.identity, transform);
+                city.name = objectMap["cities"][i];
+                cityList.Add(city);
+            }
+        }
+
+        // Crea le location attorno alle città
+        if (objectMap.ContainsKey("locations"))
+        {
+            int locIndex = 0;
+            foreach (GameObject city in cityList)
+            {
+                for (int j = 0; j < 3 && locIndex < objectMap["locations"].Count; j++, locIndex++)
+                {
+                    float angle = j * Mathf.PI * 2 / 3;
+                    Vector3 offset = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * locationRadius;
+                    GameObject location = Instantiate(locationPrefab, city.transform.position + offset, Quaternion.identity, city.transform);
+                    location.name = objectMap["locations"][locIndex];
+                }
             }
         }
 
         // Posiziona aeroporti
-        for (int i = 0; i < numberOfAirports && i < cityList.Count; i++)
+        if (objectMap.ContainsKey("airports"))
         {
-            Instantiate(airportPrefab, cityList[i].transform.position + Vector3.up * 1.5f, Quaternion.identity, cityList[i].transform).name = $"Airport_{i}";
+            for (int i = 0; i < objectMap["airports"].Count && i < cityList.Count; i++)
+            {
+                Instantiate(airportPrefab, cityList[i].transform.position + Vector3.up * 1.5f, Quaternion.identity, cityList[i].transform).name = objectMap["airports"][i];
+            }
         }
 
-        // Posiziona HUB 
-        for (int i = 0; i < numberOfHubs && i < cityList.Count; i++)
-        {
-            Instantiate(hubPrefab, cityList[cityList.Count - 1 - i].transform.position + Vector3.up * 3f, Quaternion.identity, cityList[cityList.Count - 1 - i].transform).name = $"Hub_{i}";
-        }
-
-        // Creazione ponti tra città
+        // Crea ponti tra città
         for (int i = 0; i < cityList.Count - 1; i++)
         {
             Vector3 from = cityList[i].transform.position;
             Vector3 to = cityList[i + 1].transform.position;
             Vector3 bridgePosition = (from + to) / 2f;
-            Vector3 scale = new Vector3(1, 1, Vector3.Distance(from, to));
             GameObject bridge = Instantiate(bridgePrefab, bridgePosition, Quaternion.LookRotation(to - from));
             bridge.transform.localScale = new Vector3(bridgeWidth, 1, Vector3.Distance(from, to));
             bridge.name = $"Bridge_{i}_{i + 1}";
         }
     }
+
 }

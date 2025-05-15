@@ -352,10 +352,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2dfcc11fec5698a45a5c9d1dc5835105, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  truckPrefab: {fileID: 5441920395584112200, guid: c352f7f333fd578479b297fa95361b63, type: 3}
+  vanPrefab: {fileID: 1016149300618942423, guid: 1b6119731f2170247a01fbaf82711031, type: 3}
+  packagePrefab: {fileID: 693960489777712780, guid: b3ebb6315cf2b4645ba865b2ab49dcc8, type: 3}
   cityPrefab: {fileID: 920981745583442722, guid: 77b38c08057ddb645bf5d53d87d205d8, type: 3}
   locationPrefab: {fileID: 6322536280566022838, guid: 55ddba84b43dde145938da2e13b63a0c, type: 3}
-  airportPrefab: {fileID: 0}
-  hubPrefab: {fileID: 0}
+  airportPrefab: {fileID: 6889360370627157327, guid: ce40e1403ace56c4ba6f48fdae85e08c, type: 3}
   bridgePrefab: {fileID: 5549187478074549731, guid: b39aa65f56bfeed4e866c6dd1a3cfa3f, type: 3}
   numberOfCities: 3
   locationsPerCity: 2
