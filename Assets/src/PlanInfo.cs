@@ -12,6 +12,7 @@ public sealed class PlanInfo
     private static string pathProblem = "";
 
     private List<ObjectToAdd> objects;
+    private List<PredicateToAdd> predicates;
     private PlanInfo(){}
 
     public static PlanInfo GetInstance()
@@ -39,4 +40,12 @@ public sealed class PlanInfo
         return objects;
     }
 
+    public void SetPredicates(List<PredicateToAdd> predicates)
+    {
+        this.predicates = predicates;
+    }
+    public List<PredicateToAdd> GetPredicates()
+    {
+        return predicates;
+    }
 }

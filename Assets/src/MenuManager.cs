@@ -414,7 +414,20 @@ public class MenuManager : MonoBehaviour
     public void Simulate()
     {
         PlanInfo.GetInstance().SetObjects(objectsToAdd);
-        //Cambia scena
-        SceneManager.LoadScene("LogisticScene");
+        PlanInfo.GetInstance().SetPredicates(predicatesToAdd);
+        //PlanInfo.GetInstance().SetGoals(logisticGoalsField.GetComponent<GoalsSetter>().GetGoals());
+        switch (currentProblem)
+        {
+            case 0:
+                SceneManager.LoadScene("LogisticScene");
+                break;
+            case 1:
+                SceneManager.LoadScene("RobotScene");
+                break;
+            case 2:
+                SceneManager.LoadScene("ElevatorScene");
+                break;
+        }
+        
     }
 }
