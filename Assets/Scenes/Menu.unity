@@ -6105,6 +6105,7 @@ MonoBehaviour:
   - name: at-robby
     variant: 0
     values:
+    - robot
     - room
   - name: at
     variant: 0

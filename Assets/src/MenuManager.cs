@@ -136,7 +136,6 @@ public class MenuManager : MonoBehaviour
         }
         fieldTitle.text = name;
         fieldList.text = "";
-        Debug.Log("Length: " + predicatesToAdd.Count);
         foreach (var predicate in predicatesToAdd)
         {
             if (predicate.name == name)
@@ -179,7 +178,6 @@ public class MenuManager : MonoBehaviour
             p.values = new List<string>(); 
             GameObject options = GameObject.Find("PredicateInputOptions");
             p.name = fieldTitle.text;
-            //Debug.Log(p.name);
             foreach (Transform child in options.transform)
             {
                 for(int i = 0; i < child.childCount; i++) {
@@ -188,7 +186,6 @@ public class MenuManager : MonoBehaviour
                         for(int j = 0; j < child.GetChild(j).childCount; j++)
                         {
                             string val = child.GetChild(j).GetComponent<TMP_Dropdown>().options[child.GetChild(j).GetComponent<TMP_Dropdown>().value].text;
-                            //Debug.Log(val);
                             p.values.Add(val);
                         }
                     }
@@ -237,6 +234,10 @@ public class MenuManager : MonoBehaviour
         logisticComposer.SetActive(false);
         robotComposer.SetActive(false);
         elevatorComposer.SetActive(false);
+        objectsToAdd.Clear();
+        predicatesToAdd.Clear();
+        goalsToAdd.Clear();
+        goalsText.text = "";
         currentProblem = -1;
     }
 
@@ -428,7 +429,6 @@ public class MenuManager : MonoBehaviour
                 options = GameObject.Find("ElevatorGoalInputOptions");
                 break;
         }
-        Debug.Log("Options: " + options.name);
         foreach (Transform child in options.transform)
         {
             if (child.name == "GoalName") { 
