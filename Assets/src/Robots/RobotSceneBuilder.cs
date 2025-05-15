@@ -36,10 +36,12 @@ public class PDDLSceneBuilder : MonoBehaviour
     [SerializeField] private int roomCount = 4;
 
     [Tooltip("Spacing between adjacent rooms on same side along X axis")]
-    [SerializeField] private float lateralSpacing = 8f;
+    private float lateralSpacing = 15f;
 
     [Tooltip("Distance from corridor center to room centers on Z axis")]
-    [SerializeField] private float frontalSpacing = 12f;
+    private float frontalSpacing = 2f; 
+
+    private const float corridorHeight = 10f; // Width of the corridor segments
 
     [Header("Object Placement via Predicates")]
     [Tooltip("Room index for each Robot (at-robby)")]
@@ -126,7 +128,7 @@ public class PDDLSceneBuilder : MonoBehaviour
         int segCount = Mathf.CeilToInt(roomCount / 2f);
         for (int i = 0; i < segCount; i++)
         {
-            float x = roomOrigin.x + i * lateralSpacing;
+            float x = roomOrigin.x + i * corridorHeight;
             float y = roomOrigin.y;
             float z = roomOrigin.z;
             GameObject cor = Instantiate(corridorPrefab, new Vector3(x, y, z), Quaternion.identity, transform);
