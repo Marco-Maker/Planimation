@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Net.Http.Headers;
 using TMPro;
+using UnityEditor.Animations;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 [Serializable]
@@ -126,11 +128,12 @@ public class MenuManager : MonoBehaviour
         }
         fieldTitle.text = name;
         fieldList.text = "";
+        Debug.Log("Length: " + predicatesToAdd.Count);
         foreach (var predicate in predicatesToAdd)
         {
             if (predicate.name == name)
             {
-                fieldList.text = name + " ";
+                fieldList.text += name + " ";
                 foreach (var value in predicate.values)
                 {
                     fieldList.text += value + " ";
@@ -165,22 +168,24 @@ public class MenuManager : MonoBehaviour
         if (add)
         {
             PredicateToAdd p = new PredicateToAdd();
-            GameObject options = GameObject.Find("PredicatesInputOptions");
+            p.values = new List<string>(); 
+            GameObject options = GameObject.Find("PredicateInputOptions");
+            p.name = fieldTitle.text;
+            //Debug.Log(p.name);
             foreach (Transform child in options.transform)
             {
-                if (child.name == "Title")
-                {
-                    p.name = child.GetComponent<TextMeshProUGUI>().text;
-                }
-                else if (child.name == "InputOptions")
-                {
-                    List<string> values = new List<string>();
-                    foreach (Transform value in child)
+                for(int i = 0; i < child.childCount; i++) {
+                    if (child.GetChild(i).name == "Dropdown")
                     {
-                        values.Add(value.GetComponent<TMP_Dropdown>().options[value.GetComponent<TMP_Dropdown>().value].text);
+                        for(int j = 0; j < child.GetChild(j).childCount; j++)
+                        {
+                            string val = child.GetChild(j).GetComponent<TMP_Dropdown>().options[child.GetChild(j).GetComponent<TMP_Dropdown>().value].text;
+                            //Debug.Log(val);
+                            p.values.Add(val);
+                        }
                     }
-                    p.values = values;
                 }
+                
             }
             predicatesToAdd.Add(p);
         }
@@ -398,12 +403,18 @@ public class MenuManager : MonoBehaviour
         }
     }
 
-
     public void CloseGoals()
     {
         goalsField.SetActive(false);
         logisticGoalsField.SetActive(false);
         robotGoalsField.SetActive(false);
         elevatorGoalsField.SetActive(false);
+    }
+
+    public void Simulate()
+    {
+        PlanInfo.GetInstance().SetObjects(objectsToAdd);
+        //Cambia scena
+        SceneManager.LoadScene("LogisticScene");
     }
 }
