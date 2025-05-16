@@ -39,7 +39,7 @@ public class PDDLSceneBuilder : MonoBehaviour
     private float lateralSpacing = 15f;
 
     [Tooltip("Distance from corridor center to room centers on Z axis")]
-    private float frontalSpacing = 2f; 
+    private float frontalSpacing = 1f; 
 
     private const float corridorHeight = 10f; // Width of the corridor segments
 
