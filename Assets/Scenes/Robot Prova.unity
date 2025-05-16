@@ -352,7 +352,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4475ea1a069c4444898cc3851c3d51f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomPrefab: {fileID: 4984835412866918885, guid: 0a07e6ea34d68854c8fe99ede3298b3a, type: 3}
+  roomPrefabs:
+  - {fileID: 2473890872339404834, guid: 52f5a602f4947e248b15646febc54de4, type: 3}
+  - {fileID: 2132706969861793504, guid: 1d6f55c1a6b038c4182455464e54e757, type: 3}
+  - {fileID: 4685322606264947674, guid: 9a640727d9a77bc4696481b8ba0405d7, type: 3}
+  - {fileID: 7886468406154779504, guid: 63b7fabd22ff9c446a8c546d8c22c320, type: 3}
+  - {fileID: 6191883482560181510, guid: 2e1c56b439372484f8d0431edc1f5685, type: 3}
+  - {fileID: 4984835412866918885, guid: 0a07e6ea34d68854c8fe99ede3298b3a, type: 3}
   corridorPrefab: {fileID: 3337721905383381583, guid: 759b33efc5adca74e8f3f586cc0642b1, type: 3}
   robotPrefab: {fileID: 887932523553627528, guid: 440f3b06c0bb8004d94f9286344dc5e5, type: 3}
   ballPrefab: {fileID: 919132149155446097, guid: f8017459e53100246bfed8a33081fdfc, type: 3}
@@ -360,8 +366,9 @@ MonoBehaviour:
   numberOfRobots: 2
   numberOfBalls: 4
   spacingBetweenRooms: 0
-  generateOnStart: 1
+  lateralGap: 0
   yOffset: 0
+  generateOnStart: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

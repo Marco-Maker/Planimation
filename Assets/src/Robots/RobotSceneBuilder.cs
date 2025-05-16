@@ -1,29 +1,40 @@
+/* CorridorSceneGenerator.cs
+ * genera corridoio + stanze + oggetti in modo parametrico
+ */
 using UnityEngine;
+using System.Collections.Generic;          // <-- per la lista di stanze
 #if UNITY_EDITOR
-using UnityEditor;           // serve solo a leggere l’ingombro dei prefab in Editor
+using UnityEditor;                         // <-- per misurare i prefab e usare Undo
 #endif
 
-[ExecuteAlways]              // così puoi vederlo anche in modalità Edit
+[ExecuteAlways]
 public class CorridorSceneGenerator : MonoBehaviour
 {
-    /* ---------- Prefab da assegnare ---------- */
+    /* ---------- Prefab ---------- */
     [Header("Prefabs")]
-    [SerializeField] private GameObject roomPrefab;
+    [Tooltip("Elenco dei prefab stanza da usare in ordine ciclico")]
+    [SerializeField] private List<GameObject> roomPrefabs = new();   // ← lista, non più singolo prefab
     [SerializeField] private GameObject corridorPrefab;
     [SerializeField] private GameObject robotPrefab;
     [SerializeField] private GameObject ballPrefab;
 
     /* ---------- Quantità ---------- */
     [Header("Quantità")]
-    [Min(1)]  [SerializeField] private int numberOfRooms  = 4;   // stanze totali (pari → stesse per lato)
-    [Min(0)]  [SerializeField] private int numberOfRobots = 2;
-    [Min(0)]  [SerializeField] private int numberOfBalls  = 4;
+    [Min(1)] [SerializeField] private int numberOfRooms  = 4;   // totali (pari = uguali per lato)
+    [Min(0)] [SerializeField] private int numberOfRobots = 2;
+    [Min(0)] [SerializeField] private int numberOfBalls  = 4;
 
-    /* ---------- Parametri di layout ---------- */
+    /* ---------- Layout ---------- */
     [Header("Layout")]
-    [SerializeField] private float spacingBetweenRooms = 0f;     // spazio extra fra le stanze lungo Z
-    [SerializeField] private bool  generateOnStart     = true;   // rigenera in Start
-    [SerializeField] private float yOffset             = 0f;     // alza o abbassa tutto il piano
+    [Tooltip("Spazio extra (Z) fra una stanza e la successiva")]
+    [SerializeField] private float spacingBetweenRooms = .5f;
+    [Tooltip("Eventuale aria fra stanza e corridoio (0 = combacia perfettamente)")]
+    [SerializeField] private float lateralGap = 0f;
+    [SerializeField] private float yOffset = 0f;
+    [SerializeField] private bool generateOnStart = true;
+
+    /* ---------- Cache delle stanze generate ---------- */
+    private readonly List<GameObject> _spawnedRooms = new();
 
     /* ---------- Entry points ---------- */
     private void Start()
@@ -32,11 +43,92 @@ public class CorridorSceneGenerator : MonoBehaviour
             Generate();
     }
 
-    /// <summary>Richiamabile dal menù contestuale per rigenerare la scena in qualsiasi momento.</summary>
     [ContextMenu("Generate")]
     public void Generate()
     {
-        /* 1. Pulisce tutto ciò che era già stato generato */
+        ClearChildren();
+
+        if (roomPrefabs is null || roomPrefabs.Count == 0)
+        {
+            Debug.LogWarning("Nessun prefab di stanza assegnato.");
+            return;
+        }
+
+        /* ===== 1. Calcola ingombri ===== */
+        Vector3 firstRoomSize = GetPrefabSize(roomPrefabs[0]);   // usiamo la prima come riferimento
+        Vector3 corridorSize  = GetPrefabSize(corridorPrefab);
+
+        int    roomsPerSide   = Mathf.CeilToInt(numberOfRooms / 2f);
+
+        /* ===== 2. Genera i segmenti del corridoio ===== */
+        float corridorTotalLen = roomsPerSide * corridorSize.z;              // un pezzo per stanza
+        float corridorStartZ   = -corridorTotalLen * .5f + corridorSize.z*.5f;
+
+        for (int i = 0; i < roomsPerSide; i++)
+        {
+            Vector3 pos = new Vector3(0, yOffset, corridorStartZ + i * corridorSize.z);
+            GameObject piece = Instantiate(corridorPrefab, pos, Quaternion.identity, transform);
+#if UNITY_EDITOR
+            Undo.RegisterCreatedObjectUndo(piece, "Generate Corridor Piece");
+#endif
+        }
+
+        float corridorHalfWidth = corridorSize.x * .5f;                       // metà larghezza reale
+
+        /* ===== 3. Genera le stanze ===== */
+        float totalRowLen = roomsPerSide * firstRoomSize.z +
+                            (roomsPerSide - 1) * spacingBetweenRooms;
+        float roomStartZ  = -totalRowLen * .5f + firstRoomSize.z * .5f;
+
+        for (int i = 0; i < numberOfRooms; i++)
+        {
+            bool  leftSide = (i % 2 == 0);                   // pari = sinistra, dispari = destra
+            int   index    =  i / 2;                        // posizione lungo il corridoio
+            float zPos     = roomStartZ + index * (firstRoomSize.z + spacingBetweenRooms);
+
+            float roomDepth = firstRoomSize.z;              // lato che “tocca” il corridoio
+            float xPos      = corridorHalfWidth + lateralGap + roomDepth * .5f;
+
+            Vector3    pos      = new(leftSide ? -xPos : xPos, yOffset, zPos);
+            Quaternion rot      = leftSide ? Quaternion.Euler(0, -90, 0)
+                                           : Quaternion.Euler(0,  90, 0);
+
+            GameObject prefab = roomPrefabs[i % roomPrefabs.Count];
+            GameObject room   = Instantiate(prefab, pos, rot, transform);
+            _spawnedRooms.Add(room);
+
+#if UNITY_EDITOR
+            Undo.RegisterCreatedObjectUndo(room, "Generate Room");
+#endif
+        }
+
+        /* ===== 4. Popola le stanze con robot e palline ===== */
+        PlaceObjectsInsideRooms(robotPrefab, numberOfRobots);
+        PlaceObjectsInsideRooms(ballPrefab,  numberOfBalls);
+    }
+
+    /* ====================================================================== */
+    /* ===========================   HELPERS   ============================== */
+    /* ====================================================================== */
+
+    /// <summary>Posiziona 'count' oggetti all'interno delle stanze (localPosition = (1,1,1)).</summary>
+    private void PlaceObjectsInsideRooms(GameObject prefab, int count)
+    {
+        if (prefab == null || count <= 0 || _spawnedRooms.Count == 0) return;
+
+        for (int i = 0; i < count; i++)
+        {
+            GameObject room = _spawnedRooms[i % _spawnedRooms.Count];
+
+            // posizione locale (1,1,1) → convertita in mondo, poi parentata alla stanza
+            Vector3 worldPos = room.transform.TransformPoint(new Vector3(1f, 1f, 1f));
+            Instantiate(prefab, worldPos, Quaternion.identity, room.transform);
+        }
+    }
+
+    /// <summary>Rimuove tutto ciò che era stato generato in precedenza.</summary>
+    private void ClearChildren()
+    {
 #if UNITY_EDITOR
         while (transform.childCount > 0)
             DestroyImmediate(transform.GetChild(0).gameObject);
@@ -44,69 +136,17 @@ public class CorridorSceneGenerator : MonoBehaviour
         foreach (Transform ch in transform)
             Destroy(ch.gameObject);
 #endif
-
-        /* 2. Calcola le dimensioni reali dei prefab */
-        Vector3 roomSize     = GetPrefabSize(roomPrefab);      // larghezza = X, profondità = Z
-        Vector3 corridorSize = GetPrefabSize(corridorPrefab);  // useremo la X come larghezza corridoio
-
-        int roomsPerSide   = Mathf.CeilToInt(numberOfRooms / 2f);
-        float corridorLen  = roomsPerSide * roomSize.z + (roomsPerSide - 1) * spacingBetweenRooms;
-        float halfCorridor = corridorSize.x * 0.5f;
-
-        /* 3. Istanzia il corridoio e lo scala in lunghezza */
-        GameObject corridor = Instantiate(corridorPrefab, transform);
-        corridor.transform.localPosition = new Vector3(0, yOffset, 0);
-        Vector3 cScale = corridor.transform.localScale;
-        cScale.z = corridorLen / corridorSize.z;               // lo stiriamo lungo Z
-        corridor.transform.localScale = cScale;
-
-        /* 4. Posiziona le stanze sui due lati, orientate verso il corridoio */
-        float startZ = -corridorLen + roomSize.z * 0.5f;
-
-        for (int i = 0; i < numberOfRooms; i++)
-        {
-            bool  leftSide = (i % 2 == 0);                 // pari a sinistra, dispari a destra
-            int   index    =  i / 2;                       // posizione lungo il corridoio
-            float zPos     = startZ + index * (roomSize.z + spacingBetweenRooms);
-            float xPos     = halfCorridor + roomSize.x * 0.5f;
-
-            Vector3    pos      = new Vector3(leftSide ? -xPos : xPos, yOffset, zPos);
-            Quaternion rotation = leftSide ? Quaternion.Euler(0, 90, 0) : Quaternion.Euler(0, -90, 0);
-
-            Instantiate(roomPrefab, pos, rotation, transform);
-        }
-
-        /* 5. Popola il corridoio con robot e palline */
-        SpawnInsideCorridor(robotPrefab, numberOfRobots, corridorSize.x, corridorLen, yOffset);
-        SpawnInsideCorridor(ballPrefab,  numberOfBalls,  corridorSize.x, corridorLen, yOffset + 0.25f);
+        _spawnedRooms.Clear();
     }
 
-    /* ---------- Helpers ---------- */
-
-    /// <summary>Inserisce 'count' istanze del prefab in posizioni casuali dentro al corridoio.</summary>
-    private void SpawnInsideCorridor(GameObject prefab, int count, float corridorWidth, float corridorLen, float y)
-    {
-        if (prefab == null || count <= 0) return;
-
-        float halfW = corridorWidth * 0.5f - 0.25f;   // margine di sicurezza
-        float halfL = corridorLen    * 0.5f - 0.25f;
-
-        for (int i = 0; i < count; i++)
-        {
-            Vector3 p = new Vector3(Random.Range(-halfW, halfW), y, Random.Range(-halfL, halfL));
-            Instantiate(prefab, p, Quaternion.identity, transform);
-        }
-    }
-
-    /// <summary>Restituisce le dimensioni reali (AABB) del prefab.</summary>
+    /// <summary>Restituisce le dimensioni AABB del prefab.</summary>
     private Vector3 GetPrefabSize(GameObject prefab)
     {
         if (prefab == null) return Vector3.one;
 
 #if UNITY_EDITOR
-        // Creiamo un'istanza temporanea per misurarla (solo in Editor)
         GameObject temp = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
-        Vector3 size = CalculateBounds(temp).size;
+        Vector3 size     = CalculateBounds(temp).size;
         DestroyImmediate(temp);
         return size;
 #else
