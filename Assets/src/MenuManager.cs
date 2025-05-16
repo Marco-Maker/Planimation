@@ -469,9 +469,9 @@ public class MenuManager : MonoBehaviour
         PlanInfo.GetInstance().SetObjects(objectsToAdd);
         PlanInfo.GetInstance().SetPredicates(predicatesToAdd);
         PlanInfo.GetInstance().SetGoals(goalsToAdd);
-        objectsToAdd.Clear();
-        predicatesToAdd.Clear();
-        goalsToAdd.Clear();
+        //objectsToAdd.Clear();
+        //predicatesToAdd.Clear();
+        //goalsToAdd.Clear();
         switch (currentProblem)
         {
             case 0:

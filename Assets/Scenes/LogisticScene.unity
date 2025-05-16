@@ -352,6 +352,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2dfcc11fec5698a45a5c9d1dc5835105, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  airplanePrefab: {fileID: 4161148798313326737, guid: 16d174d0c1b919b40b2fbc6d6228abee, type: 3}
   truckPrefab: {fileID: 5441920395584112200, guid: c352f7f333fd578479b297fa95361b63, type: 3}
   vanPrefab: {fileID: 1016149300618942423, guid: 1b6119731f2170247a01fbaf82711031, type: 3}
   packagePrefab: {fileID: 693960489777712780, guid: b3ebb6315cf2b4645ba865b2ab49dcc8, type: 3}

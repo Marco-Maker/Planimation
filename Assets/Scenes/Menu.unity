@@ -1738,8 +1738,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 197.99, y: -170.04}
-  m_SizeDelta: {x: 227.3692, y: 195.83}
+  m_AnchoredPosition: {x: 188.9, y: -178.42}
+  m_SizeDelta: {x: 236.6462, y: 212.6001}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &85941882
 MonoBehaviour:
@@ -1761,7 +1761,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 1102d00569e59c043b9d13e3b921d506, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 1231523a805b5654b8fbbf059010f1ce, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -5720,7 +5720,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &356161100
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6042,22 +6042,22 @@ MonoBehaviour:
   elevatorComposer: {fileID: 517230419}
   logisticObjects:
   - name: airplane
-    type: vehicle-physobj
+    type: vehicle-physobj-object
     number: {fileID: 1100275985}
   - name: airport
-    type: place-physobj
+    type: place-object
     number: {fileID: 2044006825}
   - name: city
-    type: physobj
+    type: object
     number: {fileID: 37574303}
   - name: location
-    type: place-physobj
+    type: place-object
     number: {fileID: 1437998436}
   - name: package
-    type: physobj
+    type: physobj-object
     number: {fileID: 161556074}
   - name: truck
-    type: vehicle-physobj
+    type: vehicle-physobj-object
     number: {fileID: 1230345047}
   robotObjects:
   - name: room
@@ -14772,7 +14772,7 @@ GameObject:
   - component: {fileID: 1066484237}
   - component: {fileID: 1066484236}
   m_Layer: 5
-  m_Name: LogisticLogo
+  m_Name: ElevatorLogo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14794,8 +14794,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 197.99, y: -170.04}
-  m_SizeDelta: {x: 227.3692, y: 195.83}
+  m_AnchoredPosition: {x: 195.56, y: -175.7}
+  m_SizeDelta: {x: 245.5665, y: 222.2339}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1066484236
 MonoBehaviour:
@@ -14817,7 +14817,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 1102d00569e59c043b9d13e3b921d506, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 5b075d4ea37db5e49bd9e28b781e69c1, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -20457,7 +20457,7 @@ GameObject:
   - component: {fileID: 1460822318}
   - component: {fileID: 1460822317}
   m_Layer: 5
-  m_Name: LogisticLogo
+  m_Name: RobotLogo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -20479,8 +20479,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 197.99, y: -170.04}
-  m_SizeDelta: {x: 227.3692, y: 195.83}
+  m_AnchoredPosition: {x: 197.99, y: -174.3}
+  m_SizeDelta: {x: 247.3505, y: 219.3794}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1460822317
 MonoBehaviour:
@@ -20502,7 +20502,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 1102d00569e59c043b9d13e3b921d506, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b9e3f0837a4bdc44eaca133f99275ab4, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
