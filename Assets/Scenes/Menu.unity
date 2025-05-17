@@ -6042,42 +6042,42 @@ MonoBehaviour:
   elevatorComposer: {fileID: 517230419}
   logisticObjects:
   - name: airplane
-    type: vehicle-physobj-object
+    type: airplane-vehicle-physobj-object
     number: {fileID: 1100275985}
   - name: airport
-    type: place-object
+    type: airport-place-object
     number: {fileID: 2044006825}
   - name: city
-    type: object
+    type: city-object
     number: {fileID: 37574303}
   - name: location
-    type: place-object
+    type: location-place-object
     number: {fileID: 1437998436}
   - name: package
-    type: physobj-object
+    type: package-physobj-object
     number: {fileID: 161556074}
   - name: truck
-    type: vehicle-physobj-object
+    type: truck-vehicle-physobj-object
     number: {fileID: 1230345047}
   robotObjects:
   - name: room
-    type: 
+    type: room
     number: {fileID: 50418187}
   - name: ball
-    type: 
+    type: ball
     number: {fileID: 1805001976}
   - name: robot
-    type: 
+    type: robot
     number: {fileID: 594600170}
   elevatorObjects:
   - name: floor
-    type: 
+    type: floor
     number: {fileID: 1831643539}
   - name: person
-    type: 
+    type: person
     number: {fileID: 200889886}
   - name: elevator
-    type: 
+    type: elevator
     number: {fileID: 175833101}
   predicateField: {fileID: 1321840883}
   logisticPredicatesList:
@@ -6197,6 +6197,7 @@ MonoBehaviour:
     dropdown:
     - value: person
       dropdown: {fileID: 1313387313}
+  generator: {fileID: 593620752}
 --- !u!4 &379497525
 Transform:
   m_ObjectHideFlags: 0
@@ -8520,6 +8521,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 577129561}
   m_CullTransparentMesh: 1
+--- !u!1 &593620751
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 593620753}
+  - component: {fileID: 593620752}
+  m_Layer: 0
+  m_Name: Generator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &593620752
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 593620751}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95ad11691fdf85b40a2db78d9f4654f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  saveToFile: 1
+--- !u!4 &593620753
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 593620751}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 83.192604, y: 98.125175, z: -12.583533}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &594600167
 GameObject:
   m_ObjectHideFlags: 0
@@ -27919,3 +27965,4 @@ SceneRoots:
   - {fileID: 1057200347}
   - {fileID: 1891408332}
   - {fileID: 379497525}
+  - {fileID: 593620753}

@@ -96,6 +96,9 @@ public class MenuManager : MonoBehaviour
     [SerializeField] private List<Goals> goalsList;
     private List<GoalToAdd> goalsToAdd;
 
+    [Header("GENERATOR")]
+    [SerializeField] private ProblemGenerator generator;
+
     private int currentProblem = -1; // -1 = no problem selected, 0 = logistic, 1 = robot, 2 = elevator
 
     private void Start()
@@ -452,6 +455,7 @@ public class MenuManager : MonoBehaviour
             {
                 goalsText.text += value + " ";
             }
+            Debug.Log(goalsText.text);
             goalsText.text += "\n";
         }
     }
@@ -472,6 +476,7 @@ public class MenuManager : MonoBehaviour
         //objectsToAdd.Clear();
         //predicatesToAdd.Clear();
         //goalsToAdd.Clear();
+        generator.GenerateAndSave();
         switch (currentProblem)
         {
             case 0:
