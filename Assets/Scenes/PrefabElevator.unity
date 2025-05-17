@@ -122,6 +122,44 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &298236303 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7539969370566537306, guid: e4194b794bb723b4b970d0a6f20b2e15, type: 3}
+  m_PrefabInstance: {fileID: 6488319902827401205}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &298236305
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 298236303}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f72cba1e756394b4c93d4b979d6cb584, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!95 &298236306
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 298236303}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 815d09f98d74bcb4fbb8f6758a374e84, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &522683632
 GameObject:
   m_ObjectHideFlags: 0
@@ -363,7 +401,13 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7539969370566537306, guid: e4194b794bb723b4b970d0a6f20b2e15, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 298236306}
+    - targetCorrespondingSourceObject: {fileID: 7539969370566537306, guid: e4194b794bb723b4b970d0a6f20b2e15, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 298236305}
   m_SourcePrefab: {fileID: 100100000, guid: e4194b794bb723b4b970d0a6f20b2e15, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
