@@ -14,17 +14,10 @@ public class LogisticProblemGenerator : MonoBehaviour
     [SerializeField] private GameObject airportPrefab;
     [SerializeField] private GameObject bridgePrefab;
 
-    [SerializeField] private int numberOfCities = 3;
-    [SerializeField] private int locationsPerCity = 3;
-    [SerializeField] private int numberOfAirports = 0;
-    [SerializeField] private int numberOfHubs = 0;
-
     [SerializeField] private float cityRadius = 100f;
     [SerializeField] private float bridgeWidth = 25f;
     [SerializeField] private float citySpacing = 150f;
     [SerializeField] private float locationRadius = 25f;
-
-    private List<GameObject> cityList = new List<GameObject>();
 
     void Start()
     {
