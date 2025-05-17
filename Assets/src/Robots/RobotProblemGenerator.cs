@@ -7,8 +7,8 @@ public class RobotProblemGenerator : MonoBehaviour
     [SerializeField] private GameObject robotPrefab;
     [SerializeField] private GameObject ballPrefab;
     [SerializeField] private GameObject corridorPrefab;
-    
-    [SerializeField] private float corridorHeightOffset = 0.01f; // leggera altezza per non intersecare
+
+    [SerializeField] private float corridorHeightOffset = 0.01f;
     [SerializeField] private float corridorWidth = 1.5f;
     [SerializeField] private float roomSpacing = 6f;
 
@@ -21,14 +21,13 @@ public class RobotProblemGenerator : MonoBehaviour
     {
         var planInfo = PlanInfo.GetInstance();
 
-        Dictionary<string, string> atRobbyMap = new();   // robot → room
-        Dictionary<string, string> atBallMap = new();    // ball → room
-        Dictionary<string, string> carryMap = new();     // robot → ball
-        HashSet<string> freeRobots = new();              // robot
-        Dictionary<string, List<string>> allowedMap = new(); // robot → rooms
-        List<(string, string)> connectedRooms = new();   // roomA ↔ roomB
+        Dictionary<string, string> atRobbyMap = new();
+        Dictionary<string, string> atBallMap = new();
+        Dictionary<string, string> carryMap = new();
+        HashSet<string> freeRobots = new();
+        Dictionary<string, List<string>> allowedMap = new();
+        List<(string, string)> connectedRooms = new();
 
-        // 🔹1. Leggi i predicati
         foreach (var p in planInfo.GetPredicates())
         {
             switch (p.name)
@@ -56,19 +55,20 @@ public class RobotProblemGenerator : MonoBehaviour
             }
         }
 
-        // 🔹2. Crea le stanze
         Dictionary<string, GameObject> roomObjects = new();
         List<string> roomNames = new List<string>(GetUniqueRooms(atRobbyMap, atBallMap, connectedRooms));
+        Dictionary<string, Vector2Int> roomGridPositions = AssignGridPositions(roomNames, connectedRooms);
 
-        for (int i = 0; i < roomNames.Count; i++)
+        foreach (var kvp in roomGridPositions)
         {
-            Vector3 pos = new Vector3((i % 2 == 0 ? -1 : 1) * roomSpacing, 0, -(i / 2) * roomSpacing);
-            GameObject roomGO = Instantiate(roomPrefab, pos, Quaternion.identity, transform);
-            roomGO.name = roomNames[i];
-            roomObjects[roomNames[i]] = roomGO;
+            string room = kvp.Key;
+            Vector2Int gridPos = kvp.Value;
+            Vector3 worldPos = new Vector3(gridPos.x * roomSpacing, 0, gridPos.y * roomSpacing);
+            GameObject roomGO = Instantiate(roomPrefab, worldPos, Quaternion.identity, transform);
+            roomGO.name = room;
+            roomObjects[room] = roomGO;
         }
 
-        // 🔹3. Crea i robot
         foreach (var kvp in atRobbyMap)
         {
             string robot = kvp.Key;
@@ -79,7 +79,6 @@ public class RobotProblemGenerator : MonoBehaviour
             GameObject robotGO = Instantiate(robotPrefab, roomObjects[room].transform.position + Vector3.up, Quaternion.identity, roomObjects[room].transform);
             robotGO.name = robot;
 
-            // Se trasporta una ball
             if (carryMap.ContainsKey(robot))
             {
                 string ball = carryMap[robot];
@@ -88,7 +87,6 @@ public class RobotProblemGenerator : MonoBehaviour
             }
         }
 
-        // 🔹4. Crea le ball nelle stanze
         foreach (var kvp in atBallMap)
         {
             string ball = kvp.Key;
@@ -100,14 +98,8 @@ public class RobotProblemGenerator : MonoBehaviour
             ballGO.name = ball;
         }
 
-        // 🔹5. Visualizza connessioni tra stanze (debug o ponti futuri)
-        foreach (var (roomA, roomB) in connectedRooms)
-        {
-            if (roomObjects.ContainsKey(roomA) && roomObjects.ContainsKey(roomB))
-            {
-                Debug.DrawLine(roomObjects[roomA].transform.position, roomObjects[roomB].transform.position, Color.green, 10f);
-            }
-        }
+        float roomSize = 4f; // Lato della stanza (assunto quadrato)
+        float corridorLength = roomSpacing - roomSize;
 
         foreach (var (roomA, roomB) in connectedRooms)
         {
@@ -116,16 +108,25 @@ public class RobotProblemGenerator : MonoBehaviour
                 Vector3 posA = roomObjects[roomA].transform.position;
                 Vector3 posB = roomObjects[roomB].transform.position;
 
-                Vector3 centerPos = (posA + posB) / 2f + Vector3.up * corridorHeightOffset;
-                Vector3 dir = posB - posA;
-                float distance = dir.magnitude;
+                Vector3 dir = (posB - posA).normalized;
 
-                GameObject corridor = Instantiate(corridorPrefab, centerPos, Quaternion.LookRotation(dir), transform);
-                corridor.transform.localScale = new Vector3(corridorWidth, 1f, distance);
+                // Calcola i bordi delle due stanze (centro ± metà stanza)
+                Vector3 edgeA = posA + dir * (roomSize / 2f);
+                Vector3 edgeB = posB - dir * (roomSize / 2f);
+
+                Vector3 corridorCenter = (edgeA + edgeB) / 2f;
+                corridorCenter.y += corridorHeightOffset;
+
+                float corridorLengthReal = Vector3.Distance(edgeA, edgeB);
+
+                Quaternion rotation = Quaternion.LookRotation(posB - posA);
+                rotation = Quaternion.Euler(0, rotation.eulerAngles.y, 0); // solo asse Y
+
+                GameObject corridor = Instantiate(corridorPrefab, corridorCenter, rotation, transform);
+                corridor.transform.localScale = new Vector3(1f, 1f, 1f);
                 corridor.name = $"Corridor_{roomA}_{roomB}";
             }
         }
-
     }
 
     private HashSet<string> GetUniqueRooms(Dictionary<string, string> atRobby, Dictionary<string, string> atBall, List<(string, string)> connections)
@@ -139,5 +140,59 @@ public class RobotProblemGenerator : MonoBehaviour
             rooms.Add(b);
         }
         return rooms;
+    }
+
+    // Aggiunta: assegna posizioni griglia (rudimentale)
+    private Dictionary<string, Vector2Int> AssignGridPositions(List<string> rooms, List<(string, string)> connections)
+    {
+        Dictionary<string, Vector2Int> grid = new();
+        Queue<(string, Vector2Int)> toVisit = new();
+        HashSet<string> visited = new();
+
+        if (rooms.Count == 0) return grid;
+
+        string startRoom = rooms[0];
+        grid[startRoom] = Vector2Int.zero;
+        toVisit.Enqueue((startRoom, Vector2Int.zero));
+        visited.Add(startRoom);
+
+        while (toVisit.Count > 0)
+        {
+            var (room, pos) = toVisit.Dequeue();
+
+            foreach (var (a, b) in connections)
+            {
+                string neighbor = null;
+                if (a == room && !visited.Contains(b)) neighbor = b;
+                else if (b == room && !visited.Contains(a)) neighbor = a;
+
+                if (neighbor != null)
+                {
+                    Vector2Int newPos = GetNextFreeNeighborPosition(grid, pos);
+                    grid[neighbor] = newPos;
+                    toVisit.Enqueue((neighbor, newPos));
+                    visited.Add(neighbor);
+                }
+            }
+        }
+
+        return grid;
+    }
+
+    private Vector2Int GetNextFreeNeighborPosition(Dictionary<string, Vector2Int> grid, Vector2Int origin)
+    {
+        Vector2Int[] directions = new[]
+        {
+            Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left
+        };
+
+        foreach (var dir in directions)
+        {
+            Vector2Int candidate = origin + dir;
+            if (!grid.ContainsValue(candidate))
+                return candidate;
+        }
+
+        return origin + Vector2Int.one; // fallback
     }
 }
