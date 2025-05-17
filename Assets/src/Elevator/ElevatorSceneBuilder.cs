@@ -17,7 +17,7 @@ using UnityEngine;
 ///   da poterla cancellare/rigenerare facilmente.
 /// </summary>
 
-/*
+/*s
 public class ElevatorSceneBuilder : MonoBehaviour
 {
     #region Public parameters (Inspector)
