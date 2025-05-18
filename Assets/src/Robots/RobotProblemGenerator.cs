@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class RobotProblemGenerator : MonoBehaviour
 {
-    [SerializeField] private GameObject roomPrefab;
+    [SerializeField] private List<GameObject> roomsPrefab;
+    private int roomCounter = 0;
     [SerializeField] private GameObject robotPrefab;
     [SerializeField] private GameObject ballPrefab;
     [SerializeField] private GameObject corridorPrefab;
@@ -102,7 +103,8 @@ public class RobotProblemGenerator : MonoBehaviour
             Vector3 worldPos = new Vector3(gridPos.x * roomSpacing, 0, gridPos.y * roomSpacing);
 
             // Crea la stanza
-            GameObject roomGO = Instantiate(roomPrefab, worldPos, Quaternion.identity, transform);
+            GameObject roomGO = Instantiate(roomsPrefab[roomCounter%roomsPrefab.Count], worldPos, Quaternion.identity, transform);
+            roomCounter++;
             roomGO.name = roomName;
             roomObjects[roomName] = roomGO;
             placedRooms.Add(roomName);

@@ -5176,7 +5176,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &280849892
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5195,7 +5195,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 392.335, y: -553.7018}
+  m_AnchoredPosition: {x: 392.335, y: -539.238}
   m_SizeDelta: {x: 784.67, y: 66.0094}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &304604736
@@ -10782,7 +10782,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &753666920
 RectTransform:
   m_ObjectHideFlags: 0
@@ -10801,7 +10801,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 392.335, y: -380.1361}
+  m_AnchoredPosition: {x: 392.335, y: -336.7447}
   m_SizeDelta: {x: 784.67, y: 66.0094}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &761042228
@@ -14661,7 +14661,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 392.335, y: -119.78755}
+  m_AnchoredPosition: {x: 392.335, y: -184.8747}
   m_SizeDelta: {x: 784.67, y: 66.0094}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1057200343
@@ -16469,7 +16469,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 392.335, y: -206.5704}
+  m_AnchoredPosition: {x: 392.335, y: -336.7447}
   m_SizeDelta: {x: 784.67, y: 66.0094}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1174597391
@@ -17126,7 +17126,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 392.335, y: -466.91895}
+  m_AnchoredPosition: {x: 392.335, y: -488.6147}
   m_SizeDelta: {x: 784.67, y: 66.0094}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1221033635
