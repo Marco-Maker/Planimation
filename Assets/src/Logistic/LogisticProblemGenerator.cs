@@ -78,17 +78,87 @@ public class LogisticProblemGenerator : MonoBehaviour
             }
         }
 
-        // 🔹 3. Crea le città
+        // 🔹 3. Crea le città in modo radiale attorno alle città collegate
         Dictionary<string, GameObject> cityGameObjects = new Dictionary<string, GameObject>();
-        if (objectMap.ContainsKey("cities"))
+        HashSet<string> placedCities = new HashSet<string>();
+        Dictionary<string, List<string>> cityAdjacency = new Dictionary<string, List<string>>();
+
+        // Mappa città → città collegate
+        foreach (var (a, b) in cityLinks)
         {
-            for (int i = 0; i < objectMap["cities"].Count; i++)
+            if (!cityAdjacency.ContainsKey(a)) cityAdjacency[a] = new List<string>();
+            if (!cityAdjacency.ContainsKey(b)) cityAdjacency[b] = new List<string>();
+            cityAdjacency[a].Add(b);
+            cityAdjacency[b].Add(a);
+        }
+
+        // Posizioni già usate (con tolleranza)
+        List<Vector3> usedPositions = new List<Vector3>();
+
+        bool IsPositionOccupied(Vector3 pos, float threshold = 1f)
+        {
+            foreach (var p in usedPositions)
             {
-                Vector3 cityPosition = new Vector3(i * citySpacing, 0, 0);
-                GameObject city = Instantiate(cityPrefab, cityPosition, Quaternion.identity, transform);
-                city.name = objectMap["cities"][i];
-                cityGameObjects[city.name] = city;
+                if (Vector3.Distance(p, pos) < threshold)
+                    return true;
             }
+            return false;
+        }
+
+        void PlaceCity(string cityName, Vector3 position, string parentCity = null, int depth = 0)
+        {
+            if (placedCities.Contains(cityName)) return;
+
+            if (IsPositionOccupied(position))
+            {
+                // Cerca una posizione libera attorno
+                const int maxAttempts = 12;
+                for (int i = 0; i < maxAttempts; i++)
+                {
+                    float angle = i * Mathf.PI * 2 / maxAttempts;
+                    Vector3 tryOffset = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * citySpacing;
+                    Vector3 tryPosition = position + tryOffset;
+
+                    if (!IsPositionOccupied(tryPosition))
+                    {
+                        position = tryPosition;
+                        break;
+                    }
+                }
+            }
+
+            GameObject city = Instantiate(cityPrefab, position, Quaternion.identity, transform);
+            city.name = cityName;
+            cityGameObjects[cityName] = city;
+            placedCities.Add(cityName);
+            usedPositions.Add(position);
+
+            if (!cityAdjacency.ContainsKey(cityName)) return;
+
+            List<string> neighbors = cityAdjacency[cityName];
+
+            float angleStep = 360f / Mathf.Max(neighbors.Count, 1);
+            float baseAngle = Random.Range(0f, 360f); // per varietà
+
+            int index = 0;
+            foreach (var neighbor in neighbors)
+            {
+                if (placedCities.Contains(neighbor)) continue;
+
+                float angle = (baseAngle + index * angleStep) * Mathf.Deg2Rad;
+                Vector3 offset = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * citySpacing;
+                Vector3 neighborPosition = position + offset;
+
+                PlaceCity(neighbor, neighborPosition, cityName, depth + 1);
+                index++;
+            }
+        }
+
+
+        if (objectMap.ContainsKey("cities") && objectMap["cities"].Count > 0)
+        {
+            string startCity = objectMap["cities"][0];
+            PlaceCity(startCity, Vector3.zero);
         }
 
         // 🔹 4. Crea locations e airports usando in-city
@@ -194,5 +264,5 @@ public class LogisticProblemGenerator : MonoBehaviour
         }
     }
 
-
+    
 }
