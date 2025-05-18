@@ -1,15 +1,14 @@
 ﻿(define (problem problem)
 	(:domain logistics)
 	(:objects
-		room1 room2 room3 room4 room5 room6 room7 room8 - room
+		floor1 floor2 floor3 - floor
+		elevator1 elevator2 - elevator
 	)
 	(:init
-		(connected room1 room2)
-		(connected room1 room3)
-		(connected room1 room4)
-		(connected room2 room5)
-		(connected room3 room6)
-		(connected room4 room8)
+		(at-elevator elevator1 floor1)
+		(at-elevator elevator2 floor1)
+		(above floor2 floor1)
+		(above floor3 floor2)
 	)
 	(:goal
 		(and

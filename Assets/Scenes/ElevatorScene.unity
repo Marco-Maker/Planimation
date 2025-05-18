@@ -352,11 +352,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24862bc6cc1c0ac4ab42d83081506aba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  floorPrefab: {fileID: 3131805738769124880, guid: 4eabf685c88955443a53d294ddca4e28, type: 3}
+  floorsPrefab:
+  - {fileID: 3131805738769124880, guid: 4eabf685c88955443a53d294ddca4e28, type: 3}
+  - {fileID: 8339411736188526509, guid: 54250a52a78f9f549a45abaa42eca6cd, type: 3}
+  - {fileID: 2312586023387164891, guid: 68fe10f356c91f3489ec06560ed81982, type: 3}
+  - {fileID: 3984598976314022733, guid: 6eb0eba8d8ff6734eb8e014403f9dfe1, type: 3}
+  - {fileID: 2323292540459944340, guid: 09bda8dc57f07a849a04899a8fde51ac, type: 3}
+  - {fileID: 6409560189812009505, guid: b927d39d62af94044abc9547363eecfc, type: 3}
+  - {fileID: 976875459067784568, guid: 2aa257d1c399f7c46a936e33a920c8dd, type: 3}
+  - {fileID: 5699331933428994061, guid: a7d9f2bfb0761c5439b9e5444b53325e, type: 3}
   personPrefab: {fileID: 1971778639594509307, guid: 597c1a461be35d444819d0e1a279f310, type: 3}
   elevatorPrefab: {fileID: 4501259309890233413, guid: e4194b794bb723b4b970d0a6f20b2e15, type: 3}
   floorHeight: 1.5
-  elevatorOffsetX: 0
+  columnWidth: 10
+  elevatorOffsetX: 5.5
   personOffsetX: 2
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
