@@ -1459,6 +1459,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -8518629465074399558, guid: 5ec211f3125f7d54d8cbb1ca3f483d2f, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: -6600521349597746662, guid: 5ec211f3125f7d54d8cbb1ca3f483d2f, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.62
@@ -1527,6 +1531,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Pack_alcool_bottle_1
       objectReference: {fileID: 0}
+    - target: {fileID: 1445263531634981374, guid: 5ec211f3125f7d54d8cbb1ca3f483d2f, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4371556110959191321, guid: 5ec211f3125f7d54d8cbb1ca3f483d2f, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4940709292474527608, guid: 5ec211f3125f7d54d8cbb1ca3f483d2f, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.453
@@ -1548,7 +1560,11 @@ PrefabInstance:
       value: 0.007
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: -2868440042863853373, guid: 5ec211f3125f7d54d8cbb1ca3f483d2f, type: 3}
+    - {fileID: 243041194690276544, guid: 5ec211f3125f7d54d8cbb1ca3f483d2f, type: 3}
+    - {fileID: -346244200705801105, guid: 5ec211f3125f7d54d8cbb1ca3f483d2f, type: 3}
+    - {fileID: 4820542772251406005, guid: 5ec211f3125f7d54d8cbb1ca3f483d2f, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5ec211f3125f7d54d8cbb1ca3f483d2f, type: 3}

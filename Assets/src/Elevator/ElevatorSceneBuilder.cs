@@ -16,8 +16,9 @@ using UnityEngine;
 /// ‑ La scena generata è figlia dell'oggetto che possiede questo script, così
 ///   da poterla cancellare/rigenerare facilmente.
 /// </summary>
+/// 
 
-/*s
+/*
 public class ElevatorSceneBuilder : MonoBehaviour
 {
     #region Public parameters (Inspector)
@@ -184,6 +185,4 @@ public class ElevatorSceneBuilder : MonoBehaviour
 
     #endregion
 }
-
-
 */
