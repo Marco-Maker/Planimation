@@ -357,8 +357,8 @@ MonoBehaviour:
   ballPrefab: {fileID: 919132149155446097, guid: f8017459e53100246bfed8a33081fdfc, type: 3}
   corridorPrefab: {fileID: 3337721905383381583, guid: 759b33efc5adca74e8f3f586cc0642b1, type: 3}
   corridorHeightOffset: 0.01
-  corridorWidth: 1
   roomSpacing: 20
+  roomSize: 4
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
