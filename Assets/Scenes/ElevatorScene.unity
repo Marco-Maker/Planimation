@@ -361,7 +361,22 @@ MonoBehaviour:
   - {fileID: 6409560189812009505, guid: b927d39d62af94044abc9547363eecfc, type: 3}
   - {fileID: 976875459067784568, guid: 2aa257d1c399f7c46a936e33a920c8dd, type: 3}
   - {fileID: 5699331933428994061, guid: a7d9f2bfb0761c5439b9e5444b53325e, type: 3}
-  personPrefab: {fileID: 1971778639594509307, guid: 597c1a461be35d444819d0e1a279f310, type: 3}
+  - {fileID: 3984598976314022733, guid: b89cad39d96aa9e48be66e4fdd634f8d, type: 3}
+  - {fileID: 3984598976314022733, guid: 9729e8aea933e734eba3da03ec6eeffe, type: 3}
+  - {fileID: 3984598976314022733, guid: d1edcb271f2ef564e8b2228d7853da71, type: 3}
+  - {fileID: 3984598976314022733, guid: 5b3c65d871bfb0c4fbd1d569747793d1, type: 3}
+  personPrefab:
+  - {fileID: 4251191806658410795, guid: 3800505e77d074545a6f87c9c4d36f45, type: 3}
+  - {fileID: 4698501705374019395, guid: 0619366c4434af643987ac1fe2db8c9c, type: 3}
+  - {fileID: 2202464275773182352, guid: 639d7c0193c33784b8ae9ed5a42c7f5c, type: 3}
+  - {fileID: 652588378056001450, guid: 2f3f093c24bcd0c41bcd2e5d6095ad89, type: 3}
+  - {fileID: 6621134269387783958, guid: 30d47cc82724e434c942b559cf9b8941, type: 3}
+  - {fileID: 6621134269387783958, guid: 30d47cc82724e434c942b559cf9b8941, type: 3}
+  - {fileID: 3730927209567951945, guid: 25894e7e2d8f7ee4194c1f8d8a03fe82, type: 3}
+  - {fileID: 3931043917037046367, guid: f711ba7afc8ab8b45b9b4fddd8355ad8, type: 3}
+  - {fileID: 1971778639594509307, guid: 597c1a461be35d444819d0e1a279f310, type: 3}
+  - {fileID: 5905130394889306769, guid: 9689068eaa09ffd47bd9e6ba7926a451, type: 3}
+  - {fileID: 6247968112981422155, guid: 0acf3143ca0e16c4ea2deb9386adae67, type: 3}
   elevatorPrefab: {fileID: 4501259309890233413, guid: e4194b794bb723b4b970d0a6f20b2e15, type: 3}
   floorHeight: 1.5
   columnWidth: 10

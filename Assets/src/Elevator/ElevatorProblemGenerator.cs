@@ -6,7 +6,7 @@ public class ElevatorProblemGenerator : MonoBehaviour
 {
     [SerializeField] private List<GameObject> floorsPrefab;
     private int floorCounter = 0;
-    [SerializeField] private GameObject personPrefab;
+    [SerializeField] private List<GameObject> personPrefab;
     [SerializeField] private GameObject elevatorPrefab;
 
     [SerializeField] private float floorHeight = 5f;
@@ -136,6 +136,10 @@ public class ElevatorProblemGenerator : MonoBehaviour
 
             GameObject floorGO = floorGameObjects[floorName];
             Vector3 pos = floorGO.transform.position + new Vector3(personOffsetX, 0, 0);
+            
+            int randomIndex = Random.Range(0, this.personPrefab.Count);
+            GameObject personPrefab = this.personPrefab[randomIndex];
+
             GameObject personGO = Instantiate(personPrefab, pos, Quaternion.identity, floorGO.transform);
             personGO.name = personName;
 
