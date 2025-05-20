@@ -21,16 +21,21 @@ public class ProblemGenerator : MonoBehaviour
     private string problemName = "problem";
 
     [Tooltip("Nome del dominio da usare nella clausola (:domain ...)")]
-    private string domainName = "logistics";
+    private string domainName;
 
     [Header("Output")]
     [Tooltip("Se true scrive il file sul disco, altrimenti lo ritorna soltanto")]
     public bool saveToFile = true;
 
     [Tooltip("Percorso relativo al progetto dove salvare *.pddl")]
-    private string outputPath = "Assets/Generated/pb1.pddl";
+    private string outputPath = "Assets/Generated/problem.pddl";
 
     /* ---------------------------------------------------------- */
+
+    public void SetDomain()
+    {
+        domainName = PlanInfo.GetInstance().GetDomainName();
+    }
 
     /// <summary>
     /// Chiamare questo metodo (es. dal bottone UI) per generare

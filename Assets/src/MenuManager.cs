@@ -26,7 +26,7 @@ public class ObjectToAdd
 public class Predicates
 {
     public string name;
-    public int variant; // 0 = normal, 1 = numeric, 2 = temporal
+    public int variant; // 0 = normal, 1 = numeric, 2 = temporal, 3 = event
     public List<string> values;
 }
 
@@ -99,6 +99,7 @@ public class MenuManager : MonoBehaviour
     [Header("GENERATOR")]
     [SerializeField] private ProblemGenerator generator;
 
+    private Planner planner = new Planner();
     private int currentProblem = -1; // -1 = no problem selected, 0 = logistic, 1 = robot, 2 = elevator
 
     private void Start()
@@ -435,7 +436,7 @@ public class MenuManager : MonoBehaviour
         foreach (Transform child in options.transform)
         {
             if (child.name == "GoalName") { 
-                g.name = child.GetComponent<TextMeshProUGUI>().text.ToLower();
+                g.name = child.GetComponent<TextMeshProUGUI>().text.ToLower().Replace("\n", "");
             }else if (child.name.Contains("Input"))
             {
                 g.values.Add(child.GetComponentInChildren<TMP_Dropdown>().options[child.GetComponentInChildren<TMP_Dropdown>().value].text);
@@ -473,10 +474,9 @@ public class MenuManager : MonoBehaviour
         PlanInfo.GetInstance().SetObjects(objectsToAdd);
         PlanInfo.GetInstance().SetPredicates(predicatesToAdd);
         PlanInfo.GetInstance().SetGoals(goalsToAdd);
-        //objectsToAdd.Clear();
-        //predicatesToAdd.Clear();
-        //goalsToAdd.Clear();
+        PlanInfo.GetInstance().SetDomainType(currentProblem); 
         generator.GenerateAndSave();
+        planner.RunShellCommand();
         switch (currentProblem)
         {
             case 0:
