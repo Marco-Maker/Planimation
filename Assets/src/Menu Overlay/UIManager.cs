@@ -11,6 +11,11 @@ public class UIManager : MonoBehaviour
     }
     public void ShowPlan()
     {
+        if (planPanel.activeSelf)
+        {
+            planPanel.SetActive(false);
+            return;
+        }
         planPanel.SetActive(true);
     }
 
