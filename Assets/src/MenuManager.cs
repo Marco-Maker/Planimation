@@ -456,7 +456,6 @@ public class MenuManager : MonoBehaviour
             {
                 goalsText.text += value + " ";
             }
-            Debug.Log(goalsText.text);
             goalsText.text += "\n";
         }
     }

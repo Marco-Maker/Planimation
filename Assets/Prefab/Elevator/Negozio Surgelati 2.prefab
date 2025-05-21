@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3527490345870465378}
   m_Layer: 0
   m_Name: Negozio Surgelati 2
-  m_TagString: Untagged
+  m_TagString: Floor
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
