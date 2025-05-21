@@ -2,73 +2,36 @@ Domain parsed
 Grammar is violated
 Problem parsed
 Grounding..
-Grounding Time: 21
+Grounding Time: 17
 Aibr Preprocessing
-|F|:28
+|F|:6
 |X|:0
-|A|:39
+|A|:7
 |P|:0
 |E|:0
-H1 Setup Time (msec): 9
+H1 Setup Time (msec): 7
 Setting horizon to:NaN
 Running Greedy Best First Search
-h(n = s_0)=26.0
- g(n)= 1.0 h(n)=22.0
- g(n)= 2.0 h(n)=21.0
- g(n)= 5.0 h(n)=19.0
- g(n)= 6.0 h(n)=17.0
- g(n)= 7.0 h(n)=16.0
- g(n)= 8.0 h(n)=15.0
- g(n)= 10.0 h(n)=14.0
- g(n)= 11.0 h(n)=13.0
- g(n)= 12.0 h(n)=11.0
- g(n)= 13.0 h(n)=10.0
- g(n)= 15.0 h(n)=9.0
- g(n)= 16.0 h(n)=8.0
- g(n)= 17.0 h(n)=7.0
- g(n)= 18.0 h(n)=6.0
- g(n)= 20.0 h(n)=5.0
- g(n)= 21.0 h(n)=4.0
- g(n)= 22.0 h(n)=3.0
- g(n)= 23.0 h(n)=2.0
- g(n)= 24.0 h(n)=1.0
- g(n)= 25.0 h(n)=0.0
+h(n = s_0)=4.0
+ g(n)= 1.0 h(n)=3.0
+ g(n)= 2.0 h(n)=2.0
+ g(n)= 3.0 h(n)=1.0
+ g(n)= 4.0 h(n)=0.0
 Problem Solved
 
 Found Plan:
-0.0: (move-down elevator1 floor3 floor2)
-1.0: (load person3 elevator1 floor2)
-2.0: (move-down elevator1 floor2 floor1)
-3.0: (load person2 elevator1 floor1)
-4.0: (load person1 elevator1 floor1)
-5.0: (move-up elevator1 floor1 floor2)
-6.0: (unload person1 elevator1 floor2)
-7.0: (reached person1 floor2)
-8.0: (move-up elevator1 floor2 floor3)
-9.0: (load person5 elevator1 floor3)
-10.0: (unload person3 elevator1 floor3)
-11.0: (move-down elevator1 floor3 floor2)
-12.0: (reached person3 floor3)
-13.0: (move-down elevator1 floor2 floor1)
-14.0: (load person4 elevator1 floor1)
-15.0: (move-up elevator1 floor1 floor2)
-16.0: (unload person4 elevator1 floor2)
-17.0: (reached person4 floor2)
-18.0: (move-down elevator1 floor2 floor1)
-19.0: (unload person5 elevator1 floor1)
-20.0: (move-up elevator1 floor1 floor2)
-21.0: (move-up elevator1 floor2 floor3)
-22.0: (reached person5 floor1)
-23.0: (unload person2 elevator1 floor3)
-24.0: (reached person2 floor3)
+0.0: (load person1 elevator1 floor1)
+1.0: (move-up elevator1 floor1 floor2)
+2.0: (unload person1 elevator1 floor2)
+3.0: (reached person1 floor2)
 
-Plan-Length:25
-Metric (Search):25.0
-Planning Time (msec): 246
-Heuristic Time (msec): 13
-Search Time (msec): 32
-Expanded Nodes:28
-States Evaluated:98
+Plan-Length:4
+Metric (Search):4.0
+Planning Time (msec): 214
+Heuristic Time (msec): 0
+Search Time (msec): 10
+Expanded Nodes:5
+States Evaluated:6
 Fixed constraint violations during search (zero-crossing):0
 Number of Dead-Ends detected:0
-Number of Duplicates detected:26
+Number of Duplicates detected:3

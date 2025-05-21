@@ -14,7 +14,7 @@ public class ElevatorProblemGenerator : MonoBehaviour
     [SerializeField] private float elevatorOffsetX = -3f;
     [SerializeField] private float personOffsetX = 2f;
 
-    void Start()
+    void Awake()
     {
         GenerateScene();
     }

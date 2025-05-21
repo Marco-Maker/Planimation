@@ -60,7 +60,7 @@ public class ProblemGenerator : MonoBehaviour
                 Directory.CreateDirectory(folder);
 
             File.WriteAllText(outputPath, pddl, Encoding.UTF8);
-            Debug.Log($"[PDDLGenerator] File creato: {outputPath}");
+            //Debug.Log($"[PDDLGenerator] File creato: {outputPath}");
         }
 
         return pddl; // Utile se vuoi mostrarlo in un’area di testo o copiarlo altrove
