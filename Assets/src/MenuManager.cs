@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net.Http.Headers;
+using System.Linq;
 using TMPro;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -174,37 +175,57 @@ public class MenuManager : MonoBehaviour
         }
     }
 
-    public void ClosePredicateField(bool add)
+     public void ClosePredicateField(bool add)
     {
         if (add)
         {
-            PredicateToAdd p = new PredicateToAdd();
-            p.values = new List<string>(); 
+            // Costruisci il predicato dal campo UI
+            PredicateToAdd p = new PredicateToAdd
+            {
+                name = fieldTitle.text,
+                values = new List<string>()
+            };
+
             GameObject options = GameObject.Find("PredicateInputOptions");
-            p.name = fieldTitle.text;
             foreach (Transform child in options.transform)
             {
-                for(int i = 0; i < child.childCount; i++) {
-                    if (child.GetChild(i).name == "Dropdown")
-                    {
-                        for(int j = 0; j < child.GetChild(j).childCount; j++)
-                        {
-                            string val = child.GetChild(j).GetComponent<TMP_Dropdown>().options[child.GetChild(j).GetComponent<TMP_Dropdown>().value].text;
-                            p.values.Add(val);
-                        }
-                    }
+                TMP_Dropdown dd = child.GetComponentInChildren<TMP_Dropdown>();
+                if (dd != null)
+                {
+                    string val = dd.options[dd.value].text;
+                    p.values.Add(val);
                 }
-                
             }
-            predicatesToAdd.Add(p);
+
+            // Validazione: tutti i parametri selezionati
+            if (p.values.Any(v => string.IsNullOrEmpty(v)))
+            {
+                Debug.LogError("Devi selezionare tutti i parametri del predicato.");
+                return;
+            }
+
+            // Controllo duplicati
+            bool exists = predicatesToAdd.Any(x =>
+                x.name == p.name && x.values.SequenceEqual(p.values)
+            );
+            if (exists)
+            {
+                Debug.LogWarning($"Predicato già aggiunto: {p.name}({string.Join(",", p.values)})");
+            }
+            else
+            {
+                predicatesToAdd.Add(p);
+            }
         }
+
+        // Pulisci UI e chiudi finestra
         predicatesAvailable.Clear();
         foreach (Transform child in fieldOptions.transform)
-        {
             Destroy(child.gameObject);
-        }
         predicateField.SetActive(false);
     }
+
+
 
     public void OpenComposer(int problem)
     {
@@ -418,33 +439,56 @@ public class MenuManager : MonoBehaviour
 
     public void AddGoal()
     {
-        GoalToAdd g = new GoalToAdd();
-        g.values = new List<string>();
-        GameObject options = new GameObject(); //GameObject.Find("GoalsInputOptions")
+        // Costruisci il goal dal campo UI
+        GoalToAdd g = new GoalToAdd
+        {
+            values = new List<string>()
+        };
+        GameObject options = null;
         switch (currentProblem)
         {
-            case 0:
-                options = GameObject.Find("LogisticGoalInputOptions");
-                break;
-            case 1:
-                options = GameObject.Find("RobotGoalInputOptions");
-                break;
-            case 2:
-                options = GameObject.Find("ElevatorGoalInputOptions");
-                break;
+            case 0: options = GameObject.Find("LogisticGoalInputOptions"); break;
+            case 1: options = GameObject.Find("RobotGoalInputOptions"); break;
+            case 2: options = GameObject.Find("ElevatorGoalInputOptions"); break;
         }
+
         foreach (Transform child in options.transform)
         {
-            if (child.name == "GoalName") { 
-                g.name = child.GetComponent<TextMeshProUGUI>().text.ToLower().Replace("\n", "");
-            }else if (child.name.Contains("Input"))
+            if (child.name == "GoalName")
             {
-                g.values.Add(child.GetComponentInChildren<TMP_Dropdown>().options[child.GetComponentInChildren<TMP_Dropdown>().value].text);
+                g.name = child.GetComponent<TextMeshProUGUI>().text
+                    .ToLower().Replace("\n", "").Trim();
+            }
+            else if (child.name.Contains("Input"))
+            {
+                TMP_Dropdown dd = child.GetComponentInChildren<TMP_Dropdown>();
+                if (dd != null)
+                    g.values.Add(dd.options[dd.value].text);
             }
         }
+
+        // Validazione
+        if (string.IsNullOrEmpty(g.name) || g.values.Count == 0 || g.values.Any(v => string.IsNullOrEmpty(v)))
+        {
+            Debug.LogError("Goal non valido: nome o parametri mancanti.");
+            return;
+        }
+
+        // Controllo duplicati
+        bool goalExists = goalsToAdd.Any(x =>
+            x.name == g.name && x.values.SequenceEqual(g.values)
+        );
+        if (goalExists)
+        {
+            Debug.LogWarning($"Goal già presente: {g.name}({string.Join(",", g.values)})");
+            return;
+        }
+
+        // Aggiungi e aggiorna UI
         goalsToAdd.Add(g);
         UpdateGoalText();
     }
+
 
     private void UpdateGoalText()
     {
@@ -470,24 +514,39 @@ public class MenuManager : MonoBehaviour
 
     public void Simulate()
     {
+        // Validazioni preliminari
+        if (objectsToAdd.Count == 0)
+        {
+            Debug.LogError("Devi aggiungere almeno un oggetto.");
+            return;
+        }
+        if (predicatesToAdd.Count == 0)
+        {
+            Debug.LogError("Devi aggiungere almeno un predicato.");
+            return;
+        }
+        if (goalsToAdd.Count == 0)
+        {
+            Debug.LogError("Devi aggiungere almeno un goal.");
+            return;
+        }
+
+        // Salva dati e genera PDDL
         PlanInfo.GetInstance().SetObjects(objectsToAdd);
         PlanInfo.GetInstance().SetPredicates(predicatesToAdd);
         PlanInfo.GetInstance().SetGoals(goalsToAdd);
-        PlanInfo.GetInstance().SetDomainType(currentProblem); 
+        PlanInfo.GetInstance().SetDomainType(currentProblem);
+
         generator.GenerateAndSave();
         planner.RunShellCommand();
+
+        // Carica la scena corretta
         switch (currentProblem)
         {
-            case 0:
-                SceneManager.LoadScene("LogisticScene");
-                break;
-            case 1:
-                SceneManager.LoadScene("RobotScene");
-                break;
-            case 2:
-                SceneManager.LoadScene("ElevatorScene");
-                break;
+            case 0: SceneManager.LoadScene("LogisticScene"); break;
+            case 1: SceneManager.LoadScene("RobotScene"); break;
+            case 2: SceneManager.LoadScene("ElevatorScene"); break;
         }
-        
     }
+
 }
