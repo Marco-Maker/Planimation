@@ -4,16 +4,14 @@ using UnityEngine;
 
 public class ElevatorAnimation : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+
+    public void StartOpenAnimation()
     {
         GetComponent<Animator>().SetBool("Open", true);
-        
     }
 
-    // Update is called once per frame
-    void Update()
+    public void StartCloseAnimation()
     {
-        
+        GetComponent<Animator>().SetBool("Open", false);
     }
 }

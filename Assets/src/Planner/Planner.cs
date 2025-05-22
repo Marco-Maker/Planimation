@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.IO;
 using UnityEngine;
 
-public class Planner : MonoBehaviour
+public class Planner //: MonoBehaviour
 {
 
     private string solverJarPath = "";
@@ -21,7 +21,7 @@ public class Planner : MonoBehaviour
         domainPath = Const.PDDL_FOLDER + PlanInfo.GetInstance().GetDomainName();
         problemPath = Const.PROBLEM;
         string args = $"java -jar .{solverJarPath} -domain .{domainPath} -problem .{problemPath} {additionalParameters}";
-        UnityEngine.Debug.Log(args);
+        //UnityEngine.Debug.Log(args);
         ExecuteCommand(args);
     }
 

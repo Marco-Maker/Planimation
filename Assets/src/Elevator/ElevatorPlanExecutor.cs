@@ -54,13 +54,13 @@ public class ElevatorPlanExecutor : MonoBehaviour
         people = GameObject.FindGameObjectsWithTag("Person").ToDictionary(p => p.name.ToLower());
         floors = GameObject.FindGameObjectsWithTag("Floor").ToDictionary(f => f.name.ToLower());
         elevators = GameObject.FindGameObjectsWithTag("Elevator").ToDictionary(e => e.name.ToLower());
-        Debug.Log("_________INIT_______________");
+        //Debug.Log("_________INIT_______________");
         foreach (var person in people)
         {
-            Debug.Log($"Found person: {person.Key}");
+            //Debug.Log($"Found person: {person.Key}");
             initialPositions[person.Key] = person.Value.transform.position;
         }
-
+        /*
         foreach (var floor in floors)
         {
             Debug.Log($"Found floor: {floor.Key}");
@@ -69,7 +69,7 @@ public class ElevatorPlanExecutor : MonoBehaviour
         {
             Debug.Log($"Found elevator: {elevator.Key}");
         }
-        Debug.Log("_________END_______________");
+        Debug.Log("_________END_______________");*/
     }
 
     IEnumerator ExecutePlan()
@@ -94,22 +94,22 @@ public class ElevatorPlanExecutor : MonoBehaviour
         {
             case "move-up":
             case "move-down":
-                Debug.Log(action.ToString());
+                //Debug.Log(action.ToString());
                 yield return MoveElevator(parts[1], parts[2], parts[3]);
                 break;
 
             case "load":
-                Debug.Log(action.ToString());
+                //Debug.Log(action.ToString());
                 yield return LoadPerson(parts[1], parts[2], parts[3]);
                 break;
 
             case "unload":
-                Debug.Log(action.ToString());
+                //Debug.Log(action.ToString());
                 yield return UnloadPerson(parts[1], parts[2], parts[3]);
                 break;
 
             case "reached":
-                Debug.Log($"{parts[1]} has reached the goal at {parts[2]}.");
+                //Debug.Log($"{parts[1]} has reached the goal at {parts[2]}.");
                 break;
 
             default:
@@ -249,6 +249,8 @@ public class ElevatorPlanExecutor : MonoBehaviour
             yield return MoveToPosition(person, target);
         }
         person.GetComponentInChildren<PersonMovement>().SetMoving(false);
+
+        Debug.Log($"{personName} reached original position on {floorName}");
     }
 
 
