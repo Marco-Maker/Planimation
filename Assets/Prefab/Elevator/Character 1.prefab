@@ -87,10 +87,54 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 01ed0c9df79d5634e8467588e839a30e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5026995221795070961}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 01ed0c9df79d5634e8467588e839a30e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2306047038166048543}
   m_SourcePrefab: {fileID: 100100000, guid: 01ed0c9df79d5634e8467588e839a30e, type: 3}
 --- !u!4 &3503325688771071101 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 01ed0c9df79d5634e8467588e839a30e, type: 3}
   m_PrefabInstance: {fileID: 3969053746340440982}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &4311493555198826183 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 01ed0c9df79d5634e8467588e839a30e, type: 3}
+  m_PrefabInstance: {fileID: 3969053746340440982}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &5026995221795070961
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4311493555198826183}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 0506dc9eacef1a34786b7a1a85e387cc, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &2306047038166048543
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4311493555198826183}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a6fa4a29e57abe4cb144730c522788c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

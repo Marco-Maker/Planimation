@@ -185,6 +185,8 @@ public class ElevatorPlanExecutor : MonoBehaviour
             yield break;
         }
 
+        person.GetComponentInChildren<PersonMovement>().SetMoving(true);
+
         // Cammina verso l'elevatore prima di salire
         Vector3 elevatorEntry = elevator.transform.position;
         elevatorEntry.y = person.transform.position.y; // Mantieni altezza della persona
@@ -197,6 +199,8 @@ public class ElevatorPlanExecutor : MonoBehaviour
         person.transform.localPosition = Vector3.zero;
 
         Debug.Log($"{personName} loaded into {elevatorName}");
+
+        person.GetComponentInChildren<PersonMovement>().SetMoving(false);
     }
 
     IEnumerator UnloadPerson(string personName, string elevatorName, string floorName)
@@ -224,6 +228,7 @@ public class ElevatorPlanExecutor : MonoBehaviour
         }
 
         person.transform.SetParent(null);
+        person.GetComponentInChildren<PersonMovement>().SetMoving(true);
 
         // Porta la persona all'altezza del piano
         Vector3 floorPos = floor.transform.position;
@@ -243,6 +248,7 @@ public class ElevatorPlanExecutor : MonoBehaviour
             Debug.Log($"{personName} is walking to original position on {floorName}");
             yield return MoveToPosition(person, target);
         }
+        person.GetComponentInChildren<PersonMovement>().SetMoving(false);
     }
 
 

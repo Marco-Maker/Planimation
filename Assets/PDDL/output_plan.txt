@@ -2,14 +2,14 @@ Domain parsed
 Grammar is violated
 Problem parsed
 Grounding..
-Grounding Time: 17
+Grounding Time: 18
 Aibr Preprocessing
 |F|:6
 |X|:0
 |A|:7
 |P|:0
 |E|:0
-H1 Setup Time (msec): 7
+H1 Setup Time (msec): 6
 Setting horizon to:NaN
 Running Greedy Best First Search
 h(n = s_0)=4.0
@@ -27,9 +27,9 @@ Found Plan:
 
 Plan-Length:4
 Metric (Search):4.0
-Planning Time (msec): 214
+Planning Time (msec): 223
 Heuristic Time (msec): 0
-Search Time (msec): 10
+Search Time (msec): 9
 Expanded Nodes:5
 States Evaluated:6
 Fixed constraint violations during search (zero-crossing):0
