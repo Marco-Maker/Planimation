@@ -4,7 +4,7 @@
  * dai dati correnti contenuti in PlanInfo.
  *
  * Aggiungi lo script a un GameObject e collega il
- * metodo GenerateAndSave() a un bottone “GENERA”.
+ * metodo GenerateAndSave() a un bottone ï¿½GENERAï¿½.
  *****************************************************/
 
 using System.Collections.Generic;
@@ -63,7 +63,7 @@ public class ProblemGenerator : MonoBehaviour
             //Debug.Log($"[PDDLGenerator] File creato: {outputPath}");
         }
 
-        return pddl; // Utile se vuoi mostrarlo in un’area di testo o copiarlo altrove
+        return pddl; // Utile se vuoi mostrarlo in unï¿½area di testo o copiarlo altrove
     }
 
     /* ----------------- LOGICA DI COSTRUZIONE ------------------ */
@@ -81,7 +81,7 @@ public class ProblemGenerator : MonoBehaviour
 
         /* ----- SEZIONE (:objects ...) ----- */
         sb.AppendLine("\t(:objects");
-        // Raggruppa per type così da stampare: a b c - tipo
+        // Raggruppa per type cosï¿½ da stampare: a b c - tipo
         foreach (var grp in objs.GroupBy(o => o.type))
         {
             string names = string.Join(" ", grp.Select(o => o.name));
@@ -90,23 +90,38 @@ public class ProblemGenerator : MonoBehaviour
         sb.AppendLine("\t)");
 
         /* ----- SEZIONE (:init ...) ----- */
+
+        // Raggruppa i predicati per nome e valori in modo da evitare duplicati
+        var uniquePreds = preds
+            .GroupBy(p => new { p.name, Key = string.Join(",", p.values) })
+            .Select(g => g.First())
+            .ToList();
+
         sb.AppendLine("\t(:init");
-        foreach (var p in preds)
+        foreach (var p in uniquePreds)
             sb.AppendLine("\t\t" + FormatAtomic(p.name, p.values));
         sb.AppendLine("\t)");
 
-        /* ----- SEZIONE (:goal (and ...)) ----- */
+
+
+        // Sezione goal con deduplicazione dei goal
+        var uniqueGoals = goals
+            .GroupBy(g => new { g.name, Key = string.Join(",", g.values) })
+            .Select(g => g.First())
+            .ToList();
+
         sb.AppendLine("\t(:goal");
         sb.AppendLine("\t\t(and");
-        foreach (var g in goals)
+        foreach (var g in uniqueGoals)
             sb.AppendLine("\t\t\t" + FormatAtomic(g.name, g.values));
         sb.AppendLine("\t\t)");
         sb.AppendLine("\t)");
 
-        sb.AppendLine(")"); // chiude define
+        sb.AppendLine(")");
         return sb.ToString();
     }
 
+    
     /// <summary>
     /// Restituisce la forma PDDL atomica di nome + valori:
     ///   (pred val1 val2 ...)
@@ -125,7 +140,7 @@ public class ProblemGenerator : MonoBehaviour
             return $"(= {functionCall} {value})";
         }
 
-        // Predicati “normali”
+        // Predicati ï¿½normaliï¿½
         return $"({name} {string.Join(" ", values)})";
     }
 
