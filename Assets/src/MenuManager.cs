@@ -175,56 +175,118 @@ public class MenuManager : MonoBehaviour
         }
     }
 
-     public void ClosePredicateField(bool add)
+    private void FillFieldList(string name)
     {
-        if (add)
+        //deve mostrare solo quelle sul predicato corrente
+        fieldList.text = "";
+        foreach (var predicate in predicatesToAdd)
         {
-            // Costruisci il predicato dal campo UI
-            PredicateToAdd p = new PredicateToAdd
+            Debug.Log(predicate.name);
+            if (predicate.name == name)
             {
-                name = fieldTitle.text,
-                values = new List<string>()
-            };
-
-            GameObject options = GameObject.Find("PredicateInputOptions");
-            foreach (Transform child in options.transform)
-            {
-                TMP_Dropdown dd = child.GetComponentInChildren<TMP_Dropdown>();
-                if (dd != null)
+                fieldList.text += name + " ";
+                foreach (var value in predicate.values)
                 {
-                    string val = dd.options[dd.value].text;
-                    p.values.Add(val);
+                    fieldList.text += value + " ";
                 }
-            }
-
-            // Validazione: tutti i parametri selezionati
-            if (p.values.Any(v => string.IsNullOrEmpty(v)))
-            {
-                Debug.LogError("Devi selezionare tutti i parametri del predicato.");
-                return;
-            }
-
-            // Controllo duplicati
-            bool exists = predicatesToAdd.Any(x =>
-                x.name == p.name && x.values.SequenceEqual(p.values)
-            );
-            if (exists)
-            {
-                Debug.LogWarning($"Predicato già aggiunto: {p.name}({string.Join(",", p.values)})");
-            }
-            else
-            {
-                predicatesToAdd.Add(p);
+                fieldList.text += "\n";
             }
         }
+    }
 
-        // Pulisci UI e chiudi finestra
+
+    public void ClosePredicateField()
+    {
         predicatesAvailable.Clear();
         foreach (Transform child in fieldOptions.transform)
             Destroy(child.gameObject);
         predicateField.SetActive(false);
     }
 
+    public void AddPredicate()
+    {
+        // Costruisci il predicato dal campo UI
+        PredicateToAdd p = new PredicateToAdd
+        {
+            name = fieldTitle.text,
+            values = new List<string>()
+        };
+
+        GameObject options = GameObject.Find("PredicateInputOptions");
+        foreach (Transform child in options.transform)
+        {
+            TMP_Dropdown dd = child.GetComponentInChildren<TMP_Dropdown>();
+            if (dd != null)
+            {
+                string val = dd.options[dd.value].text;
+                p.values.Add(val);
+            }
+        }
+
+        // Validazione: tutti i parametri selezionati
+        if (p.values.Any(v => string.IsNullOrEmpty(v)))
+        {
+            Debug.LogError("Devi selezionare tutti i parametri del predicato.");
+            return;
+        }
+
+        // Controllo duplicati
+        bool exists = predicatesToAdd.Any(x =>
+            x.name == p.name && x.values.SequenceEqual(p.values)
+        );
+        if (exists)
+        {
+            Debug.LogWarning($"Predicato già aggiunto: {p.name}({string.Join(",", p.values)})");
+        }
+        else
+        {
+            predicatesToAdd.Add(p);
+        }
+        FillFieldList(fieldTitle.text);
+    }
+
+    public void RemovePredicate()
+    {
+        PredicateToAdd p = new PredicateToAdd
+        {
+            name = fieldTitle.text,
+            values = new List<string>()
+        };
+
+        GameObject options = GameObject.Find("PredicateInputOptions");
+        foreach (Transform child in options.transform)
+        {
+            TMP_Dropdown dd = child.GetComponentInChildren<TMP_Dropdown>();
+            if (dd != null)
+            {
+                string val = dd.options[dd.value].text;
+                p.values.Add(val);
+            }
+        }
+
+        // Validazione: tutti i parametri selezionati
+        if (p.values.Any(v => string.IsNullOrEmpty(v)))
+        {
+            Debug.LogError("Devi selezionare tutti i parametri del predicato.");
+            return;
+        }
+
+        // Controlla che c'è e in caso rimuovilo 
+        bool exists = predicatesToAdd.Any(x =>
+            x.name == p.name && x.values.SequenceEqual(p.values)
+        );
+        if (exists)
+        {
+            predicatesToAdd.RemoveAll(x =>
+                x.name == p.name && x.values.SequenceEqual(p.values)
+            );
+        }
+        else
+        {
+            Debug.LogWarning($"Predicato non trovato: {p.name}({string.Join(",", p.values)})");
+        }
+        FillFieldList(fieldTitle.text);
+    }
 
 
     public void OpenComposer(int problem)
@@ -486,6 +548,61 @@ public class MenuManager : MonoBehaviour
 
         // Aggiungi e aggiorna UI
         goalsToAdd.Add(g);
+        UpdateGoalText();
+    }
+
+    public void RemoveGoal()
+    {
+        //fai la stessa cosa di AddGoal ma per rimuovere
+        GoalToAdd g = new GoalToAdd
+        {
+            values = new List<string>()
+        };
+        GameObject options = null;
+        switch (currentProblem)
+        {
+            case 0: options = GameObject.Find("LogisticGoalInputOptions"); break;
+            case 1: options = GameObject.Find("RobotGoalInputOptions"); break;
+            case 2: options = GameObject.Find("ElevatorGoalInputOptions"); break;
+        }
+        if (options != null)
+        {
+            foreach (Transform child in options.transform)
+            {
+                if (child.name == "GoalName")
+                {
+                    g.name = child.GetComponent<TextMeshProUGUI>().text
+                        .ToLower().Replace("\n", "").Trim();
+                }
+                else if (child.name.Contains("Input"))
+                {
+                    TMP_Dropdown dd = child.GetComponentInChildren<TMP_Dropdown>();
+                    if (dd != null)
+                        g.values.Add(dd.options[dd.value].text);
+                }
+            }
+        }
+        // Validazione
+        if (string.IsNullOrEmpty(g.name) || g.values.Count == 0 || g.values.Any(v => string.IsNullOrEmpty(v)))
+        {
+            Debug.LogError("Goal non valido: nome o parametri mancanti.");
+            return;
+        }
+        // Controllo duplicati
+        bool goalExists = goalsToAdd.Any(x =>
+            x.name == g.name && x.values.SequenceEqual(g.values)
+        );
+        if (goalExists)
+        {
+            goalsToAdd.RemoveAll(x =>
+                x.name == g.name && x.values.SequenceEqual(g.values)
+            );
+        }
+        else
+        {
+            Debug.LogWarning($"Goal non trovato: {g.name}({string.Join(",", g.values)})");
+        }
+        // aggiorna UI
         UpdateGoalText();
     }
 
