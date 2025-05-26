@@ -17,6 +17,7 @@ public sealed class PlanInfo
 
     private List<ObjectToAdd> objects;
     private List<PredicateToAdd> predicates;
+    private List<FunctionToAdd> functions;
     private List<GoalToAdd> goals;
 
     private List<string> plan;
@@ -56,6 +57,14 @@ public sealed class PlanInfo
     public List<PredicateToAdd> GetPredicates()
     {
         return predicates;
+    }
+    public void SetFunctions(List<FunctionToAdd> functions)
+    {
+        this.functions = functions;
+    }
+    public List<FunctionToAdd> GetFunctions()
+    {
+        return functions;
     }
     public void SetGoals(List<GoalToAdd> goals)
     {

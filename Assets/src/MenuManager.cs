@@ -8,6 +8,7 @@ using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 
 [Serializable]
@@ -117,6 +118,7 @@ public class MenuManager : MonoBehaviour
 
     [Header("FUNCTIONS")]
     [SerializeField] private GameObject functions;
+    [SerializeField] private GameObject functionsField;
     [SerializeField] private GameObject logisticNumeric;
     [SerializeField] private GameObject logisticEvent;
     [SerializeField] private GameObject robotTemporal;
@@ -125,6 +127,12 @@ public class MenuManager : MonoBehaviour
     [SerializeField] private GameObject elevatorEvent;
     private List<Functions> functionsList;
     private List<FunctionToAdd> functionsToAdd;
+
+    [Header("FUNCTION-FIELD")]
+    [SerializeField] private TextMeshProUGUI functionFieldTitle;
+    [SerializeField] private TextMeshProUGUI functionFieldList;
+    [SerializeField] private GameObject functionfieldOptions;
+    [SerializeField] private GameObject integerOptionPrefab;
 
     [Header("GOALS")]
     [SerializeField] private GameObject goalsField;
@@ -165,6 +173,8 @@ public class MenuManager : MonoBehaviour
         predicatesList = problem.predicates;
         functionsList = problem.functions;
     }
+
+    // ---------------------------------------------------------------START PREDICATES LIST---------------------------------------------------------------
 
     public void OpenPredicateField(string name)
     {
@@ -322,6 +332,9 @@ public class MenuManager : MonoBehaviour
         FillFieldList(fieldTitle.text);
     }
 
+    // ---------------------------------------------------------------END PREDICATES LIST---------------------------------------------------------------
+    // ---------------------------------------------------------------START TYPE------------------------------------------------------------------------
+
     public void OpenTypes(int problem)
     {
         types.SetActive(true);
@@ -333,6 +346,9 @@ public class MenuManager : MonoBehaviour
         types.SetActive(false);
         currentProblem = -1;
     }
+
+    // ---------------------------------------------------------------END TYPE---------------------------------------------------------------------------
+    // ---------------------------------------------------------------START COMPOSER---------------------------------------------------------------------
 
     public void OpenComposer(int type)
     {
@@ -469,6 +485,9 @@ public class MenuManager : MonoBehaviour
         }
     }
 
+    // ---------------------------------------------------------------END COMPOSE---------------------------------------------------------------------------
+    // ---------------------------------------------------------------START FUNCTION------------------------------------------------------------------------
+
     public void OpenFunctions()
     {
         functions.SetActive(true);
@@ -516,17 +535,6 @@ public class MenuManager : MonoBehaviour
         }
         //FillFunctions(objectList, functionsList);
     }
-    public void OpenNext()
-    {
-        if(currentType == 0)
-        {
-            OpenGoals();
-        }
-        else
-        {
-            OpenFunctions();
-        }
-    }
 
     public void CloseFunctions()
     {
@@ -538,6 +546,195 @@ public class MenuManager : MonoBehaviour
         elevatorNumeric.SetActive(false);
         elevatorEvent.SetActive(false);
         functionsToAdd.Clear();
+    }
+
+    // ---------------------------------------------------------------END FUNCTION----------------------------------------------------------------------------------
+    // ---------------------------------------------------------------START FUNCTION LIST---------------------------------------------------------------------------
+    public void OpenFunctionField(string name)
+    {
+        functionsField.SetActive(true);
+        FillObjectsToAdd(objectList);
+        functionFieldTitle.text = name;
+        functionFieldList.text = "";
+        foreach (var function in functionsToAdd)
+        {
+            if (function.name == name)
+            {
+                functionFieldList.text += name + " ";
+                foreach (var value in function.values)
+                {
+                    functionFieldList.text += value + " ";
+                }
+                functionFieldList.text += "\n";
+            }
+        }
+        foreach (var function in functionsList)
+        {
+            if (function.name == name)
+            {
+                foreach (var value in function.value)
+                {
+                    if (value.Equals("integer"))
+                    {
+                        GameObject obj = Instantiate(integerOptionPrefab, functionfieldOptions.transform);
+                    }
+                    else
+                    {
+                        GameObject obj = Instantiate(predicateOptionPrefab, functionfieldOptions.transform);
+                        obj.transform.GetComponentInChildren<PredicateInputSetter>().SetLabel(value);
+                        obj.transform.GetComponentInChildren<TMP_Dropdown>().ClearOptions();
+                        List<string> options = new List<string>();
+                        foreach (var o in objectsToAdd)
+                        {
+                            if (o.type.Contains(value) || o.name.Contains(value))
+                            {
+                                options.Add(o.name);
+                            }
+                        }
+                        obj.transform.GetComponentInChildren<TMP_Dropdown>().AddOptions(options);
+                    }
+                    
+                }
+            }
+        }
+    }
+    public void CloseFunctionField()
+    {
+        foreach (Transform child in functionfieldOptions.transform)
+            Destroy(child.gameObject);
+        functionsField.SetActive(false);
+    }
+    public void AddFunction()
+    {
+        // Costruisci la funzione dal campo UI
+        FunctionToAdd f = new FunctionToAdd
+        {
+            name = functionFieldTitle.text,
+            values = new List<string>()
+        };
+
+        GameObject options = GameObject.Find("FunctionInputOptions");
+        foreach (Transform child in options.transform)
+        {
+            if (child.GetComponentInChildren<TMP_Dropdown>() != null)
+            {
+                TMP_Dropdown dd = child.GetComponentInChildren<TMP_Dropdown>();
+                if (dd != null)
+                {
+                    string val = dd.options[dd.value].text;
+                    f.values.Add(val);
+                }
+            }
+            else
+            {
+                f.values.Add(child.GetComponentInChildren<IntegerInputSetter>().GetValue().ToString());
+            }
+
+        }
+
+        // Validazione: tutti i parametri selezionati
+        if (f.values.Any(v => string.IsNullOrEmpty(v)))
+        {
+            Debug.LogError("Devi selezionare tutti i parametri della funzione.");
+            return;
+        }
+
+        // Controllo duplicati
+        bool exists = functionsToAdd.Any(x =>
+            x.name == f.name && x.values.SequenceEqual(f.values)
+        );
+        if (exists)
+        {
+            Debug.LogWarning($"Funzione già aggiunta: {f.name}({string.Join(",", f.values)})");
+        }
+        else
+        {
+            functionsToAdd.Add(f);
+        }
+        FillFunctionList(functionFieldTitle.text);
+    }
+
+    public void RemoveFunction()
+    {
+        FunctionToAdd f = new FunctionToAdd
+        {
+            name = functionFieldTitle.text,
+            values = new List<string>()
+        };
+
+        GameObject options = GameObject.Find("FunctionInputOptions");
+        foreach (Transform child in options.transform)
+        {
+            if(child.GetComponentInChildren<TMP_Dropdown>() != null)
+            {
+                TMP_Dropdown dd = child.GetComponentInChildren<TMP_Dropdown>();
+                if (dd != null)
+                {
+                    string val = dd.options[dd.value].text;
+                    f.values.Add(val);
+                }
+            }
+            else
+            {
+                f.values.Add(child.GetComponentInChildren<IntegerInputSetter>().GetValue().ToString());
+            }
+            
+        }
+
+        // Validazione: tutti i parametri selezionati
+        if (f.values.Any(v => string.IsNullOrEmpty(v)))
+        {
+            Debug.LogError("Devi selezionare tutti i parametri della funzione.");
+            return;
+        }
+
+        // Controlla che c'è e in caso rimuovilo 
+        bool exists = functionsToAdd.Any(x =>
+            x.name == f.name && x.values.SequenceEqual(f.values)
+        );
+        if (exists)
+        {
+            functionsToAdd.RemoveAll(x =>
+                x.name == f.name && x.values.SequenceEqual(f.values)
+            );
+        }
+        else
+        {
+            Debug.LogWarning($"Funzione non trovata: {f.name}({string.Join(",", f.values)})");
+        }
+        FillFunctionList(functionFieldTitle.text);
+    }
+
+    private void FillFunctionList(string name)
+    {
+        functionFieldList.text = "";
+        foreach (var function in functionsToAdd)
+        {
+            if (function.name == name)
+            {
+                functionFieldList.text += name + " ";
+                foreach (var value in function.values)
+                {
+                    functionFieldList.text += value + " ";
+                }
+                functionFieldList.text += "\n";
+            }
+        }
+    }
+
+    // ---------------------------------------------------------------END FUNCTION LIST---------------------------------------------------------------------------
+    // ---------------------------------------------------------------START GOALS----------------------------------------------------------------------------
+
+    public void OpenNext()
+    {
+        if (currentType == 0)
+        {
+            OpenGoals();
+        }
+        else
+        {
+            OpenFunctions();
+        }
     }
 
     public void OpenGoals()
@@ -750,10 +947,13 @@ public class MenuManager : MonoBehaviour
         elevatorGoalsField.SetActive(false);
     }
 
+    // ---------------------------------------------------------------END GOALS---------------------------------------------------------------------------
+    // ---------------------------------------------------------------SIMULATE----------------------------------------------------------------------------
+
     public void Simulate()
     {
         // Validazioni preliminari
-        if (objectsToAdd.Count == 0)
+        /*if (objectsToAdd.Count == 0)
         {
             Debug.LogError("Devi aggiungere almeno un oggetto.");
             return;
@@ -767,11 +967,12 @@ public class MenuManager : MonoBehaviour
         {
             Debug.LogError("Devi aggiungere almeno un goal.");
             return;
-        }
+        }*/
         
         // Salva dati e genera PDDL
         PlanInfo.GetInstance().SetObjects(objectsToAdd);
         PlanInfo.GetInstance().SetPredicates(predicatesToAdd);
+        PlanInfo.GetInstance().SetFunctions(functionsToAdd);
         PlanInfo.GetInstance().SetGoals(goalsToAdd);
         PlanInfo.GetInstance().SetDomainType(currentProblem, currentType);
 
