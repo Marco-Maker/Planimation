@@ -101,19 +101,12 @@ public class MenuManager : MonoBehaviour
     [SerializeField] private GameObject elevatorNumericComposer;
     [SerializeField] private GameObject elevatorEventComposer;
 
-    [Header("OBJECTS")]
-    [SerializeField] private List<ObjectItem> logisticObjects;
-    [SerializeField] private List<ObjectItem> robotObjects;
-    [SerializeField] private List<ObjectItem> elevatorObjects;
+    private List<ObjectItem> objectList;
     private List<ObjectToAdd> objectsToAdd;
 
     [Header("PREDICATES")]
     [SerializeField] private GameObject predicateField;
-    [SerializeField] private List<Predicates> logisticPredicatesList;
-    [SerializeField] private List<Predicates> robotPredicatesList;
-    [SerializeField] private List<Predicates> elevatorPredicatesList;
     private List<Predicates> predicatesList;
-    private Dictionary<string, List<string>> predicatesAvailable;
     private List<PredicateToAdd> predicatesToAdd;
 
     [Header("PREDICATE-FIELD")]
@@ -130,6 +123,7 @@ public class MenuManager : MonoBehaviour
     [SerializeField] private GameObject robotEvent;
     [SerializeField] private GameObject elevatorNumeric;
     [SerializeField] private GameObject elevatorEvent;
+    private List<Functions> functionsList;
     private List<FunctionToAdd> functionsToAdd;
 
     [Header("GOALS")]
@@ -150,10 +144,26 @@ public class MenuManager : MonoBehaviour
 
     private void Start()
     {
-        predicatesAvailable = new Dictionary<string, List<string>>();
         predicatesToAdd = new List<PredicateToAdd>();
         objectsToAdd = new List<ObjectToAdd>();
+        functionsToAdd = new List<FunctionToAdd>();
         goalsToAdd = new List<GoalToAdd>();
+    }
+
+    private void SetLists()
+    {
+        Problem problem = new Problem();
+        foreach (var p in problemsList)
+        {
+            if(p.domain == currentProblem && p.type == currentType)
+            {
+                problem = p;
+                break;
+            }
+        }
+        objectList = problem.objects;
+        predicatesList = problem.predicates;
+        functionsList = problem.functions;
     }
 
     public void OpenPredicateField(string name)
@@ -164,26 +174,7 @@ public class MenuManager : MonoBehaviour
 
     private void FillPredicates(string name)
     {
-        switch (currentProblem)
-        {
-            case 0:
-                predicatesList = logisticPredicatesList;
-                FillObjectsToAdd(logisticObjects);
-                break;
-            case 1:
-                predicatesList = robotPredicatesList;
-                FillObjectsToAdd(robotObjects);
-                break;
-            case 2:
-                predicatesList = elevatorPredicatesList;
-                FillObjectsToAdd(elevatorObjects);
-                break;
-        }
-        foreach (var predicate in predicatesList)
-        {
-            if(predicate.name == name)
-                predicatesAvailable.Add(predicate.name, predicate.values);
-        }
+        FillObjectsToAdd(objectList);
         fieldTitle.text = name;
         fieldList.text = "";
         foreach (var predicate in predicatesToAdd)
@@ -239,10 +230,8 @@ public class MenuManager : MonoBehaviour
         }
     }
 
-
     public void ClosePredicateField()
     {
-        predicatesAvailable.Clear();
         foreach (Transform child in fieldOptions.transform)
             Destroy(child.gameObject);
         predicateField.SetActive(false);
@@ -350,6 +339,7 @@ public class MenuManager : MonoBehaviour
         types.SetActive(false);
         composer.SetActive(true);
         currentType = type;
+        SetLists();
         switch (currentProblem)
         {
             case 0:
@@ -446,6 +436,7 @@ public class MenuManager : MonoBehaviour
         elevatorEventComposer.SetActive(false);
         objectsToAdd.Clear();
         predicatesToAdd.Clear();
+        functionsToAdd.Clear();
         goalsToAdd.Clear();
         goalsText.text = "";
         currentType = -1;
@@ -453,90 +444,28 @@ public class MenuManager : MonoBehaviour
 
     public void AddObjectCount(string name)
     {
-        switch (currentProblem)
-        {
-            case 0:
-                foreach (var obj in logisticObjects)
-                {
-                    if (obj.name == name)
-                    {
-                        int count = int.Parse(obj.number.text);
-                        count++;
-                        obj.number.text = count.ToString();
-                    }
-                }
-                break;
-            case 1:
-                foreach (var obj in robotObjects)
-                {
-                    if (obj.name == name)
-                    {
-                        int count = int.Parse(obj.number.text);
-                        count++;
-                        obj.number.text = count.ToString();
-                    }
-                }
-                break;
-            case 2:
-                foreach (var obj in elevatorObjects)
-                {
-                    if (obj.name == name)
-                    {
-                        int count = int.Parse(obj.number.text);
-                        count++;
-                        obj.number.text = count.ToString();
-                    }
-                }
-                break;
+        foreach (var obj in objectList) {
+            if (obj.name == name)
+            {
+                int count = int.Parse(obj.number.text);
+                count++;
+                obj.number.text = count.ToString();
+            }
         }
     }
 
     public void RemoveObjectCount(string name)
     {
-        switch (currentProblem)
-        {
-            case 0:
-                foreach (var obj in logisticObjects)
+        foreach(var obj in objectList) {
+            if (obj.name == name)
+            {
+                int count = int.Parse(obj.number.text);
+                if (count > 0)
                 {
-                    if (obj.name == name)
-                    {
-                        int count = int.Parse(obj.number.text);
-                        if (count > 0)
-                        {
-                            count--;
-                            obj.number.text = count.ToString();
-                        }
-                    }
+                    count--;
+                    obj.number.text = count.ToString();
                 }
-                break;
-            case 1:
-                foreach (var obj in robotObjects)
-                {
-                    if (obj.name == name)
-                    {
-                        int count = int.Parse(obj.number.text);
-                        if (count > 0)
-                        {
-                            count--;
-                            obj.number.text = count.ToString();
-                        }
-                    }
-                }
-                break;
-            case 2:
-                foreach (var obj in elevatorObjects)
-                {
-                    if (obj.name == name)
-                    {
-                        int count = int.Parse(obj.number.text);
-                        if (count > 0)
-                        {
-                            count--;
-                            obj.number.text = count.ToString();
-                        }
-                    }
-                }
-                break;
+            }
         }
     }
 
@@ -556,8 +485,7 @@ public class MenuManager : MonoBehaviour
                         logisticNumeric.SetActive(false);
                         logisticEvent.SetActive(true);
                         break;
-                }
-                //FillFunctions(logisticObjects, logisticPredicatesList);
+                }             
                 break;
             case 1:
                 switch (currentType)
@@ -571,7 +499,6 @@ public class MenuManager : MonoBehaviour
                         robotEvent.SetActive(true);
                         break;
                 }
-                //FillFunctions(robotObjects, robotPredicatesList);
                 break;
             case 2:
                 switch (currentType)
@@ -585,9 +512,9 @@ public class MenuManager : MonoBehaviour
                         elevatorEvent.SetActive(true);
                         break;
                 }
-                //FillFunctions(elevatorObjects, elevatorPredicatesList);
                 break;
         }
+        //FillFunctions(objectList, functionsList);
     }
     public void OpenNext()
     {
@@ -623,21 +550,19 @@ public class MenuManager : MonoBehaviour
                 logisticGoalsField.SetActive(true);
                 robotGoalsField.SetActive(false);
                 elevatorGoalsField.SetActive(false);
-                FillObjectsToAdd(logisticObjects);
                 break;
             case 1:
                 logisticGoalsField.SetActive(false);
                 robotGoalsField.SetActive(true);
                 elevatorGoalsField.SetActive(false);
-                FillObjectsToAdd(robotObjects);
                 break;
             case 2:
                 logisticGoalsField.SetActive(false);
                 robotGoalsField.SetActive(false);
                 elevatorGoalsField.SetActive(true);
-                FillObjectsToAdd(elevatorObjects);
                 break;
         }
+        FillObjectsToAdd(objectList);
         FillGoals();
 
     }
