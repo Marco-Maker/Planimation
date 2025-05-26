@@ -9,6 +9,18 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+
+[Serializable]
+public class Problem
+{
+    public string problem;
+    public int domain; // 0 = logistic, 1 = robot, 2 = elevator
+    public int type; // 0 = normal, 1 = numeric/temporal, 2 = event
+    public List<ObjectItem> objects;
+    public List<Predicates> predicates;
+    public List<Functions> functions;
+}
+
 [Serializable]
 public class ObjectItem
 {
@@ -27,11 +39,24 @@ public class ObjectToAdd
 public class Predicates
 {
     public string name;
-    public int variant; // 0 = normal, 1 = numeric, 2 = temporal, 3 = event
     public List<string> values;
 }
 
 public class PredicateToAdd
+{
+    public string name;
+    public List<string> values;
+}
+
+
+[Serializable]
+public class Functions
+{
+    public string name;
+    public List<string> value;
+}
+
+public class FunctionToAdd
 {
     public string name;
     public List<string> values;
@@ -61,6 +86,8 @@ public class GoalToAdd
 
 public class MenuManager : MonoBehaviour
 {
+    [SerializeField] private List<Problem> problemsList;
+
     [Header("COMPOSER")]
     [SerializeField] private GameObject types;
     [SerializeField] private GameObject composer;
@@ -95,6 +122,16 @@ public class MenuManager : MonoBehaviour
     [SerializeField] private GameObject fieldOptions;
     [SerializeField] private GameObject predicateOptionPrefab;
 
+    [Header("FUNCTIONS")]
+    [SerializeField] private GameObject functions;
+    [SerializeField] private GameObject logisticNumeric;
+    [SerializeField] private GameObject logisticEvent;
+    [SerializeField] private GameObject robotTemporal;
+    [SerializeField] private GameObject robotEvent;
+    [SerializeField] private GameObject elevatorNumeric;
+    [SerializeField] private GameObject elevatorEvent;
+    private List<FunctionToAdd> functionsToAdd;
+
     [Header("GOALS")]
     [SerializeField] private GameObject goalsField;
     [SerializeField] private TextMeshProUGUI goalsText;
@@ -106,7 +143,7 @@ public class MenuManager : MonoBehaviour
 
     [Header("GENERATOR")]
     [SerializeField] private ProblemGenerator generator;
-
+   
     private Planner planner = new Planner();
     private int currentProblem = -1; // -1 = no problem selected, 0 = logistic, 1 = robot, 2 = elevator
     private int currentType = -1; // -1 = no type selected, 0 = normal, 1 = numeric/temporal, 2 = event
@@ -501,6 +538,79 @@ public class MenuManager : MonoBehaviour
                 }
                 break;
         }
+    }
+
+    public void OpenFunctions()
+    {
+        functions.SetActive(true);
+        switch (currentProblem)
+        {
+            case 0:
+                switch (currentType)
+                {
+                    case 1:
+                        logisticNumeric.SetActive(true);
+                        logisticEvent.SetActive(false);
+                        break;
+                    case 2:
+                        logisticNumeric.SetActive(false);
+                        logisticEvent.SetActive(true);
+                        break;
+                }
+                //FillFunctions(logisticObjects, logisticPredicatesList);
+                break;
+            case 1:
+                switch (currentType)
+                {
+                    case 1:
+                        robotTemporal.SetActive(true);
+                        robotEvent.SetActive(false);
+                        break;
+                    case 2:
+                        robotTemporal.SetActive(false);
+                        robotEvent.SetActive(true);
+                        break;
+                }
+                //FillFunctions(robotObjects, robotPredicatesList);
+                break;
+            case 2:
+                switch (currentType)
+                {
+                    case 1:
+                        elevatorNumeric.SetActive(true);
+                        elevatorEvent.SetActive(false);
+                        break;
+                    case 2:
+                        elevatorNumeric.SetActive(false);
+                        elevatorEvent.SetActive(true);
+                        break;
+                }
+                //FillFunctions(elevatorObjects, elevatorPredicatesList);
+                break;
+        }
+    }
+    public void OpenNext()
+    {
+        if(currentType == 0)
+        {
+            OpenGoals();
+        }
+        else
+        {
+            OpenFunctions();
+        }
+    }
+
+    public void CloseFunctions()
+    {
+        functions.SetActive(false);
+        logisticNumeric.SetActive(false);
+        logisticEvent.SetActive(false);
+        robotTemporal.SetActive(false);
+        robotEvent.SetActive(false);
+        elevatorNumeric.SetActive(false);
+        elevatorEvent.SetActive(false);
+        functionsToAdd.Clear();
     }
 
     public void OpenGoals()
