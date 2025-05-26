@@ -18,10 +18,11 @@ public class Planner //: MonoBehaviour
         path += Const.PDDL_FOLDER;
         solverJarPath = Const.PDDL_FOLDER + Const.SOLVER;
         outputPlanPath = Const.PDDL_FOLDER + Const.OUTPUT_PLAN;
-        domainPath = Const.PDDL_FOLDER + PlanInfo.GetInstance().GetDomainName();
+        domainPath = Const.PDDL_FOLDER + PlanInfo.GetInstance().GetDomainPath();
         problemPath = Const.PROBLEM;
         string args = $"java -jar .{solverJarPath} -domain .{domainPath} -problem .{problemPath} {additionalParameters}";
-        //UnityEngine.Debug.Log(args);
+        /*UnityEngine.Debug.Log(domainPath);
+        UnityEngine.Debug.Log(args);*/
         ExecuteCommand(args);
     }
 

@@ -62,10 +62,17 @@ public class GoalToAdd
 public class MenuManager : MonoBehaviour
 {
     [Header("COMPOSER")]
+    [SerializeField] private GameObject types;
     [SerializeField] private GameObject composer;
     [SerializeField] private GameObject logisticComposer;
+    [SerializeField] private GameObject logisticNumericComposer;
+    [SerializeField] private GameObject logisticEventComposer;
     [SerializeField] private GameObject robotComposer;
+    [SerializeField] private GameObject robotTemporalComposer;
+    [SerializeField] private GameObject robotEventComposer;
     [SerializeField] private GameObject elevatorComposer;
+    [SerializeField] private GameObject elevatorNumericComposer;
+    [SerializeField] private GameObject elevatorEventComposer;
 
     [Header("OBJECTS")]
     [SerializeField] private List<ObjectItem> logisticObjects;
@@ -102,6 +109,7 @@ public class MenuManager : MonoBehaviour
 
     private Planner planner = new Planner();
     private int currentProblem = -1; // -1 = no problem selected, 0 = logistic, 1 = robot, 2 = elevator
+    private int currentType = -1; // -1 = no type selected, 0 = normal, 1 = numeric/temporal, 2 = event
 
     private void Start()
     {
@@ -288,44 +296,122 @@ public class MenuManager : MonoBehaviour
         FillFieldList(fieldTitle.text);
     }
 
-
-    public void OpenComposer(int problem)
+    public void OpenTypes(int problem)
     {
+        types.SetActive(true);
+        currentProblem = problem;
+    }
+
+    public void CloseTypes()
+    {
+        types.SetActive(false);
+        currentProblem = -1;
+    }
+
+    public void OpenComposer(int type)
+    {
+        types.SetActive(false);
         composer.SetActive(true);
-        switch (problem)
+        currentType = type;
+        switch (currentProblem)
         {
             case 0:
-                logisticComposer.SetActive(true);
                 robotComposer.SetActive(false);
                 elevatorComposer.SetActive(false);
-                currentProblem = 0;
+                switch (currentType)
+                {
+                    case 0:
+                        logisticComposer.SetActive(true);
+                        logisticNumericComposer.SetActive(false);
+                        logisticEventComposer.SetActive(false);
+                        break;
+                    case 1:
+                        logisticComposer.SetActive(false);
+                        logisticNumericComposer.SetActive(true);
+                        logisticEventComposer.SetActive(false);
+                        break;
+                    case 2:
+                        logisticComposer.SetActive(false);
+                        logisticNumericComposer.SetActive(false);
+                        logisticEventComposer.SetActive(true);
+                        break;
+                    default:
+                        Debug.LogError("Tipo di compositore non valido per il problema logistico.");
+                        break;
+                }
+                
                 break;
             case 1:
                 logisticComposer.SetActive(false);
-                robotComposer.SetActive(true);
                 elevatorComposer.SetActive(false);
-                currentProblem = 1;
+                switch (currentType)
+                {
+                    case 0:
+                        robotComposer.SetActive(true);
+                        robotTemporalComposer.SetActive(false);
+                        robotEventComposer.SetActive(false);
+                        break;
+                    case 1:
+                        robotComposer.SetActive(false);
+                        robotTemporalComposer.SetActive(true);
+                        robotEventComposer.SetActive(false);
+                        break;
+                    case 2:
+                        robotComposer.SetActive(false);
+                        robotTemporalComposer.SetActive(false);
+                        robotEventComposer.SetActive(true);
+                        break;
+                    default:
+                        Debug.LogError("Tipo di compositore non valido per il problema logistico.");
+                        break;
+                }
                 break;
             case 2:
                 logisticComposer.SetActive(false);
                 robotComposer.SetActive(false);
-                elevatorComposer.SetActive(true);
-                currentProblem = 2;
+                switch (currentType)
+                {
+                    case 0:
+                        elevatorComposer.SetActive(true);
+                        elevatorNumericComposer.SetActive(false);
+                        elevatorEventComposer.SetActive(false);
+                        break;
+                    case 1:
+                        elevatorComposer.SetActive(false);
+                        elevatorNumericComposer.SetActive(true);
+                        elevatorEventComposer.SetActive(false);
+                        break;
+                    case 2:
+                        elevatorComposer.SetActive(false);
+                        elevatorNumericComposer.SetActive(false);
+                        elevatorEventComposer.SetActive(true);
+                        break;
+                    default:
+                        Debug.LogError("Tipo di compositore non valido per il problema logistico.");
+                        break;
+                }
                 break;
         }
     }
 
     public void CloseComposer()
     {
+        types.SetActive(true);
         composer.SetActive(false);
         logisticComposer.SetActive(false);
+        logisticNumericComposer.SetActive(false);
+        logisticEventComposer.SetActive(false);
         robotComposer.SetActive(false);
+        robotTemporalComposer.SetActive(false);
+        robotEventComposer.SetActive(false);
         elevatorComposer.SetActive(false);
+        elevatorNumericComposer.SetActive(false);
+        elevatorEventComposer.SetActive(false);
         objectsToAdd.Clear();
         predicatesToAdd.Clear();
         goalsToAdd.Clear();
         goalsText.text = "";
-        currentProblem = -1;
+        currentType = -1;
     }
 
     public void AddObjectCount(string name)
@@ -647,13 +733,14 @@ public class MenuManager : MonoBehaviour
             Debug.LogError("Devi aggiungere almeno un goal.");
             return;
         }
-
+        
         // Salva dati e genera PDDL
         PlanInfo.GetInstance().SetObjects(objectsToAdd);
         PlanInfo.GetInstance().SetPredicates(predicatesToAdd);
         PlanInfo.GetInstance().SetGoals(goalsToAdd);
-        PlanInfo.GetInstance().SetDomainType(currentProblem);
+        PlanInfo.GetInstance().SetDomainType(currentProblem, currentType);
 
+        generator.SetDomainName(PlanInfo.GetInstance().GetDomainName());
         generator.GenerateAndSave();
         planner.RunShellCommand();
 

@@ -29,13 +29,9 @@ public class ProblemGenerator : MonoBehaviour
 
     [Tooltip("Percorso relativo al progetto dove salvare *.pddl")]
     private string outputPath = "Assets/Generated/problem.pddl";
+    private string domainPath;
 
     /* ---------------------------------------------------------- */
-
-    public void SetDomain()
-    {
-        domainName = PlanInfo.GetInstance().GetDomainName();
-    }
 
     /// <summary>
     /// Chiamare questo metodo (es. dal bottone UI) per generare
@@ -146,10 +142,21 @@ public class ProblemGenerator : MonoBehaviour
 
     public void SetDomainName(string name)
     {
-        domainName = name;
+        domainName = name.Replace(".pddl", "");
+        //Debug.Log("Domain: " + domainName);
     }
     public string GetDomainName()
     {
         return domainName;
+    }
+
+    public string GetDomainPath()
+    {
+       return domainPath;
+    }
+    public void SetDomainPath(string path)
+    {
+        domainPath = path;
+        //Debug.Log("Domain Path: " + domainPath);
     }
 }
