@@ -24,8 +24,16 @@ public class UIManager : MonoBehaviour
     public void LoadMenu()
     {
         SceneManager.LoadScene("Menu");
-        LoadFocusObjectsFromPlan(Path.Combine(Application.dataPath, "PDDL", "output_plan.txt"));
     }
+
+    void Awake() {
+    var planPath = Path.Combine(Application.dataPath, "PDDL", "output_plan.txt");
+    if (File.Exists(planPath))
+        LoadFocusObjectsFromPlan(planPath);
+
+    if (focusObjects.Count > 0)
+        ApplyFocus();
+}
 
 
     public void ShowPlan()
