@@ -177,8 +177,9 @@ public class RobotProblemGenerator : MonoBehaviour
                 Vector3 dir = (posB - posA).normalized;
 
                 // Calcola i bordi delle due stanze (centro ± metà stanza)
-                Vector3 edgeA = posA + dir * (roomSize / 2f);
-                Vector3 edgeB = posB - dir * (roomSize / 2f);
+                float corridorOffset = roomSize / 2f - 0.5f; // distanza dal centro al bordo meno margine
+                Vector3 edgeA = posA + dir * corridorOffset;
+                Vector3 edgeB = posB - dir * corridorOffset;
 
                 Vector3 corridorCenter = (edgeA + edgeB) / 2f;
                 corridorCenter.y += corridorHeightOffset;
@@ -189,7 +190,7 @@ public class RobotProblemGenerator : MonoBehaviour
                 rotation = Quaternion.Euler(0, rotation.eulerAngles.y, 0); // solo asse Y
 
                 GameObject corridor = Instantiate(corridorPrefab, corridorCenter, rotation, transform);
-                corridor.transform.localScale = new Vector3(1f, 1f, corridorLength);
+                corridor.transform.localScale = new Vector3(0.5f, 1f, corridorLength);
                 corridor.name = $"Corridor_{roomA}_{roomB}";
             }
         }
