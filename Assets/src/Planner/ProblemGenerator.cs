@@ -39,28 +39,28 @@ public class ProblemGenerator : MonoBehaviour
     /// </summary>
     public string GenerateAndSave()
     {
-        // 1) Recupera le liste correnti
-        var objects = PlanInfo.GetInstance().GetObjects();     // List<ObjectToAdd>
-        var predicates = PlanInfo.GetInstance().GetPredicates();  // List<PredicateToAdd>
-        var goals = PlanInfo.GetInstance().GetGoals();       // List<GoalToAdd>
+        var planInfo = PlanInfo.GetInstance();
 
-        // 2) Costruisce la stringa PDDL
-        string pddl = BuildPddl(problemName, domainName, objects, predicates, goals);
+        var objects = planInfo.GetObjects();             // List<ObjectToAdd>
+        var predicates = planInfo.GetPredicates();       // List<PredicateToAdd>
+        var goals = planInfo.GetGoals();                 // List<GoalToAdd>
+        var functions = planInfo.GetFunctions();         // ✅ functions
+        var domainType = planInfo.GetDomainType();       // ✅ domain type
 
-        // 3) Salva su file se richiesto
+        string pddl = BuildPddl(problemName, domainName, objects, predicates, goals, functions, domainType);
+
         if (saveToFile)
         {
-            // Garantiamo che la directory esista
             string folder = Path.GetDirectoryName(outputPath);
             if (!Directory.Exists(folder))
                 Directory.CreateDirectory(folder);
 
             File.WriteAllText(outputPath, pddl, Encoding.UTF8);
-            //Debug.Log($"[PDDLGenerator] File creato: {outputPath}");
         }
 
-        return pddl; // Utile se vuoi mostrarlo in un�area di testo o copiarlo altrove
+        return pddl;
     }
+
 
     /* ----------------- LOGICA DI COSTRUZIONE ------------------ */
 
@@ -68,7 +68,10 @@ public class ProblemGenerator : MonoBehaviour
         string problem, string domain,
         IList<ObjectToAdd> objs,
         IList<PredicateToAdd> preds,
-        IList<GoalToAdd> goals)
+        IList<GoalToAdd> goals,
+        IList<FunctionToAdd> funcs,   // ✅ nuovo parametro
+        float domainType             // ✅ nuovo parametro
+    )
     {
         var sb = new StringBuilder();
 
@@ -87,18 +90,31 @@ public class ProblemGenerator : MonoBehaviour
 
         /* ----- SEZIONE (:init ...) ----- */
 
-        // Raggruppa i predicati per nome e valori in modo da evitare duplicati
+        sb.AppendLine("\t(:init");
+
+        // Aggiungi i predicati
         var uniquePreds = preds
             .GroupBy(p => new { p.name, Key = string.Join(",", p.values) })
             .Select(g => g.First())
             .ToList();
 
-        sb.AppendLine("\t(:init");
         foreach (var p in uniquePreds)
             sb.AppendLine("\t\t" + FormatAtomic(p.name, p.values));
+
+        // Aggiungi le funzioni solo se il dominio è numerico
+        if (!Mathf.Approximately(domainType % 1f, 0.0f) && funcs != null)
+        {
+            var uniqueFuncs = funcs
+                .GroupBy(f => f.name + "_" + string.Join(",", f.values))
+                .Select(g => g.First());
+
+            foreach (var f in uniqueFuncs)
+            {
+                sb.AppendLine("\t\t" + FormatFunctionAssignment(f));
+            }
+        }
+
         sb.AppendLine("\t)");
-
-
 
         // Sezione goal con deduplicazione dei goal
         var uniqueGoals = goals
@@ -139,6 +155,23 @@ public class ProblemGenerator : MonoBehaviour
         // Predicati �normali�
         return $"({name} {string.Join(" ", values)})";
     }
+
+    /// <summary>
+    /// Restituisce un'assegnazione numerica in formato PDDL: (= (nome args) valore)
+    /// Es: (= (weight personA) 60)
+    /// </summary>
+    private string FormatFunctionAssignment(FunctionToAdd func)
+    {
+        if (func.values == null || func.values.Count < 1)
+            return ""; // Ignora assegnazioni mal formate
+
+        string value = func.values.Last(); // l'ultimo è il valore numerico
+        var args = func.values.Take(func.values.Count - 1); // tutti gli altri sono argomenti
+        string call = $"({func.name} {string.Join(" ", args)})";
+
+        return $"(= {call} {value})";
+    }
+
 
     public void SetDomainName(string name)
     {

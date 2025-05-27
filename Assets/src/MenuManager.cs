@@ -8,6 +8,19 @@ using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
+
+
+[Serializable]
+public class Problem
+{
+    public string problem;
+    public int domain; // 0 = logistic, 1 = robot, 2 = elevator
+    public int type; // 0 = normal, 1 = numeric/temporal, 2 = event
+    public List<ObjectItem> objects;
+    public List<Predicates> predicates;
+    public List<Functions> functions;
+}
 
 [Serializable]
 public class ObjectItem
@@ -27,11 +40,24 @@ public class ObjectToAdd
 public class Predicates
 {
     public string name;
-    public int variant; // 0 = normal, 1 = numeric, 2 = temporal, 3 = event
     public List<string> values;
 }
 
 public class PredicateToAdd
+{
+    public string name;
+    public List<string> values;
+}
+
+
+[Serializable]
+public class Functions
+{
+    public string name;
+    public List<string> value;
+}
+
+public class FunctionToAdd
 {
     public string name;
     public List<string> values;
@@ -61,6 +87,8 @@ public class GoalToAdd
 
 public class MenuManager : MonoBehaviour
 {
+    [SerializeField] private List<Problem> problemsList;
+
     [Header("COMPOSER")]
     [SerializeField] private GameObject types;
     [SerializeField] private GameObject composer;
@@ -74,19 +102,12 @@ public class MenuManager : MonoBehaviour
     [SerializeField] private GameObject elevatorNumericComposer;
     [SerializeField] private GameObject elevatorEventComposer;
 
-    [Header("OBJECTS")]
-    [SerializeField] private List<ObjectItem> logisticObjects;
-    [SerializeField] private List<ObjectItem> robotObjects;
-    [SerializeField] private List<ObjectItem> elevatorObjects;
+    private List<ObjectItem> objectList;
     private List<ObjectToAdd> objectsToAdd;
 
     [Header("PREDICATES")]
     [SerializeField] private GameObject predicateField;
-    [SerializeField] private List<Predicates> logisticPredicatesList;
-    [SerializeField] private List<Predicates> robotPredicatesList;
-    [SerializeField] private List<Predicates> elevatorPredicatesList;
     private List<Predicates> predicatesList;
-    private Dictionary<string, List<string>> predicatesAvailable;
     private List<PredicateToAdd> predicatesToAdd;
 
     [Header("PREDICATE-FIELD")]
@@ -94,6 +115,24 @@ public class MenuManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI fieldList;
     [SerializeField] private GameObject fieldOptions;
     [SerializeField] private GameObject predicateOptionPrefab;
+
+    [Header("FUNCTIONS")]
+    [SerializeField] private GameObject functions;
+    [SerializeField] private GameObject functionsField;
+    [SerializeField] private GameObject logisticNumeric;
+    [SerializeField] private GameObject logisticEvent;
+    [SerializeField] private GameObject robotTemporal;
+    [SerializeField] private GameObject robotEvent;
+    [SerializeField] private GameObject elevatorNumeric;
+    [SerializeField] private GameObject elevatorEvent;
+    private List<Functions> functionsList;
+    private List<FunctionToAdd> functionsToAdd;
+
+    [Header("FUNCTION-FIELD")]
+    [SerializeField] private TextMeshProUGUI functionFieldTitle;
+    [SerializeField] private TextMeshProUGUI functionFieldList;
+    [SerializeField] private GameObject functionfieldOptions;
+    [SerializeField] private GameObject integerOptionPrefab;
 
     [Header("GOALS")]
     [SerializeField] private GameObject goalsField;
@@ -106,18 +145,36 @@ public class MenuManager : MonoBehaviour
 
     [Header("GENERATOR")]
     [SerializeField] private ProblemGenerator generator;
-
+   
     private Planner planner = new Planner();
     private int currentProblem = -1; // -1 = no problem selected, 0 = logistic, 1 = robot, 2 = elevator
     private int currentType = -1; // -1 = no type selected, 0 = normal, 1 = numeric/temporal, 2 = event
 
     private void Start()
     {
-        predicatesAvailable = new Dictionary<string, List<string>>();
         predicatesToAdd = new List<PredicateToAdd>();
         objectsToAdd = new List<ObjectToAdd>();
+        functionsToAdd = new List<FunctionToAdd>();
         goalsToAdd = new List<GoalToAdd>();
     }
+
+    private void SetLists()
+    {
+        Problem problem = new Problem();
+        foreach (var p in problemsList)
+        {
+            if(p.domain == currentProblem && p.type == currentType)
+            {
+                problem = p;
+                break;
+            }
+        }
+        objectList = problem.objects;
+        predicatesList = problem.predicates;
+        functionsList = problem.functions;
+    }
+
+    // ---------------------------------------------------------------START PREDICATES LIST---------------------------------------------------------------
 
     public void OpenPredicateField(string name)
     {
@@ -127,26 +184,7 @@ public class MenuManager : MonoBehaviour
 
     private void FillPredicates(string name)
     {
-        switch (currentProblem)
-        {
-            case 0:
-                predicatesList = logisticPredicatesList;
-                FillObjectsToAdd(logisticObjects);
-                break;
-            case 1:
-                predicatesList = robotPredicatesList;
-                FillObjectsToAdd(robotObjects);
-                break;
-            case 2:
-                predicatesList = elevatorPredicatesList;
-                FillObjectsToAdd(elevatorObjects);
-                break;
-        }
-        foreach (var predicate in predicatesList)
-        {
-            if(predicate.name == name)
-                predicatesAvailable.Add(predicate.name, predicate.values);
-        }
+        FillObjectsToAdd(objectList);
         fieldTitle.text = name;
         fieldList.text = "";
         foreach (var predicate in predicatesToAdd)
@@ -202,10 +240,8 @@ public class MenuManager : MonoBehaviour
         }
     }
 
-
     public void ClosePredicateField()
     {
-        predicatesAvailable.Clear();
         foreach (Transform child in fieldOptions.transform)
             Destroy(child.gameObject);
         predicateField.SetActive(false);
@@ -296,6 +332,9 @@ public class MenuManager : MonoBehaviour
         FillFieldList(fieldTitle.text);
     }
 
+    // ---------------------------------------------------------------END PREDICATES LIST---------------------------------------------------------------
+    // ---------------------------------------------------------------START TYPE------------------------------------------------------------------------
+
     public void OpenTypes(int problem)
     {
         types.SetActive(true);
@@ -308,11 +347,15 @@ public class MenuManager : MonoBehaviour
         currentProblem = -1;
     }
 
+    // ---------------------------------------------------------------END TYPE---------------------------------------------------------------------------
+    // ---------------------------------------------------------------START COMPOSER---------------------------------------------------------------------
+
     public void OpenComposer(int type)
     {
         types.SetActive(false);
         composer.SetActive(true);
         currentType = type;
+        SetLists();
         switch (currentProblem)
         {
             case 0:
@@ -409,6 +452,7 @@ public class MenuManager : MonoBehaviour
         elevatorEventComposer.SetActive(false);
         objectsToAdd.Clear();
         predicatesToAdd.Clear();
+        functionsToAdd.Clear();
         goalsToAdd.Clear();
         goalsText.text = "";
         currentType = -1;
@@ -416,90 +460,280 @@ public class MenuManager : MonoBehaviour
 
     public void AddObjectCount(string name)
     {
-        switch (currentProblem)
-        {
-            case 0:
-                foreach (var obj in logisticObjects)
-                {
-                    if (obj.name == name)
-                    {
-                        int count = int.Parse(obj.number.text);
-                        count++;
-                        obj.number.text = count.ToString();
-                    }
-                }
-                break;
-            case 1:
-                foreach (var obj in robotObjects)
-                {
-                    if (obj.name == name)
-                    {
-                        int count = int.Parse(obj.number.text);
-                        count++;
-                        obj.number.text = count.ToString();
-                    }
-                }
-                break;
-            case 2:
-                foreach (var obj in elevatorObjects)
-                {
-                    if (obj.name == name)
-                    {
-                        int count = int.Parse(obj.number.text);
-                        count++;
-                        obj.number.text = count.ToString();
-                    }
-                }
-                break;
+        foreach (var obj in objectList) {
+            if (obj.name == name)
+            {
+                int count = int.Parse(obj.number.text);
+                count++;
+                obj.number.text = count.ToString();
+            }
         }
     }
 
     public void RemoveObjectCount(string name)
     {
+        foreach(var obj in objectList) {
+            if (obj.name == name)
+            {
+                int count = int.Parse(obj.number.text);
+                if (count > 0)
+                {
+                    count--;
+                    obj.number.text = count.ToString();
+                }
+            }
+        }
+    }
+
+    // ---------------------------------------------------------------END COMPOSE---------------------------------------------------------------------------
+    // ---------------------------------------------------------------START FUNCTION------------------------------------------------------------------------
+
+    public void OpenFunctions()
+    {
+        functions.SetActive(true);
         switch (currentProblem)
         {
             case 0:
-                foreach (var obj in logisticObjects)
+                switch (currentType)
                 {
-                    if (obj.name == name)
-                    {
-                        int count = int.Parse(obj.number.text);
-                        if (count > 0)
-                        {
-                            count--;
-                            obj.number.text = count.ToString();
-                        }
-                    }
-                }
+                    case 1:
+                        logisticNumeric.SetActive(true);
+                        logisticEvent.SetActive(false);
+                        break;
+                    case 2:
+                        logisticNumeric.SetActive(false);
+                        logisticEvent.SetActive(true);
+                        break;
+                }             
                 break;
             case 1:
-                foreach (var obj in robotObjects)
+                switch (currentType)
                 {
-                    if (obj.name == name)
-                    {
-                        int count = int.Parse(obj.number.text);
-                        if (count > 0)
-                        {
-                            count--;
-                            obj.number.text = count.ToString();
-                        }
-                    }
+                    case 1:
+                        robotTemporal.SetActive(true);
+                        robotEvent.SetActive(false);
+                        break;
+                    case 2:
+                        robotTemporal.SetActive(false);
+                        robotEvent.SetActive(true);
+                        break;
                 }
                 break;
             case 2:
-                foreach (var obj in elevatorObjects)
+                switch (currentType)
                 {
-                    if (obj.name == name)
-                    {
-                        int count = int.Parse(obj.number.text);
-                        if (count > 0)
-                        {
-                            count--;
-                            obj.number.text = count.ToString();
-                        }
-                    }
+                    case 1:
+                        elevatorNumeric.SetActive(true);
+                        elevatorEvent.SetActive(false);
+                        break;
+                    case 2:
+                        elevatorNumeric.SetActive(false);
+                        elevatorEvent.SetActive(true);
+                        break;
                 }
                 break;
+        }
+        //FillFunctions(objectList, functionsList);
+    }
+
+    public void CloseFunctions()
+    {
+        functions.SetActive(false);
+        logisticNumeric.SetActive(false);
+        logisticEvent.SetActive(false);
+        robotTemporal.SetActive(false);
+        robotEvent.SetActive(false);
+        elevatorNumeric.SetActive(false);
+        elevatorEvent.SetActive(false);
+        functionsToAdd.Clear();
+    }
+
+    // ---------------------------------------------------------------END FUNCTION----------------------------------------------------------------------------------
+    // ---------------------------------------------------------------START FUNCTION LIST---------------------------------------------------------------------------
+    public void OpenFunctionField(string name)
+    {
+        functionsField.SetActive(true);
+        FillObjectsToAdd(objectList);
+        functionFieldTitle.text = name;
+        functionFieldList.text = "";
+        foreach (var function in functionsToAdd)
+        {
+            if (function.name == name)
+            {
+                functionFieldList.text += name + " ";
+                foreach (var value in function.values)
+                {
+                    functionFieldList.text += value + " ";
+                }
+                functionFieldList.text += "\n";
+            }
+        }
+        foreach (var function in functionsList)
+        {
+            if (function.name == name)
+            {
+                foreach (var value in function.value)
+                {
+                    if (value.Equals("integer"))
+                    {
+                        GameObject obj = Instantiate(integerOptionPrefab, functionfieldOptions.transform);
+                    }
+                    else
+                    {
+                        GameObject obj = Instantiate(predicateOptionPrefab, functionfieldOptions.transform);
+                        obj.transform.GetComponentInChildren<PredicateInputSetter>().SetLabel(value);
+                        obj.transform.GetComponentInChildren<TMP_Dropdown>().ClearOptions();
+                        List<string> options = new List<string>();
+                        foreach (var o in objectsToAdd)
+                        {
+                            if (o.type.Contains(value) || o.name.Contains(value))
+                            {
+                                options.Add(o.name);
+                            }
+                        }
+                        obj.transform.GetComponentInChildren<TMP_Dropdown>().AddOptions(options);
+                    }
+                    
+                }
+            }
+        }
+    }
+    public void CloseFunctionField()
+    {
+        foreach (Transform child in functionfieldOptions.transform)
+            Destroy(child.gameObject);
+        functionsField.SetActive(false);
+    }
+    public void AddFunction()
+    {
+        // Costruisci la funzione dal campo UI
+        FunctionToAdd f = new FunctionToAdd
+        {
+            name = functionFieldTitle.text,
+            values = new List<string>()
+        };
+
+        GameObject options = GameObject.Find("FunctionInputOptions");
+        foreach (Transform child in options.transform)
+        {
+            if (child.GetComponentInChildren<TMP_Dropdown>() != null)
+            {
+                TMP_Dropdown dd = child.GetComponentInChildren<TMP_Dropdown>();
+                if (dd != null)
+                {
+                    string val = dd.options[dd.value].text;
+                    f.values.Add(val);
+                }
+            }
+            else
+            {
+                f.values.Add(child.GetComponentInChildren<IntegerInputSetter>().GetValue().ToString());
+            }
+
+        }
+
+        // Validazione: tutti i parametri selezionati
+        if (f.values.Any(v => string.IsNullOrEmpty(v)))
+        {
+            Debug.LogError("Devi selezionare tutti i parametri della funzione.");
+            return;
+        }
+
+        // Controllo duplicati
+        bool exists = functionsToAdd.Any(x =>
+            x.name == f.name && x.values.SequenceEqual(f.values)
+        );
+        if (exists)
+        {
+            Debug.LogWarning($"Funzione già aggiunta: {f.name}({string.Join(",", f.values)})");
+        }
+        else
+        {
+            functionsToAdd.Add(f);
+        }
+        FillFunctionList(functionFieldTitle.text);
+    }
+
+    public void RemoveFunction()
+    {
+        FunctionToAdd f = new FunctionToAdd
+        {
+            name = functionFieldTitle.text,
+            values = new List<string>()
+        };
+
+        GameObject options = GameObject.Find("FunctionInputOptions");
+        foreach (Transform child in options.transform)
+        {
+            if(child.GetComponentInChildren<TMP_Dropdown>() != null)
+            {
+                TMP_Dropdown dd = child.GetComponentInChildren<TMP_Dropdown>();
+                if (dd != null)
+                {
+                    string val = dd.options[dd.value].text;
+                    f.values.Add(val);
+                }
+            }
+            else
+            {
+                f.values.Add(child.GetComponentInChildren<IntegerInputSetter>().GetValue().ToString());
+            }
+            
+        }
+
+        // Validazione: tutti i parametri selezionati
+        if (f.values.Any(v => string.IsNullOrEmpty(v)))
+        {
+            Debug.LogError("Devi selezionare tutti i parametri della funzione.");
+            return;
+        }
+
+        // Controlla che c'è e in caso rimuovilo 
+        bool exists = functionsToAdd.Any(x =>
+            x.name == f.name && x.values.SequenceEqual(f.values)
+        );
+        if (exists)
+        {
+            functionsToAdd.RemoveAll(x =>
+                x.name == f.name && x.values.SequenceEqual(f.values)
+            );
+        }
+        else
+        {
+            Debug.LogWarning($"Funzione non trovata: {f.name}({string.Join(",", f.values)})");
+        }
+        FillFunctionList(functionFieldTitle.text);
+    }
+
+    private void FillFunctionList(string name)
+    {
+        functionFieldList.text = "";
+        foreach (var function in functionsToAdd)
+        {
+            if (function.name == name)
+            {
+                functionFieldList.text += name + " ";
+                foreach (var value in function.values)
+                {
+                    functionFieldList.text += value + " ";
+                }
+                functionFieldList.text += "\n";
+            }
+        }
+    }
+
+    // ---------------------------------------------------------------END FUNCTION LIST---------------------------------------------------------------------------
+    // ---------------------------------------------------------------START GOALS----------------------------------------------------------------------------
+
+    public void OpenNext()
+    {
+        if (currentType == 0)
+        {
+            OpenGoals();
+        }
+        else
+        {
+            OpenFunctions();
         }
     }
 
@@ -513,21 +747,19 @@ public class MenuManager : MonoBehaviour
                 logisticGoalsField.SetActive(true);
                 robotGoalsField.SetActive(false);
                 elevatorGoalsField.SetActive(false);
-                FillObjectsToAdd(logisticObjects);
                 break;
             case 1:
                 logisticGoalsField.SetActive(false);
                 robotGoalsField.SetActive(true);
                 elevatorGoalsField.SetActive(false);
-                FillObjectsToAdd(robotObjects);
                 break;
             case 2:
                 logisticGoalsField.SetActive(false);
                 robotGoalsField.SetActive(false);
                 elevatorGoalsField.SetActive(true);
-                FillObjectsToAdd(elevatorObjects);
                 break;
         }
+        FillObjectsToAdd(objectList);
         FillGoals();
 
     }
@@ -715,10 +947,13 @@ public class MenuManager : MonoBehaviour
         elevatorGoalsField.SetActive(false);
     }
 
+    // ---------------------------------------------------------------END GOALS---------------------------------------------------------------------------
+    // ---------------------------------------------------------------SIMULATE----------------------------------------------------------------------------
+
     public void Simulate()
     {
         // Validazioni preliminari
-        if (objectsToAdd.Count == 0)
+        /*if (objectsToAdd.Count == 0)
         {
             Debug.LogError("Devi aggiungere almeno un oggetto.");
             return;
@@ -732,11 +967,12 @@ public class MenuManager : MonoBehaviour
         {
             Debug.LogError("Devi aggiungere almeno un goal.");
             return;
-        }
+        }*/
         
         // Salva dati e genera PDDL
         PlanInfo.GetInstance().SetObjects(objectsToAdd);
         PlanInfo.GetInstance().SetPredicates(predicatesToAdd);
+        PlanInfo.GetInstance().SetFunctions(functionsToAdd);
         PlanInfo.GetInstance().SetGoals(goalsToAdd);
         PlanInfo.GetInstance().SetDomainType(currentProblem, currentType);
 

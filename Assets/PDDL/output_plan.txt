@@ -2,6 +2,7 @@ Domain parsed
 Grammar is violated
 Problem parsed
 Grounding..
+<<<<<<< HEAD
 Grounding Time: 45
 Aibr Preprocessing
 |F|:9
@@ -10,28 +11,44 @@ Aibr Preprocessing
 |P|:0
 |E|:0
 H1 Setup Time (msec): 16
+=======
+Grounding Time: 17
+Aibr Preprocessing
+|F|:2
+|X|:4
+|A|:5
+|P|:0
+|E|:0
+H1 Setup Time (msec): 6
+>>>>>>> origin/main
 Setting horizon to:NaN
 Running Greedy Best First Search
-h(n = s_0)=4.0
- g(n)= 1.0 h(n)=3.0
- g(n)= 2.0 h(n)=2.0
+h(n = s_0)=2.0
  g(n)= 3.0 h(n)=1.0
  g(n)= 4.0 h(n)=0.0
 Problem Solved
 
 Found Plan:
-0.0: (load person1 elevator1 floor1)
-1.0: (move-up elevator1 floor1 floor2)
-2.0: (unload person1 elevator1 floor2)
-3.0: (reached person1 floor2)
+0.0: (load person1 elevator1)
+1.0: (move-up elevator1)
+2.0: (unload person1 elevator1)
+3.0: (reached person1)
 
 Plan-Length:4
 Metric (Search):4.0
+<<<<<<< HEAD
 Planning Time (msec): 517
 Heuristic Time (msec): 0
 Search Time (msec): 24
 Expanded Nodes:5
 States Evaluated:8
+=======
+Planning Time (msec): 301
+Heuristic Time (msec): 2
+Search Time (msec): 7
+Expanded Nodes:6
+States Evaluated:9
+>>>>>>> origin/main
 Fixed constraint violations during search (zero-crossing):0
 Number of Dead-Ends detected:0
-Number of Duplicates detected:3
+Number of Duplicates detected:4
