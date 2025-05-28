@@ -459,7 +459,7 @@ Transform:
   m_GameObject: {fileID: 1376914229}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -70.89701, y: 52.436863, z: -1.4691236}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -492,7 +492,7 @@ MonoBehaviour:
   corridorPrefab: {fileID: 3337721905383381583, guid: 759b33efc5adca74e8f3f586cc0642b1, type: 3}
   corridorHeightOffset: 0.01
   roomSpacing: 20
-  roomSize: 4
+  roomSize: 12
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

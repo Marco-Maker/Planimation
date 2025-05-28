@@ -166,7 +166,6 @@ public class RobotProblemGenerator : MonoBehaviour
             }
         }
 
-        // 🔹 4. Crea i corridoi tra le stanze connesse
         foreach (var (roomA, roomB) in connectedRooms)
         {
             if (roomObjects.ContainsKey(roomA) && roomObjects.ContainsKey(roomB))
@@ -176,8 +175,8 @@ public class RobotProblemGenerator : MonoBehaviour
 
                 Vector3 dir = (posB - posA).normalized;
 
-                // Calcola i bordi delle due stanze (centro ± metà stanza)
-                float corridorOffset = roomSize / 2f - 0.5f; // distanza dal centro al bordo meno margine
+                // Calcolo bordi (centro stanza + direzione * offset)
+                float corridorOffset = roomSize / 2f; // metà lato stanza
                 Vector3 edgeA = posA + dir * corridorOffset;
                 Vector3 edgeB = posB - dir * corridorOffset;
 
@@ -187,7 +186,7 @@ public class RobotProblemGenerator : MonoBehaviour
                 float corridorLength = Vector3.Distance(edgeA, edgeB);
 
                 Quaternion rotation = Quaternion.LookRotation(posB - posA);
-                rotation = Quaternion.Euler(0, rotation.eulerAngles.y, 0); // solo asse Y
+                rotation = Quaternion.Euler(0, rotation.eulerAngles.y, 0);
 
                 GameObject corridor = Instantiate(corridorPrefab, corridorCenter, rotation, transform);
                 corridor.transform.localScale = new Vector3(0.5f, 1f, corridorLength);
