@@ -1,36 +1,23 @@
 ﻿(define (problem problem)
-<<<<<<< HEAD
 	(:domain domain-elevator-normal-capacity-infinity)
 	(:objects
-		floor1 floor2 - floor
+		elevator1 elevator2 - elevator
+		floor1 floor2 floor3 - floor
 		person1 person2 - person
-=======
-	(:domain domain-elevator-numeric)
-	(:objects
->>>>>>> origin/main
-		elevator1 - elevator
-		person1 - person
 	)
 	(:init
-<<<<<<< HEAD
-		(at-person person1 floor1)
 		(at-person person2 floor1)
-		(at-elevator elevator1 floor1)
-		(target person1 floor2)
+		(at-person person1 floor3)
+		(target person1 floor3)
+		(target person2 floor3)
 		(above floor2 floor1)
-=======
-		(= (at-elevator elevator1) 1)
-		(= (at-person person1) 1)
-		(= (floors ) 2)
-		(= (max-load elevator1) 3)
-		(= (capacity elevator1) 3)
-		(= (weight person1) 1)
-		(= (target person1) 2)
->>>>>>> origin/main
+		(above floor3 floor2)
+		(at-elevator elevator1 floor1)
 	)
 	(:goal
 		(and
 			(reached person1)
+			(reached person2)
 		)
 	)
 )

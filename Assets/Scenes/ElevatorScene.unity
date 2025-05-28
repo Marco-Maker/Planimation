@@ -544,6 +544,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6923255114049383458, guid: c4b06fedc2020d642b2e3f16a18daf78, type: 3}
+      propertyPath: mainCamera
+      value: 
+      objectReference: {fileID: 539849769}
     - target: {fileID: 7429005761392443730, guid: c4b06fedc2020d642b2e3f16a18daf78, type: 3}
       propertyPath: m_Name
       value: General Menu Overlay
