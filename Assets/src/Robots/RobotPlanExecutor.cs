@@ -137,7 +137,7 @@ public class RobotPlanExecutor : MonoBehaviour
         );
     }
 
-    IEnumerator MoveToPosition(GameObject obj, Vector3 target, float speed = 2f)
+    IEnumerator MoveToPosition(GameObject obj, Vector3 target, float speed = 5f)
     {
         while (Vector3.Distance(obj.transform.position, target) > 0.01f)
         {
