@@ -227,7 +227,7 @@ public class MenuManager : MonoBehaviour
         fieldList.text = "";
         foreach (var predicate in predicatesToAdd)
         {
-            Debug.Log(predicate.name);
+            //Debug.Log(predicate.name);
             if (predicate.name == name)
             {
                 fieldList.text += name + " ";

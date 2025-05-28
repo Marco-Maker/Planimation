@@ -36,10 +36,10 @@ public class RobotProblemGenerator : MonoBehaviour
         {
             switch (p.name)
             {
-                case "at-robby":
+                case "at-robot":
                     atRobbyMap[p.values[0]] = p.values[1];
                     break;
-                case "at":
+                case "at-obj":
                     atBallMap[p.values[0]] = p.values[1];
                     break;
                 case "carry":
@@ -66,7 +66,7 @@ public class RobotProblemGenerator : MonoBehaviour
 
             if (o.name.StartsWith("room")) key = "rooms";
             else if (o.name.StartsWith("robot")) key = "robots";
-            else if (o.name.StartsWith("ball")) key = "balls";
+            else if (o.name.StartsWith("obj")) key = "objs";
 
             if (!string.IsNullOrEmpty(key))
             {
@@ -206,7 +206,7 @@ public class RobotProblemGenerator : MonoBehaviour
 
             Vector3 roomPos = roomObjects[room].transform.position;
             Vector3 robotPos = roomPos + Vector3.up;
-
+            Debug.Log($"Placing robot {robot} in room {room} at position {robotPos}");
             GameObject robotGO = Instantiate(robotPrefab, robotPos, Quaternion.identity, roomObjects[room].transform);
             robotGO.name = robot;
             robotObjects[robot] = robotGO;
