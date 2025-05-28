@@ -8,6 +8,9 @@ TagManager:
   - Floor
   - Person
   - Elevator
+  - Room
+  - Ball
+  - Robot
   layers:
   - Default
   - TransparentFX

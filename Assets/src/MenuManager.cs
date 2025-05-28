@@ -227,7 +227,7 @@ public class MenuManager : MonoBehaviour
         fieldList.text = "";
         foreach (var predicate in predicatesToAdd)
         {
-            Debug.Log(predicate.name);
+            //Debug.Log(predicate.name);
             if (predicate.name == name)
             {
                 fieldList.text += name + " ";
@@ -751,6 +751,16 @@ public class MenuManager : MonoBehaviour
             case 1:
                 logisticGoalsField.SetActive(false);
                 robotGoalsField.SetActive(true);
+                if(currentType != 2)
+                {
+                    goalsList[1].dropdown[2].dropdown.SetActive(false);
+                    goalsList[1].dropdown[1].dropdown.SetActive(true);
+                }
+                else
+                {
+                    goalsList[1].dropdown[2].dropdown.SetActive(true);
+                    goalsList[1].dropdown[1].dropdown.SetActive(false);
+                }
                 elevatorGoalsField.SetActive(false);
                 break;
             case 2:
@@ -786,6 +796,7 @@ public class MenuManager : MonoBehaviour
     {
         foreach (var g in goalsList)
         {
+            //Debug.Log("Goal: " + g.problemName + " - " + g.name + " - " + g.problem);
             if (g.problem == currentProblem)
             {
                 foreach (var input in g.dropdown)
@@ -799,6 +810,7 @@ public class MenuManager : MonoBehaviour
                         List<string> options = new List<string>();
                         foreach (var obj in objectsToAdd)
                         {
+                            //Debug.Log("Controllo oggetto: " + obj.name + " - " + input.value);
                             if (obj.name.StartsWith(input.value))
                             {
                                 options.Add(obj.name); 
