@@ -843,7 +843,6 @@ public class MenuManager : MonoBehaviour
             case 1: options = GameObject.Find("RobotGoalInputOptions"); break;
             case 2: options = GameObject.Find("ElevatorGoalInputOptions"); break;
         }
-
         foreach (Transform child in options.transform)
         {
             if (child.name == "GoalName")
@@ -853,8 +852,20 @@ public class MenuManager : MonoBehaviour
             }
             else if (child.name.Contains("Input"))
             {
+                if(currentProblem == 1)
+                {
+                    if (currentType != 2 && child.name.StartsWith("Garden"))
+                    {
+                        continue;
+                    }
+                    else if(currentType == 2 && child.name.StartsWith("Room"))
+                    {
+                        continue;
+                    }
+                }
                 TMP_Dropdown dd = child.GetComponentInChildren<TMP_Dropdown>();
                 if (dd != null)
+                    Debug.Log("Aggiungo valore: " + dd.options[dd.value].text + " value interno " + dd.value + " size " + dd.options.Count );
                     g.values.Add(dd.options[dd.value].text);
             }
         }
@@ -906,6 +917,17 @@ public class MenuManager : MonoBehaviour
                 }
                 else if (child.name.Contains("Input"))
                 {
+                    if (currentProblem == 1)
+                    {
+                        if (currentType != 2 && child.name.StartsWith("Garden"))
+                        {
+                            continue;
+                        }
+                        else if (currentType == 2 && child.name.StartsWith("Room"))
+                        {
+                            continue;
+                        }
+                    }
                     TMP_Dropdown dd = child.GetComponentInChildren<TMP_Dropdown>();
                     if (dd != null)
                         g.values.Add(dd.options[dd.value].text);

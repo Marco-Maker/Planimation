@@ -11,6 +11,9 @@ TagManager:
   - Room
   - Ball
   - Robot
+  - Package
+  - Vehicle
+  - Place
   layers:
   - Default
   - TransparentFX

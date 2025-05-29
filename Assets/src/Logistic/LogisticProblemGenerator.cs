@@ -19,7 +19,7 @@ public class LogisticProblemGenerator : MonoBehaviour
     [SerializeField] private float citySpacing = 150f;
     [SerializeField] private float locationRadius = 25f;
 
-    void Start()
+    void Awake()
     {
         GenerateMap();
     }
@@ -237,7 +237,7 @@ public class LogisticProblemGenerator : MonoBehaviour
                 int siblingCount = placeGO.transform.childCount;
                 Vector3 offset = Vector3.up * (1 + siblingCount * 0.5f);
 
-                GameObject physObjGO = Instantiate(prefab, placeGO.transform.position + offset, Quaternion.identity, placeGO.transform);
+                GameObject physObjGO = Instantiate(prefab, placeGO.transform.position, Quaternion.identity, placeGO.transform);
                 physObjGO.name = physObjName;
 
                 physObjGameObjects[physObjName] = physObjGO;

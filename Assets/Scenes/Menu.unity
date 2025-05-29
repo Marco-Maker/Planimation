@@ -44885,7 +44885,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6675689145434165302, guid: 8027b156cf198eb4395e4bb44d080704, type: 3}
       propertyPath: m_Name
-      value: RoomGardenInput
+      value: RoomInput
       objectReference: {fileID: 0}
     - target: {fileID: 8071022765060182924, guid: 8027b156cf198eb4395e4bb44d080704, type: 3}
       propertyPath: m_text
