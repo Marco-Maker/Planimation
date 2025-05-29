@@ -1,23 +1,20 @@
 ﻿(define (problem problem)
-	(:domain domain-elevator-normal-capacity-infinity)
+	(:domain domain-robot-normal)
 	(:objects
-		elevator1 elevator2 - elevator
-		floor1 floor2 floor3 - floor
-		person1 person2 - person
+		room1 room2 - room
+		ball1 - ball
+		robot1 - robot
 	)
 	(:init
-		(at-person person2 floor1)
-		(at-person person1 floor3)
-		(target person1 floor3)
-		(target person2 floor3)
-		(above floor2 floor1)
-		(above floor3 floor2)
-		(at-elevator elevator1 floor1)
+		(at )
+		(connected room1 room1)
+		(allowed robot1 room1)
+		(carry ball1 robot1)
+		(free robot1)
 	)
 	(:goal
 		(and
-			(reached person1)
-			(reached person2)
+			(at Option A Option A)
 		)
 	)
 )
