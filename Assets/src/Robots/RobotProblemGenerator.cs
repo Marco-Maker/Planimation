@@ -205,8 +205,7 @@ public class RobotProblemGenerator : MonoBehaviour
             if (!roomObjects.ContainsKey(room)) continue;
 
             Vector3 roomPos = roomObjects[room].transform.position;
-            Vector3 robotPos = roomPos + Vector3.up;
-            Debug.Log($"Placing robot {robot} in room {room} at position {robotPos}");
+            Vector3 robotPos = roomPos + new Vector3(0, 1.5f, 0);
             GameObject robotGO = Instantiate(robotPrefab, robotPos, Quaternion.identity, roomObjects[room].transform);
             robotGO.name = robot;
             robotObjects[robot] = robotGO;

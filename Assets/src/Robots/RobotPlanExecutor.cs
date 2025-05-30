@@ -14,12 +14,14 @@ public class RobotPlanExecutor : MonoBehaviour
     private Dictionary<string, GameObject> objects;
 
     private string planFilePath;
+    private float robotHeight;
 
     void Start()
     {
         planFilePath = "." + Const.PDDL_FOLDER + Const.OUTPUT_PLAN;
         LoadPlanFromFile();
         FindSceneObjects();
+        robotHeight = GameObject.FindGameObjectWithTag("Robot").transform.position.y;
         StartCoroutine(ExecutePlan());
     }
 
@@ -88,9 +90,15 @@ public class RobotPlanExecutor : MonoBehaviour
             yield break;
         }
 
+        robot.transform.position = new Vector3(
+            robot.transform.position.x,
+            robotHeight,
+            robot.transform.position.z
+        );
+
         Vector3 targetPosition = new Vector3(
             room.transform.position.x,
-            robot.transform.position.y,  // keep same Y height
+            robotHeight,
             room.transform.position.z
         );
 
@@ -108,9 +116,6 @@ public class RobotPlanExecutor : MonoBehaviour
         }
 
         Debug.Log($"{robotName} picking up {objectName} in {roomName}");
-
-        // Move to object first
-        yield return MoveToPosition(robot, obj.transform.position);
 
         // Attach object to robot
         obj.transform.SetParent(robot.transform);
