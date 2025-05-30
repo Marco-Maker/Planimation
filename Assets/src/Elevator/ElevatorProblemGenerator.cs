@@ -7,6 +7,7 @@ public class ElevatorProblemGenerator : MonoBehaviour
     [SerializeField] private List<GameObject> floorsPrefab;
     private int floorCounter = 0;
     [SerializeField] private List<GameObject> personPrefab;
+    [SerializeField] private GameObject elevatorDoorPrefab;
     [SerializeField] private GameObject elevatorPrefab;
 
     [SerializeField] private float floorHeight = 5f;
@@ -109,7 +110,7 @@ public class ElevatorProblemGenerator : MonoBehaviour
             elevatorColumnMap[elevator] = elevatorIndex++;
         }
 
-        // 🔹 Posiziona ogni elevator su tutti i piani, affiancati
+        // 🔹 Posiziona le porte degli ascensori su tutti i piani
         foreach (var elevator in atElevatorMap.Keys)
         {
             int columnOffset = elevatorColumnMap[elevator];
@@ -119,11 +120,29 @@ public class ElevatorProblemGenerator : MonoBehaviour
                 GameObject floorGO = floorGameObjects[floor];
 
                 float xOffset = elevatorOffsetX + columnOffset * 1f; // Spaziatura orizzontale tra colonne
-                Vector3 pos = floorGO.transform.position + new Vector3(xOffset, -0.6f, 0.5f);
+                Vector3 doorPos = floorGO.transform.position + new Vector3(xOffset, -0.6f, 0.5f);
 
-                GameObject elevatorGO = Instantiate(elevatorPrefab, pos, Quaternion.identity, floorGO.transform);
-                elevatorGO.name = $"{elevator}_on_{floor}";
+                GameObject doorGO = Instantiate(elevatorDoorPrefab, doorPos, Quaternion.identity, floorGO.transform);
+                doorGO.name = $"door_{elevator}_on_{floor}";
             }
+        }
+
+        // 🔹 Posiziona l'elevator solo sul piano in cui si trova
+        foreach (var kvp in atElevatorMap)
+        {
+            string elevator = kvp.Key;
+            string floor = kvp.Value;
+
+            if (!floorGameObjects.ContainsKey(floor)) continue;
+
+            GameObject floorGO = floorGameObjects[floor];
+            int columnOffset = elevatorColumnMap[elevator];
+            float xOffset = elevatorOffsetX + columnOffset * 1f;
+
+            Vector3 pos = floorGO.transform.position + new Vector3(xOffset, -0.6f, 0.5f);
+
+            GameObject elevatorGO = Instantiate(elevatorPrefab, pos, Quaternion.identity, transform);
+            elevatorGO.name = elevator;
         }
 
         // 🔹 Posiziona le persone sul loro piano

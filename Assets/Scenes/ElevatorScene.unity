@@ -423,7 +423,8 @@ MonoBehaviour:
   - {fileID: 1971778639594509307, guid: 597c1a461be35d444819d0e1a279f310, type: 3}
   - {fileID: 5905130394889306769, guid: 9689068eaa09ffd47bd9e6ba7926a451, type: 3}
   - {fileID: 6247968112981422155, guid: 0acf3143ca0e16c4ea2deb9386adae67, type: 3}
-  elevatorPrefab: {fileID: 4501259309890233413, guid: e4194b794bb723b4b970d0a6f20b2e15, type: 3}
+  elevatorDoorPrefab: {fileID: 4501259309890233413, guid: 53056e9a42da8814eba76ffb76899d79, type: 3}
+  elevatorPrefab: {fileID: 4501259309890233413, guid: b7f6189200edcb743862ff98f0751e5b, type: 3}
   floorHeight: 1.5
   columnWidth: 10
   elevatorOffsetX: 5.5

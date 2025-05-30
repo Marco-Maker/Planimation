@@ -60,16 +60,15 @@ public class ElevatorPlanExecutor : MonoBehaviour
             //Debug.Log($"Found person: {person.Key}");
             initialPositions[person.Key] = person.Value.transform.position;
         }
-        /*
         foreach (var floor in floors)
         {
-            Debug.Log($"Found floor: {floor.Key}");
+            //Debug.Log($"Found floor: {floor.Key}");
         }
         foreach (var elevator in elevators)
         {
             Debug.Log($"Found elevator: {elevator.Key}");
         }
-        Debug.Log("_________END_______________");*/
+        Debug.Log("_________END_______________");
     }
 
     IEnumerator ExecutePlan()
@@ -120,34 +119,28 @@ public class ElevatorPlanExecutor : MonoBehaviour
 
     IEnumerator MoveElevator(string elevatorName, string from, string to)
     {
-        bool found = false;
-        GameObject elevator = null;
-        foreach (var elev in elevators)
+        // Trova l’elevator mobile per nome (ignorando floor)
+        if (!elevators.TryGetValue(elevatorName.ToLower(), out GameObject elevator))
         {
-            if (elev.Key.Contains(elevatorName) && elev.Key.Contains(from))
-            {
-                found = true;
-                elevator = elev.Value;
-            }
-        }
-        if (!found)
-        {
-            Debug.LogWarning($"Missing elevator: {elevatorName}.");
+            Debug.LogWarning($"Elevator '{elevatorName}' not found.");
             yield break;
         }
-        if (!floors.ContainsKey(to))
+
+        if (!floors.TryGetValue(to.ToLower(), out GameObject targetFloor))
         {
-            Debug.LogWarning($"Missing floor: {to}");
+            Debug.LogWarning($"Target floor '{to}' not found.");
             yield break;
         }
+
+        float cabinOffset = -0.5f; // Modifica in base a dove vuoi l'allineamento
 
         Vector3 targetPosition = new Vector3(
             elevator.transform.position.x,
-            floors[to].transform.position.y,
+            targetFloor.transform.position.y + cabinOffset,
             elevator.transform.position.z
         );
 
-        Debug.Log($"Moving {elevatorName} from {from} to {to}");
+        Debug.Log($"[MoveElevator] Moving {elevatorName} from {from} to {to}");
         yield return MoveToPosition(elevator, targetPosition);
     }
 
@@ -169,38 +162,44 @@ public class ElevatorPlanExecutor : MonoBehaviour
             yield break;
         }
 
-        bool foundE = false;
-        GameObject elevator = null;
-        foreach (var elev in elevators)
-        {
-            if (elev.Key.Contains(elevatorName) && elev.Key.Contains(floorName))
-            {
-                foundE = true;
-                elevator = elev.Value;
-            }
-        }
-        if (!foundE)
+        if (!elevators.TryGetValue(elevatorName.ToLower(), out GameObject elevator))
         {
             Debug.LogWarning($"Missing elevator: {elevatorName}.");
             yield break;
         }
 
-        person.GetComponentInChildren<PersonMovement>().SetMoving(true);
+        Transform inside = elevator.transform.Find("Inside");
+        Transform outside = elevator.transform.Find("Outside");
 
-        // Cammina verso l'elevatore prima di salire
-        Vector3 elevatorEntry = elevator.transform.position;
-        elevatorEntry.y = person.transform.position.y; // Mantieni altezza della persona
+        if (inside == null || outside == null)
+        {
+            Debug.LogWarning($"Elevator {elevatorName} missing 'Inside' or 'Outside' Transform.");
+            yield break;
+        }
 
-        Debug.Log($"{personName} is walking to the elevator {elevatorName}");
-        yield return MoveToPosition(person, elevatorEntry);
+        person.GetComponentInChildren<PersonMovement>()?.SetMoving(true);
 
-        // Poi sale sull'elevatore
+        // Cammina verso l'ingresso (outside)
+        Vector3 outsidePos = outside.position;
+        outsidePos.y = person.transform.position.y;
+        Debug.Log($"{personName} walking to {elevatorName} (outside)");
+        yield return MoveToPosition(person, outsidePos);
+
+        // Cammina dentro la cabina (inside)
+        Vector3 insidePos = inside.position;
+        insidePos.y = person.transform.position.y;
+        Debug.Log($"{personName} walking inside {elevatorName}");
+        yield return MoveToPosition(person, insidePos);
+
+        // Imposta parent dopo che è già dentro
         person.transform.SetParent(elevator.transform);
-        person.transform.localPosition = Vector3.zero;
+        Vector3 insideLocal = elevator.transform.InverseTransformPoint(person.transform.position);
+        insideLocal.y = 0.5f; // offset verticale
+        person.transform.localPosition = insideLocal;
 
         Debug.Log($"{personName} loaded into {elevatorName}");
 
-        person.GetComponentInChildren<PersonMovement>().SetMoving(false);
+        person.GetComponentInChildren<PersonMovement>()?.SetMoving(false);
     }
 
     IEnumerator UnloadPerson(string personName, string elevatorName, string floorName)
@@ -221,37 +220,55 @@ public class ElevatorPlanExecutor : MonoBehaviour
             yield break;
         }
 
-        if (!floors.TryGetValue(floorName, out var floor))
+        if (!elevators.TryGetValue(elevatorName.ToLower(), out GameObject elevator))
+        {
+            Debug.LogWarning($"Missing elevator: {elevatorName}.");
+            yield break;
+        }
+
+        if (!floors.TryGetValue(floorName.ToLower(), out GameObject floor))
         {
             Debug.LogWarning($"Missing floor: {floorName}");
             yield break;
         }
 
+        Transform inside = elevator.transform.Find("Inside");
+        Transform outside = elevator.transform.Find("Outside");
+
+        if (inside == null || outside == null)
+        {
+            Debug.LogWarning($"Elevator {elevatorName} missing 'Inside' or 'Outside' Transform.");
+            yield break;
+        }
+
+        person.GetComponentInChildren<PersonMovement>()?.SetMoving(true);
+
+        // Cammina verso Outside prima di uscire
+        Vector3 exitPos = outside.position;
+        exitPos.y = person.transform.position.y;
+        Debug.Log($"{personName} walking to outside of {elevatorName}");
+        yield return MoveToPosition(person, exitPos);
+
+        // Scende dall'elevator
         person.transform.SetParent(null);
-        person.GetComponentInChildren<PersonMovement>().SetMoving(true);
+        Vector3 newWorldPos = exitPos;
+        newWorldPos.y = floor.transform.position.y;
+        person.transform.position = newWorldPos;
 
-        // Porta la persona all'altezza del piano
-        Vector3 floorPos = floor.transform.position;
-        person.transform.position = new Vector3(
-            person.transform.position.x,
-            floorPos.y,
-            person.transform.position.z
-        );
+        Debug.Log($"{personName} unloaded at {floorName}");
 
-        Debug.Log($"{personName} unloaded from {elevatorName} at {floorName}");
-
-        // Cammina verso la posizione iniziale (stessa X e Z di partenza)
-        string personKey = people.Keys.FirstOrDefault(k => k.Contains(personName));
+        // Cammina verso posizione iniziale
+        string personKey = people.Keys.FirstOrDefault(k => k.Contains(personName.ToLower()));
         if (personKey != null && initialPositions.TryGetValue(personKey, out var originalPos))
         {
-            Vector3 target = new Vector3(originalPos.x, floorPos.y, originalPos.z);
-            Debug.Log($"{personName} is walking to original position on {floorName}");
+            Vector3 target = new Vector3(originalPos.x, newWorldPos.y, originalPos.z);
+            Debug.Log($"{personName} walking to original position");
             yield return MoveToPosition(person, target);
         }
-        person.GetComponentInChildren<PersonMovement>().SetMoving(false);
 
-        Debug.Log($"{personName} reached original position on {floorName}");
+        person.GetComponentInChildren<PersonMovement>()?.SetMoving(false);
     }
+
 
 
     IEnumerator MoveToPosition(GameObject obj, Vector3 target, float speed = 2f)
