@@ -257,7 +257,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 6923255114049383458}
         m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
-        m_MethodName: LoadMenu
+        m_MethodName: LoadMenuScene
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2438,6 +2438,8 @@ MonoBehaviour:
   planPanel: {fileID: 6730799067843742722}
   focusText: {fileID: 5808603161752374429}
   planText: {fileID: 1049073317277722105}
+  mainCamera: {fileID: 0}
+  focusDistance: 5
 --- !u!1 &8098007534811484887
 GameObject:
   m_ObjectHideFlags: 0

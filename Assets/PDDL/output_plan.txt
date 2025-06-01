@@ -1,3 +1,7 @@
 Domain parsed
 Grammar is violated
-ball not found
+Problem parsed
+Grounding..
+Grounding Time: 34
+Aibr Preprocessing
+Problem Detected as Unsolvable
