@@ -15,17 +15,17 @@ public class UIManager : MonoBehaviour
 
     [Header("Camera Focus")]
     [SerializeField] private Camera mainCamera;
-    [SerializeField] private float focusDistance = 5f;      // distanza “orizzontale” dal target, se la vuoi usare
-    [SerializeField] private float verticalOffset = 1.5f;    // altezza aggiuntiva in cui guardare il target
+    [SerializeField] private float focusDistance = 5f;      // distanza “orizzontale” dal target, usata solo per offset iniziale
+    [SerializeField] private float verticalOffset = 1.5f;    // altezza aggiuntiva a cui la camera guarda il target
 
     private List<string> focusObjects = new List<string>();
     private int currentFocus = 0;
     private Dictionary<string, GameObject> objectMap;
 
-    // Il Transform dell'oggetto che la camera deve seguire
+    // Transform dell'oggetto che la camera sta seguendo
     private Transform focusedTransform = null;
 
-    // L'offset fisso tra camera e target (vettore)
+    // Offset fisso tra la posizione della camera e la posizione target (target + verticalOffset)
     private Vector3 followOffset = Vector3.zero;
 
     void Awake()
@@ -35,43 +35,68 @@ public class UIManager : MonoBehaviour
 
         if (problemType == 1) // ROBOT
         {
-            // Prendo solo i robot (senza usare i goal)
+            // Nel dominio robot prendiamo solo i robot (ignoro goal e stanze)
             focusObjects = planInfo.GetObjects()
                 .Where(o => o.name.StartsWith("robot") || o.name.StartsWith("robby"))
                 .Select(o => o.name)
                 .OrderBy(n => n)
                 .ToList();
         }
-        else
+        else // LOGISTIC oppure altri domini basati sui goal (es. elevator)
         {
-            // Per altri domini, usa i goal come primo criterio
-            var goals = planInfo.GetGoals();
-            focusObjects = goals != null
-                ? goals.SelectMany(g => g.values).Distinct().ToList()
-                : new List<string>();
+            // Prendo i valori da tutti i predicati di tipo “goal”
+            // GetGoals() restituisce una lista di oggetti (predicati) che hanno la proprietà .values
+            // Se restituisce null, uso lista vuota.
+            var goals = planInfo.GetGoals() ?? new List<GoalToAdd>();
+            focusObjects = goals
+                .SelectMany(g => g.values)
+                .Distinct()
+                .ToList();
         }
 
-        Debug.Log($"[UIManager] focusObjects ({focusObjects.Count}): {string.Join(", ", focusObjects)}");
+        Debug.Log($"[UIManager] focusObjects iniziali: {string.Join(", ", focusObjects)}");
     }
 
     void Start()
     {
-        // NON chiamiamo BuildObjectMap() direttamente, ma aspettiamo un frame
+        // Non chiamiamo BuildObjectMap() subito: aspettiamo un frame
         StartCoroutine(DelayedInit());
     }
 
     private IEnumerator DelayedInit()
     {
-        // Aspetta la fine del frame: in quel momento RobotProblemGenerator.Start() avrà già creato stanze/robot/palle
+        // Attendo un frame: in questo modo RobotProblemGenerator.Start() (o equivalente)
+        // ha già instanziato tutti i prefab (stanze, robot, veicoli, ecc.)
         yield return null;
 
+        // Ora la scena è popolata: posso costruire la mappa di tutti gli oggetti
         BuildObjectMap();
 
+        // Se siamo nel dominio LOGISTIC, filtriamo i goal
+        var planInfo = PlanInfo.GetInstance();
+        int problemType = (int)planInfo.GetDomainType();
+
+        if (problemType == 0) // LOGISTIC
+        {
+            // Teniamo solo i nomi (dei goal) trovati in objectMap
+            focusObjects = focusObjects
+                .Where(name => objectMap.ContainsKey(name))
+                .ToList();
+
+            // Se non rimane nulla (i goal non corrispondono a GameObject in scena),
+            // facciamo “fallback” su tutti gli oggetti mappati in objectMap
+            if (focusObjects.Count == 0)
+            {
+                focusObjects = objectMap.Keys.OrderBy(n => n).ToList();
+            }
+        }
+
+        // Se c'è almeno un oggetto da focalizzare, iniziamo dal primo
         if (focusObjects.Count > 0)
             ApplyFocus();
     }
 
-    void BuildObjectMap()
+    private void BuildObjectMap()
     {
         objectMap = new Dictionary<string, GameObject>();
         var allObjs = PlanInfo.GetInstance().GetObjects();
@@ -79,21 +104,20 @@ public class UIManager : MonoBehaviour
         Debug.Log($"[UIManager] PlanInfo.GetObjects() conta {allObjs?.Count ?? 0} elementi");
         if (allObjs == null) return;
 
-        // Prendiamo tutti i Transform attivi nella scena
+        // Prendo tutti i Transform attivi nella scena
         var allTransforms = FindObjectsOfType<Transform>();
 
         foreach (var obj in allObjs)
         {
-            // Se fosse un “floor” (es. nel dominio elevator o logistic), saltiamo
+            // Se è un “floor” (nel dominio elevator/logistic) salto
             if (obj.type.StartsWith("floor"))
                 continue;
 
             string targetName = obj.name.ToLower();
 
-            // Cerco match ignorando "(Clone)" e case
+            // Cerco un Transform in scena che corrisponda (ignorando "(Clone)" e case)
             var match = allTransforms.FirstOrDefault(t =>
             {
-                // Rimuovo eventuale "(clone)", confronto in minuscolo e rimuovo spazi
                 string sceneName = t.name.ToLower().Replace("(clone)", "").Trim();
                 return sceneName == targetName || sceneName.StartsWith(targetName);
             });
@@ -160,6 +184,7 @@ public class UIManager : MonoBehaviour
     {
         if (focusObjects.Count == 0)
         {
+            // Non c'è nulla da seguire
             focusedTransform = null;
             return;
         }
@@ -171,16 +196,14 @@ public class UIManager : MonoBehaviour
         {
             Debug.Log($"[UIManager] Applicando focus su '{name}' at position {go.transform.position}");
 
-            // Impostiamo il Transform da seguire:
+            // Salvo il Transform da seguire
             focusedTransform = go.transform;
 
-            // Calcoliamo l'offset tra camera e target (terra la stessa distanza e direzione)
-            // includendo l'offset verticale che desideriamo
+            // Calcolo l'offset iniziale (con verticalOffset) tra camera e target
             Vector3 targetWithOffset = focusedTransform.position + Vector3.up * verticalOffset;
             followOffset = mainCamera.transform.position - targetWithOffset;
 
-            // Teletrasporto iniziale: portiamo subito la camera
-            // in targetWithOffset + followOffset
+            // Teletrasporto istantaneo per evitare scatti della camera
             mainCamera.transform.position = targetWithOffset + followOffset;
             mainCamera.transform.LookAt(targetWithOffset);
         }
@@ -193,27 +216,25 @@ public class UIManager : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (focusedTransform == null) 
+        if (focusedTransform == null)
             return;
 
-        // Ricomputiamo targetWithOffset in base alla posizione corrente del target
+        // Ricalcolo la posizione target (aggiungendo verticalOffset)
         Vector3 targetWithOffset = focusedTransform.position + Vector3.up * verticalOffset;
 
-        // La posizione desiderata della camera è semplicemente:
-        // targetWithOffset + followOffset
+        // La camera deve stare sempre in targetWithOffset + followOffset
         Vector3 desiredPos = targetWithOffset + followOffset;
 
-        // Se vuoi che la camera segua *istantaneamente*:
-        // mainCamera.transform.position = desiredPos;
-        //
-        // Se invece vuoi un follow “più smussato”, usa Lerp o SmoothDamp:
+        // Se vuoi un follow istantaneo, usa:
+        //    mainCamera.transform.position = desiredPos;
+        // Se invece vuoi un movimento smussato, mantieni il Lerp:
         mainCamera.transform.position = Vector3.Lerp(
             mainCamera.transform.position,
             desiredPos,
-            Time.deltaTime * 5f  // regola questo coefficiente per rendere il follow più o meno "morbido"
+            Time.deltaTime * 5f  // regola questo valore per maggiore/minore “morbidezza”
         );
 
-        // La camera guarda sempre il centro del target (con lo stesso verticalOffset)
+        // Faccio in modo che la camera guardi sempre il punto targetWithOffset
         mainCamera.transform.LookAt(targetWithOffset);
     }
 

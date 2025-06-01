@@ -1,21 +1,23 @@
 ﻿(define (problem problem)
-	(:domain domain-logistic-normal)
+	(:domain domain-robot-normal)
 	(:objects
-		airplane1 - airplane
-		airport1 - airport
-		city1 city2 - city
-		location1 - location
-		package1 - package
-		truck1 - truck
+		room1 room2 room3 - room
+		obj1 - obj
+		robot1 - robot
 	)
 	(:init
-		(in-city airport1 city1)
-		(at airplane1 airport1)
-		(link city1 city2)
+		(at-robot robot1 room1)
+		(at-obj obj1 room2)
+		(free robot1)
+		(allowed robot1 room1)
+		(allowed robot1 room2)
+		(allowed robot1 room3)
+		(connected room1 room2)
+		(connected room1 room3)
 	)
 	(:goal
 		(and
-			(at package1 location1)
+			(at-obj obj1 room3)
 		)
 	)
 )
