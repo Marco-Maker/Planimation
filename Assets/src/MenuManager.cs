@@ -293,7 +293,7 @@ public class MenuManager : MonoBehaviour
             if (count >= 6)
             {
                 errorArea.SetActive(true);
-                errorText.text = $"City '{city}' already has 6 places.";
+                errorText.text = $"{city} can have at most 6 places.";
                 return;
             }
         }
@@ -305,7 +305,7 @@ public class MenuManager : MonoBehaviour
             if (count >= 5)
             {
                 errorArea.SetActive(true);
-                errorText.text = $"City '{city}' is already linked to 5 other cities.";
+                errorText.text = $"{city} can only be linked to 5 cities.";
                 return;
             }
         }
@@ -317,7 +317,7 @@ public class MenuManager : MonoBehaviour
             if (count >= 4)
             {
                 errorArea.SetActive(true);
-                errorText.text = $"Room '{room}' is already connected to 4 other rooms.";
+                errorText.text = $"{room} can only be connected to 4 rooms.";
                 return;
             }
         }
