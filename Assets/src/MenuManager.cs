@@ -259,7 +259,6 @@ public class MenuManager : MonoBehaviour
 
     public void AddPredicate()
     {
-        // Costruisci il predicato dal campo UI
         PredicateToAdd p = new PredicateToAdd
         {
             name = fieldTitle.text,
@@ -285,6 +284,46 @@ public class MenuManager : MonoBehaviour
             return;
         }
 
+        // ------------------ INIZIO VINCOLI PERSONALIZZATI ------------------
+
+        if (p.name == "in-city")
+        {
+            string city = p.values[1];
+            int count = predicatesToAdd.Count(pred => pred.name == "in-city" && pred.values[1] == city);
+            if (count >= 6)
+            {
+                errorArea.SetActive(true);
+                errorText.text = $"City '{city}' already has 6 places.";
+                return;
+            }
+        }
+
+        if (p.name == "link")
+        {
+            string city = p.values[0];
+            int count = predicatesToAdd.Count(pred => pred.name == "link" && pred.values[0] == city);
+            if (count >= 5)
+            {
+                errorArea.SetActive(true);
+                errorText.text = $"City '{city}' is already linked to 5 other cities.";
+                return;
+            }
+        }
+
+        if (p.name == "connected")
+        {
+            string room = p.values[0];
+            int count = predicatesToAdd.Count(pred => pred.name == "connected" && pred.values[0] == room);
+            if (count >= 4)
+            {
+                errorArea.SetActive(true);
+                errorText.text = $"Room '{room}' is already connected to 4 other rooms.";
+                return;
+            }
+        }
+
+        // ------------------ FINE VINCOLI PERSONALIZZATI ------------------
+
         // Controllo duplicati
         bool exists = predicatesToAdd.Any(x =>
             x.name == p.name && x.values.SequenceEqual(p.values)
@@ -297,8 +336,10 @@ public class MenuManager : MonoBehaviour
         {
             predicatesToAdd.Add(p);
         }
+
         FillFieldList(fieldTitle.text);
     }
+
 
     public void RemovePredicate()
     {

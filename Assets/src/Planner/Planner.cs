@@ -65,7 +65,7 @@ public class Planner //: MonoBehaviour
 
             foreach (string line in lines)
             {
-                if (line.Contains("Problem Detected as Unsolvable") || line.Contains("Grammar is violated"))
+                if (line.Contains("Problem Detected as Unsolvable"))
                 {
                     return false;
                 }

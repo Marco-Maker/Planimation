@@ -4408,7 +4408,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &108649017
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5111,7 +5111,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 379497524}
         m_TargetAssemblyTypeName: MenuManager, Assembly-CSharp
-        m_MethodName: CloseTypes
+        m_MethodName: CloseError
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -16105,8 +16105,8 @@ MonoBehaviour:
       value:
       - person
       - integer
-  errorArea: {fileID: 0}
-  errorText: {fileID: 0}
+  errorArea: {fileID: 108649016}
+  errorText: {fileID: 1110519075}
   types: {fileID: 1085469996}
   composer: {fileID: 1044961245}
   logisticComposer: {fileID: 18766800}
@@ -42218,10 +42218,10 @@ RectTransform:
   - {fileID: 643414067}
   - {fileID: 1618326237}
   - {fileID: 1085469997}
-  - {fileID: 108649017}
   - {fileID: 1044961246}
   - {fileID: 1291821779}
   - {fileID: 744619862}
+  - {fileID: 108649017}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -44335,7 +44335,7 @@ GameObject:
   - component: {fileID: 1110519076}
   - component: {fileID: 1110519075}
   m_Layer: 5
-  m_Name: Title (1)
+  m_Name: TextError
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
