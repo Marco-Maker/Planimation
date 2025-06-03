@@ -4,12 +4,14 @@ using System.Collections.Generic;
 using System.Net.Http.Headers;
 using System.Linq;
 using TMPro;
-using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
 
+#if UNITY_EDITOR
+using UnityEditor.Animations;
+#endif
 
 [Serializable]
 public class Problem
