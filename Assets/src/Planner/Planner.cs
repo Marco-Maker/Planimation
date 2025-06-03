@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using System.IO;
 using UnityEngine;
@@ -53,4 +54,31 @@ public class Planner //: MonoBehaviour
         if (!string.IsNullOrEmpty(error))
             UnityEngine.Debug.LogError("Errore: " + error);
     }
+
+    public bool CheckError()
+    {
+        string outputFilePath = Directory.GetCurrentDirectory() + outputPlanPath; 
+
+        try
+        {
+            string[] lines = File.ReadAllLines(outputFilePath);
+
+            foreach (string line in lines)
+            {
+                if (line.Contains("Problem Detected as Unsolvable") || line.Contains("Grammar is violated"))
+                {
+                    return false;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+
+            Console.WriteLine("Errore nella lettura del file: " + ex.Message);
+            return false;
+        }
+
+        return true;
+    }
+
 }

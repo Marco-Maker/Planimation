@@ -89,6 +89,10 @@ public class MenuManager : MonoBehaviour
 {
     [SerializeField] private List<Problem> problemsList;
 
+    [Header("ERROR")]
+    [SerializeField] private GameObject errorArea;
+    [SerializeField] private TextMeshProUGUI errorText;
+
     [Header("COMPOSER")]
     [SerializeField] private GameObject types;
     [SerializeField] private GameObject composer;
@@ -172,6 +176,12 @@ public class MenuManager : MonoBehaviour
         objectList = problem.objects;
         predicatesList = problem.predicates;
         functionsList = problem.functions;
+    }
+
+    public void CloseError()
+    {
+        errorArea.SetActive(false);
+        errorText.text = "";
     }
 
     // ---------------------------------------------------------------START PREDICATES LIST---------------------------------------------------------------
@@ -270,7 +280,8 @@ public class MenuManager : MonoBehaviour
         // Validazione: tutti i parametri selezionati
         if (p.values.Any(v => string.IsNullOrEmpty(v)))
         {
-            Debug.LogError("Devi selezionare tutti i parametri del predicato.");
+            errorArea.SetActive(true);
+            errorText.text = "You must select all parameters of the predicate.";
             return;
         }
 
@@ -311,7 +322,8 @@ public class MenuManager : MonoBehaviour
         // Validazione: tutti i parametri selezionati
         if (p.values.Any(v => string.IsNullOrEmpty(v)))
         {
-            Debug.LogError("Devi selezionare tutti i parametri del predicato.");
+            errorArea.SetActive(true);
+            errorText.text = "You must select all parameters of the predicate.";
             return;
         }
 
@@ -635,7 +647,8 @@ public class MenuManager : MonoBehaviour
         // Validazione: tutti i parametri selezionati
         if (f.values.Any(v => string.IsNullOrEmpty(v)))
         {
-            Debug.LogError("Devi selezionare tutti i parametri della funzione.");
+            errorArea.SetActive(true);
+            errorText.text = "You must select all parameters of the function.";
             return;
         }
 
@@ -684,7 +697,8 @@ public class MenuManager : MonoBehaviour
         // Validazione: tutti i parametri selezionati
         if (f.values.Any(v => string.IsNullOrEmpty(v)))
         {
-            Debug.LogError("Devi selezionare tutti i parametri della funzione.");
+            errorArea.SetActive(true);
+            errorText.text = "You must select all parameters of the function.";
             return;
         }
 
@@ -873,7 +887,8 @@ public class MenuManager : MonoBehaviour
         // Validazione
         if (string.IsNullOrEmpty(g.name) || g.values.Count == 0 || g.values.Any(v => string.IsNullOrEmpty(v)))
         {
-            Debug.LogError("Goal non valido: nome o parametri mancanti.");
+            errorArea.SetActive(true);
+            errorText.text = "Invalid goal: missing name or parameters.";
             return;
         }
 
@@ -937,7 +952,8 @@ public class MenuManager : MonoBehaviour
         // Validazione
         if (string.IsNullOrEmpty(g.name) || g.values.Count == 0 || g.values.Any(v => string.IsNullOrEmpty(v)))
         {
-            Debug.LogError("Goal non valido: nome o parametri mancanti.");
+            errorArea.SetActive(true);
+            errorText.text = "Invalid goal: missing name or parameters.";
             return;
         }
         // Controllo duplicati
@@ -987,21 +1003,33 @@ public class MenuManager : MonoBehaviour
     public void Simulate()
     {
         // Validazioni preliminari
-        /*if (objectsToAdd.Count == 0)
+        if (objectsToAdd.Count == 0)
         {
-            Debug.LogError("Devi aggiungere almeno un oggetto.");
+            errorArea.SetActive(true);
+            errorText.text = "You need at least an object.";
             return;
         }
         if (predicatesToAdd.Count == 0)
         {
-            Debug.LogError("Devi aggiungere almeno un predicato.");
+            errorArea.SetActive(true);
+            errorText.text = "You need at least a predicate";
             return;
+        }
+        if(currentType != 0)
+        {
+            if (functionsToAdd.Count == 0)
+            {
+                errorArea.SetActive(true);
+                errorText.text = "You need at least a function.";
+                return;
+            }
         }
         if (goalsToAdd.Count == 0)
         {
-            Debug.LogError("Devi aggiungere almeno un goal.");
+            errorArea.SetActive(true);
+            errorText.text = "You need at least a goal.";
             return;
-        }*/
+        }
         
         // Salva dati e genera PDDL
         PlanInfo.GetInstance().SetObjects(objectsToAdd);
@@ -1014,12 +1042,20 @@ public class MenuManager : MonoBehaviour
         generator.GenerateAndSave();
         planner.RunShellCommand();
 
-        // Carica la scena corretta
-        switch (currentProblem)
+        if (planner.CheckError())
         {
-            case 0: SceneManager.LoadScene("LogisticScene"); break;
-            case 1: SceneManager.LoadScene("RobotScene"); break;
-            case 2: SceneManager.LoadScene("ElevatorScene"); break;
+            // Carica la scena corretta
+            switch (currentProblem)
+            {
+                case 0: SceneManager.LoadScene("LogisticScene"); break;
+                case 1: SceneManager.LoadScene("RobotScene"); break;
+                case 2: SceneManager.LoadScene("ElevatorScene"); break;
+            }
+        }
+        else
+        {
+            errorArea.SetActive(true);
+            errorText.text = "Plan not found.";
         }
     }
 
