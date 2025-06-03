@@ -2,38 +2,28 @@ Domain parsed
 Grammar is violated
 Problem parsed
 Grounding..
-<<<<<<< Updated upstream
-Grounding Time: 10
+Grounding Time: 22
 Aibr Preprocessing
-Problem Detected as Unsolvable
-=======
-Grounding Time: 37
-Aibr Preprocessing
-|F|:6
+|F|:3
 |X|:0
-|A|:5
+|A|:2
 |P|:0
 |E|:0
-H1 Setup Time (msec): 13
+H1 Setup Time (msec): 10
 Setting horizon to:NaN
 Running Greedy Best First Search
-h(n = s_0)=2.0
- g(n)= 1.0 h(n)=1.0
- g(n)= 2.0 h(n)=0.0
+h(n = s_0)=0.0
 Problem Solved
 
 Found Plan:
-0.0: (move robot1 room1 room6)
-1.0: (drop obj1 room6 robot1)
 
-Plan-Length:2
-Metric (Search):2.0
-Planning Time (msec): 484
+Plan-Length:0
+Metric (Search):0.0
+Planning Time (msec): 470
 Heuristic Time (msec): 0
-Search Time (msec): 18
-Expanded Nodes:3
-States Evaluated:4
+Search Time (msec): 3
+Expanded Nodes:1
+States Evaluated:0
 Fixed constraint violations during search (zero-crossing):0
 Number of Dead-Ends detected:0
 Number of Duplicates detected:0
->>>>>>> Stashed changes
