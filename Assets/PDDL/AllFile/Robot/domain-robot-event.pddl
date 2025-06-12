@@ -1,5 +1,5 @@
 
-(define (domain robot)
+(define (domain domain-robot-event)
   (:requirements :typing :fluents :time :negative-preconditions 
 :timed-initial-literals)
   (:types

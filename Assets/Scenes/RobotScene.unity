@@ -491,6 +491,9 @@ MonoBehaviour:
   - {fileID: 6191883482560181510, guid: 9cac305184ae4ad48b6f05a32cd7fb0b, type: 3}
   - {fileID: 6191883482560181510, guid: 2e1c56b439372484f8d0431edc1f5685, type: 3}
   - {fileID: 4944607185673757761, guid: 514b9607d6452ec47aebe72c15a166ab, type: 3}
+  gardenPrefab:
+  - {fileID: 8241822953241491192, guid: 2a16cc8064739b44396a467c8466791e, type: 3}
+  - {fileID: 2765919232273143159, guid: b3c6bf4f6af5aa34f90150532b2f1d49, type: 3}
   robotPrefab: {fileID: 887932523553627528, guid: 440f3b06c0bb8004d94f9286344dc5e5, type: 3}
   ballPrefab: {fileID: 919132149155446097, guid: f8017459e53100246bfed8a33081fdfc, type: 3}
   corridorPrefab: {fileID: 3337721905383381583, guid: 759b33efc5adca74e8f3f586cc0642b1, type: 3}
@@ -506,7 +509,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2108507911}
+  - component: {fileID: 2108507915}
   - component: {fileID: 2108507912}
+  - component: {fileID: 2108507914}
+  - component: {fileID: 2108507913}
   m_Layer: 0
   m_Name: PlanFollower
   m_TagString: Untagged
@@ -536,13 +542,55 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2108507910}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0c418baf4cd05334996be0980bd38cd6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   actionDelay: 1
   planText: 
+--- !u!114 &2108507913
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2108507910}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3446f528b0b1fe43982269af7ff4860, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  actionDelay: 0.5
+  planText: 
+  speed: 1
+  battery: 100
+--- !u!114 &2108507914
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2108507910}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76d5d49d9eac9b6479f0988f6222a3fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultActionDelay: 1
+  planText: 
+--- !u!114 &2108507915
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2108507910}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6fd813f34a2ab6740815deca9a4b18c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

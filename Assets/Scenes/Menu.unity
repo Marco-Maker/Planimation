@@ -16069,7 +16069,9 @@ MonoBehaviour:
       - person
     functions:
     - name: at-elevator
-      value: []
+      value:
+      - elevator
+      - integer
     - name: at-person
       value:
       - person
@@ -25875,7 +25877,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 0
+  m_Interactable: 1
   m_TargetGraphic: {fileID: 652186097}
   m_OnClick:
     m_PersistentCalls:
@@ -79619,7 +79621,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 0
+  m_Interactable: 1
   m_TargetGraphic: {fileID: 2037514772}
   m_OnClick:
     m_PersistentCalls:

@@ -1,6 +1,6 @@
 ; Now the elevator has both capacity and weight restrictions
 
-(define (domain elevator)
+(define (domain domain-elevator-event)
   (:requirements :strips :typing :fluents :time :negative-preconditions 
 :timed-initial-literals)
   (:types

@@ -1046,13 +1046,14 @@ public class MenuManager : MonoBehaviour
     public void Simulate()
     {
         // Validazioni preliminari
+         
         if (objectsToAdd.Count == 0)
         {
             errorArea.SetActive(true);
             errorText.text = "You need at least an object.";
             return;
         }
-        if (predicatesToAdd.Count == 0)
+        if (currentType == 0 && predicatesToAdd.Count == 0) //currentType == 0 serve perchè ci possono essere problemi senza predicati in alcuni casi
         {
             errorArea.SetActive(true);
             errorText.text = "You need at least a predicate";

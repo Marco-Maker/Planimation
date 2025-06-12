@@ -18,7 +18,7 @@ public class ProblemGenerator : MonoBehaviour
     /* ---------- Parametri configurabili da Inspector --------- */
     [Header("Metadata del problema")]
     [Tooltip("Nome del problema dentro al file PDDL")]
-    private string problemName = "problem";
+    private string problemName = "p";
 
     [Tooltip("Nome del dominio da usare nella clausola (:domain ...)")]
     private string domainName;

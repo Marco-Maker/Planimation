@@ -14,6 +14,7 @@ TagManager:
   - Package
   - Vehicle
   - Place
+  - Garden
   layers:
   - Default
   - TransparentFX

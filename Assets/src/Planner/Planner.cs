@@ -5,8 +5,7 @@ using UnityEngine;
 
 public class Planner //: MonoBehaviour
 {
-
-    private string solverJarPath = "";
+    private string solverPath = "";
     private string outputPlanPath = "";
     private string domainPath = "";
     private string problemPath = "";
@@ -17,14 +16,15 @@ public class Planner //: MonoBehaviour
     {
         string path = Directory.GetCurrentDirectory();
         path += Const.PDDL_FOLDER;
-        solverJarPath = Const.PDDL_FOLDER + Const.SOLVER;
+        string args = "";
         outputPlanPath = Const.PDDL_FOLDER + Const.OUTPUT_PLAN;
         domainPath = Const.PDDL_FOLDER + PlanInfo.GetInstance().GetDomainPath();
         problemPath = Const.PROBLEM;
-        string args = $"java -jar .{solverJarPath} -domain .{domainPath} -problem .{problemPath} {additionalParameters}";
-        /*UnityEngine.Debug.Log(domainPath);
-        UnityEngine.Debug.Log(args);*/
-        ExecuteCommand(args);
+        solverPath = Const.PDDL_FOLDER + Const.SOLVER;
+        args = $"java -jar .{solverPath} -domain .{domainPath} -problem .{problemPath} {additionalParameters}";
+        //UnityEngine.Debug.Log(domainPath);
+        UnityEngine.Debug.Log(args);
+        ExecuteCommand(args);   
     }
 
     private void ExecuteCommand(string command)
@@ -80,5 +80,5 @@ public class Planner //: MonoBehaviour
 
         return true;
     }
-
+    
 }

@@ -317,7 +317,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1289300227}
+  - component: {fileID: 1289300229}
   - component: {fileID: 1289300228}
+  - component: {fileID: 1289300231}
+  - component: {fileID: 1289300230}
   m_Layer: 0
   m_Name: PlanFollower
   m_TagString: Untagged
@@ -347,12 +350,52 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1289300226}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 00e137d2d582bb744b9cda759e51ffc8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   actionDelay: 1
+  planText: 
+--- !u!114 &1289300229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1289300226}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6fd813f34a2ab6740815deca9a4b18c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1289300230
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1289300226}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8152c4bcfd9855c499658763c2193004, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  actionSpeedMultiplier: 1
+  planText: 
+--- !u!114 &1289300231
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1289300226}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b21b223f189bd934a8864cbba3caf586, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  actionSpeedMultiplier: 1
   planText: 
 --- !u!1001 &1356562507
 PrefabInstance:
