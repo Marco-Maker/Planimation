@@ -2,43 +2,48 @@
 FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND=noninteractive
 
-# 2) Installazione tool di build, Boost e Flask
+# 2) Installa tool di build, CMake, Ninja, COIN-OR, GSL, Flask e Git
 RUN apt-get update && \
     apt-get install -y \
       build-essential \
-      bison \
+      cmake \
+      ninja-build \
       flex \
+      bison \
       libboost-all-dev \
       libstdc++-10-dev \
+      coinor-libclp-dev \
+      coinor-libcbc-dev \
+      coinor-libcoinutils-dev \
+      coinor-libosi-dev \
+      libgsl-dev \
       python3 \
-      python3-pip && \
+      python3-pip \
+      git && \
     pip3 install flask && \
     rm -rf /var/lib/apt/lists/*
 
-# 3) Copia sorgenti OPTIC
+# 3) Clona il sorgente OPTIC
 WORKDIR /opt
-COPY optic-clp/ ./optic-clp/
+RUN git clone https://github.com/KavrakiLab/optic.git
 
-# 4) Compilazione OPTIC
-WORKDIR /opt/optic-clp
-RUN make CC=gcc CXX=g++ LD=g++ \
-    && echo "Build OPTIC completata" \
-    || true \
-    && if [ ! -f optic ]; then \
-         echo "Link manuale fallback…"; \
-         OBJ_LIST=$(find . -name '*.o' -print); \
-         g++ -o optic $OBJ_LIST obj/libOpticCommon.a -Wl,--start-group lib/*.a -Wl,--end-group; \
-       fi
+# 4) Genera la build con CMake + Ninja
+WORKDIR /opt/optic
+RUN mkdir build && cd build && \
+    cmake -G Ninja .. && \
+    ninja && \
+    echo "OPTIC compilato con Ninja" 
 
-# 5) Installazione binario in /app
+# 5) Copia l’eseguibile in /app
+#    Il solver optic-clp si trova in build/src/optic/optic-clp
 RUN mkdir /app && \
-    cp /opt/optic-clp/optic /app/optic && \
+    cp /opt/optic/build/src/optic/optic-clp /app/optic && \
     chmod +x /app/optic
 
-# 6) Server Flask
+# 6) Aggiungi il server Flask
 WORKDIR /app
 COPY server.py .
 
-# 7) Espone la porta e avvia
+# 7) Espone la porta e avvia Flask
 EXPOSE 5000
 CMD ["python3", "server.py"]

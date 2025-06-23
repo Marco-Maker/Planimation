@@ -37,3 +37,11 @@ if __name__ == '__main__':
 # docker run -p 5000:5000 -v /path/to/optic:/app optic-server
 # To test the server, you can use curl or any HTTP client to send a POST request:
 # curl -X POST http://localhost:5000/plan -H "Content-Type: application/json" -d '{"domain_pddl": "your_domain_pddl", "problem_pddl": "your_problem_pddl"}'
+
+
+'''
+curl -X POST http://localhost:5000/plan \
+  -H "Content-Type: application/json" \
+  -d '{"domain_pddl":"(define (domain d))","problem_pddl":"(define (problem p))"}'
+
+'''
