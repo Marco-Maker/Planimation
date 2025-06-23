@@ -1,44 +1,44 @@
-# 1) Base Linux con tool di build
+# 1) Immagine base
 FROM ubuntu:20.04
-
 ENV DEBIAN_FRONTEND=noninteractive
 
-# 2) Installa tutti i compilatori e le librerie necessarie
+# 2) Installazione tool di build, Boost e Flask
 RUN apt-get update && \
     apt-get install -y \
       build-essential \
       bison \
       flex \
       libboost-all-dev \
+      libstdc++-10-dev \
       python3 \
       python3-pip && \
+    pip3 install flask && \
     rm -rf /var/lib/apt/lists/*
 
-# 3) Copia l'intera directory del progetto nel container
+# 3) Copia sorgenti OPTIC
 WORKDIR /opt
-COPY . .
+COPY optic-clp/ ./optic-clp/
 
-# 4) Compila OPTIC
+# 4) Compilazione OPTIC
 WORKDIR /opt/optic-clp
-RUN make
+RUN make CC=gcc CXX=g++ LD=g++ \
+    && echo "Build OPTIC completata" \
+    || true \
+    && if [ ! -f optic ]; then \
+         echo "Link manuale fallback…"; \
+         OBJ_LIST=$(find . -name '*.o' -print); \
+         g++ -o optic $OBJ_LIST obj/libOpticCommon.a -Wl,--start-group lib/*.a -Wl,--end-group; \
+       fi
 
-# 5) Individua il binario prodotto e copialo in /app con nome "optic"
-#    Provo due nomi comuni; adatta se il tuo target è diverso
+# 5) Installazione binario in /app
 RUN mkdir /app && \
-    if [ -f ./optic ]; then cp ./optic /app/optic; \
-    elif [ -f ./solver-clp ]; then cp ./solver-clp /app/optic; \
-    elif [ -f ./opticMain ]; then cp ./opticMain /app/optic; \
-    else echo "Errore: binario non trovato" && exit 1; fi
+    cp /opt/optic-clp/optic /app/optic && \
+    chmod +x /app/optic
 
-# 6) Copia i file PDDL di test in /app
+# 6) Server Flask
 WORKDIR /app
-COPY domain.pddl problem.pddl /app/
+COPY server.py .
 
-# 7) Rendi eseguibile il planner
-RUN chmod +x optic
-
-# 8) (Opzionale) Espone la porta 5000 per un server REST futuro
+# 7) Espone la porta e avvia
 EXPOSE 5000
-
-# 9) Comando di default: esegue il planner sui file di test
-CMD ["./optic", "domain.pddl", "problem.pddl"]
+CMD ["python3", "server.py"]
