@@ -185,18 +185,6 @@ public class ElevatorProblemGenerator : MonoBehaviour
             elevatorGO.name = elevator;
         }
 
-        //Stampa il contenuto di inElevatorMap, le chiavi e stessa cosa per atPersonMap
-        Debug.Log("In Elevator Map:");
-        foreach (var kvp in inElevatorMap)
-        {
-            Debug.Log($"Person: {kvp.Key}, Elevator: {kvp.Value}");
-        }
-        Debug.Log("At Person Map:");
-        foreach (var kvp in atPersonMap)
-        {
-            Debug.Log($"Person: {kvp.Key}, Floor: {kvp.Value}");
-        }
-
         foreach (var person in inElevatorMap.Keys)
         {
             string personName = person;

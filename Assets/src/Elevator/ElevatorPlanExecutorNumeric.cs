@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 public class ElevatorPlanExecutorNumeric : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class ElevatorPlanExecutorNumeric : MonoBehaviour
     private Dictionary<string, GameObject> floors;
     private Dictionary<string, GameObject> elevators;
     private Dictionary<string, Vector3> initialPositions = new Dictionary<string, Vector3>();
+    private Dictionary<string, Vector3> initialPositionsElevator = new Dictionary<string, Vector3>();
 
     private Dictionary<string, float> atElevator = new();  // Stato numerico
     private List<TimedAction> plan = new();
@@ -67,11 +69,20 @@ public class ElevatorPlanExecutorNumeric : MonoBehaviour
         floors = GameObject.FindGameObjectsWithTag("Floor").ToDictionary(f => f.name.ToLower());
         elevators = GameObject.FindGameObjectsWithTag("Elevator").ToDictionary(e => e.name.ToLower());
 
+
+        foreach (var floor in floors.Keys)
+            Debug.Log($"Floor found: {floor}");
+
         foreach (var person in people)
             initialPositions[person.Key] = person.Value.transform.position;
 
-        foreach (var elevator in elevators.Keys)
-            atElevator[elevator] = 0f;  // Inizializza piano corrente
+        foreach (var p in PlanInfo.GetInstance().GetFunctions() )
+        {
+            if (p.name == "at-elevator" && p.values.Count == 2)
+            {
+                atElevator[p.values[0]] = float.Parse(p.values[1]);
+            }
+        }
     }
 
     IEnumerator ExecutePlan()
@@ -91,7 +102,6 @@ public class ElevatorPlanExecutorNumeric : MonoBehaviour
     IEnumerator ExecuteAction(string action)
     {
         string[] parts = action.Split(' ');
-
         switch (parts[0])
         {
             case "move-up":
@@ -129,22 +139,48 @@ public class ElevatorPlanExecutorNumeric : MonoBehaviour
         }
 
         atElevator[elevatorName] += direction;
+        float targetLevel = atElevator[elevatorName];
 
-        // Trova il piano "visivo" più vicino a quello numerico
-        var targetFloor = floors
-            .OrderBy(f => Mathf.Abs(float.Parse(f.Key) - atElevator[elevatorName]))
-            .First().Value;
+        // Trova il piano più vicino a livello numerico
+        GameObject closestFloor = null;
+        float minDiff = float.MaxValue;
+
+        foreach (var floor in floors)
+        {
+            if (!TryExtractFloorNumber(floor.Key, out float floorNumber))
+                continue;
+
+            float diff = Mathf.Abs(floorNumber - targetLevel);
+            if (diff < minDiff)
+            {
+                minDiff = diff;
+                closestFloor = floor.Value;
+            }
+        }
+
+        if (closestFloor == null)
+        {
+            Debug.LogWarning($"No matching floor found for level {targetLevel}.");
+            yield break;
+        }
 
         float cabinOffset = -0.5f;
 
         Vector3 targetPosition = new Vector3(
             elevator.transform.position.x,
-            targetFloor.transform.position.y + cabinOffset,
+            closestFloor.transform.position.y + cabinOffset,
             elevator.transform.position.z
         );
 
-        Debug.Log($"[MoveElevator] {elevatorName} moving {(direction > 0 ? "up" : "down")} to floor {atElevator[elevatorName]}");
+        Debug.Log($"[MoveElevator] {elevatorName} moving {(direction > 0 ? "up" : "down")} to visual floor '{closestFloor.name}' for level {targetLevel}");
         yield return MoveToPosition(elevator, targetPosition);
+    }
+
+    bool TryExtractFloorNumber(string floorKey, out float number)
+    {
+        number = 0f;
+        string digits = new string(floorKey.Where(char.IsDigit).ToArray());
+        return float.TryParse(digits, out number);
     }
 
     IEnumerator LoadPerson(string personName, string elevatorName)
@@ -194,7 +230,7 @@ public class ElevatorPlanExecutorNumeric : MonoBehaviour
         yield return MoveToPosition(person, exitPos);
 
         person.transform.SetParent(null);
-        person.transform.position = new Vector3(exitPos.x, elevator.transform.position.y, exitPos.z);
+        person.transform.position = new Vector3(exitPos.x, exitPos.y, exitPos.z);
 
         Debug.Log($"{personName} unloaded from {elevatorName}");
 
