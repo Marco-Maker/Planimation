@@ -194,7 +194,7 @@ public class ElevatorPlanExecutorEvent: MonoBehaviour
         yield return MoveToPosition(person, exitPos);
 
         person.transform.SetParent(null);
-        person.transform.position = new Vector3(exitPos.x, elevator.transform.position.y, exitPos.z);
+        person.transform.position = new Vector3(exitPos.x, exitPos.y, exitPos.z);
 
         Debug.Log($"{personName} unloaded from {elevatorName}");
 
