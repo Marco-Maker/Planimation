@@ -8,7 +8,6 @@ public class ElevatorCollider : MonoBehaviour
     {
         if (other.CompareTag("Person"))
         {
-            Debug.Log("Open");
             GetComponentInParent<Animator>().SetBool("Open", !GetComponentInParent<Animator>().GetBool("Open"));
         }
     }

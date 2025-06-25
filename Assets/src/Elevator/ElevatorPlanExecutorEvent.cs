@@ -291,12 +291,7 @@ public class ElevatorPlanExecutorEvent : MonoBehaviour
             Vector3 target = new Vector3(originalPos.x, person.transform.position.y, originalPos.z);
             yield return MoveToPosition(person, target);
         }
-
-        Debug.Log("Arrived");
-
         person.GetComponentInChildren<PersonMovement>()?.SetMoving(false);
-
-        Debug.Log("Moving to next");
     }
 
     IEnumerator MoveToPosition(GameObject obj, Vector3 target, float speed = 2f)
