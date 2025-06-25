@@ -1,21 +1,30 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
-public class ElevatorPlanExecutorEvent: MonoBehaviour
+
+public class ElevatorPlanExecutorEvent : MonoBehaviour
 {
     public float actionSpeedMultiplier = 1.0f;
     private Dictionary<string, GameObject> people;
     private Dictionary<string, GameObject> floors;
     private Dictionary<string, GameObject> elevators;
-    private Dictionary<string, Vector3> initialPositions = new Dictionary<string, Vector3>();
+    private Dictionary<string, Vector3> initialPositions = new();
 
-    private Dictionary<string, float> atElevator = new();  // Stato numerico
+    private Dictionary<string, float> atElevator = new();
+    private Dictionary<string, float> elevatorLoad = new();
+    private Dictionary<string, float> elevatorMaxLoad = new();
+    private Dictionary<string, int> elevatorCapacity = new();
+    private Dictionary<string, int> elevatorPassengers = new();
+    private Dictionary<string, float> elevatorDistance = new();
+    private Dictionary<string, float> personWeight = new();
+    private Dictionary<string, float> personTarget = new();
+    private Dictionary<string, bool> personReached = new();
+
     private List<TimedAction> plan = new();
-
-    [TextArea(10, 30)]
-    public string planText;
+    [TextArea(10, 30)] public string planText;
     private string planFilePath;
 
     private class TimedAction
@@ -43,23 +52,59 @@ public class ElevatorPlanExecutorEvent: MonoBehaviour
         var allLines = File.ReadAllLines(planFilePath);
         plan.Clear();
 
+        float lastTime = 0f;
+
         foreach (string line in allLines)
         {
             string trimmed = line.Trim();
-            if (string.IsNullOrEmpty(trimmed) || !trimmed.Contains(": (")) continue;
+            if (string.IsNullOrEmpty(trimmed)) continue;
 
-            var parts = trimmed.Split(new[] { ": (" }, System.StringSplitOptions.None);
-            if (parts.Length < 2) continue;
-
-            if (float.TryParse(parts[0].Trim(), out float startTime))
+            if (trimmed.Contains("-----waiting----"))
             {
+                // Estrai il tempo target tra le parentesi quadre
+                int startBracket = trimmed.IndexOf('[');
+                int endBracket = trimmed.IndexOf(']');
+
+                Debug.Log($"Processing waiting line: {startBracket} {endBracket}");
+
+                if (startBracket != -1 && endBracket != -1)
+                {
+                    string timeStr = trimmed.Substring(startBracket + 1, endBracket - startBracket - 1);
+                    Debug.Log($"Extracted time string: '{timeStr}' from line: {trimmed}");
+                    float targetTime = float.Parse(timeStr.Trim().Split(".")[0]);
+                    Debug.Log($"Parsed target time: {targetTime}");
+                    float waitDuration = targetTime - lastTime;
+                    if (waitDuration > 0)
+                    {
+                        plan.Add(new TimedAction { startTime = lastTime, action = $"wait {waitDuration}" });
+                    }
+                    // Aggiorna lastTime al tempo target
+                    lastTime = targetTime;
+                }
+            }
+            else if (trimmed.Contains(": ("))
+            {
+                var parts = trimmed.Split(new[] { ": (" }, System.StringSplitOptions.None);
+                if (parts.Length < 2) continue;
+
+                Debug.Log($"Processing action line: {parts[0]} {parts[1]}");
+
+                float startTime = float.Parse(parts[0].Trim().Split(".")[0]);
+
+                Debug.Log($"Parsed start time: {startTime}");
+
                 string action = parts[1].Trim(')', ' ');
                 plan.Add(new TimedAction { startTime = startTime, action = action.ToLower() });
+
+                // Aggiorna il tempo dell'ultima azione valida
+                lastTime = startTime;
+                
             }
         }
 
         planText = string.Join("\n", plan.Select(p => $"{p.startTime}: ({p.action})"));
     }
+
 
     void FindSceneObjects()
     {
@@ -70,8 +115,36 @@ public class ElevatorPlanExecutorEvent: MonoBehaviour
         foreach (var person in people)
             initialPositions[person.Key] = person.Value.transform.position;
 
-        foreach (var elevator in elevators.Keys)
-            atElevator[elevator] = 0f;  // Inizializza piano corrente
+        foreach (var f in PlanInfo.GetInstance().GetFunctions())
+        {
+            switch (f.name)
+            {
+                case "at-elevator":
+                    atElevator[f.values[0]] = float.Parse(f.values[1]);
+                    break;
+                case "weight":
+                    personWeight[f.values[0]] = float.Parse(f.values[1]);
+                    break;
+                case "capacity":
+                    elevatorCapacity[f.values[0]] = int.Parse(f.values[1]);
+                    break;
+                case "distance-run":
+                    elevatorDistance[f.values[0]] = float.Parse(f.values[1]);
+                    break;
+                case "max-load":
+                    elevatorMaxLoad[f.values[0]] = float.Parse(f.values[1]);
+                    break;
+                case "passengers":
+                    elevatorPassengers[f.values[0]] = int.Parse(f.values[1]);
+                    break;
+                case "load":
+                    elevatorLoad[f.values[0]] = float.Parse(f.values[1]);
+                    break;
+                case "target":
+                    personTarget[f.values[0]] = float.Parse(f.values[1]);
+                    break;
+            }
+        }
     }
 
     IEnumerator ExecutePlan()
@@ -91,31 +164,26 @@ public class ElevatorPlanExecutorEvent: MonoBehaviour
     IEnumerator ExecuteAction(string action)
     {
         string[] parts = action.Split(' ');
-
         switch (parts[0])
         {
-            case "move-up":
+            case "startmovingup":
                 yield return MoveElevator(parts[1], 1);
                 break;
-
-            case "move-down":
+            case "startmovingdown":
                 yield return MoveElevator(parts[1], -1);
                 break;
-
             case "load":
                 yield return LoadPerson(parts[1], parts[2]);
                 break;
-
             case "unload":
                 yield return UnloadPerson(parts[1], parts[2]);
                 break;
-
             case "reached":
-                Debug.Log($"{parts[1]} has reached their target.");
+                personReached[parts[1]] = true;
+                Debug.Log($"{parts[1]} has reached their target floor.");
                 break;
-
             default:
-                Debug.LogWarning($"Unknown action: {action}");
+                Debug.Log($"Unknown action: {action}");
                 break;
         }
     }
@@ -128,22 +196,33 @@ public class ElevatorPlanExecutorEvent: MonoBehaviour
             yield break;
         }
 
-        atElevator[elevatorName] += direction;
+        string key = elevatorName;
+        if (!elevatorDistance.ContainsKey(key)) elevatorDistance[key] = 0;
 
-        // Trova il piano "visivo" più vicino a quello numerico
+        float speed = 10f;
+        float maxLoad = elevatorMaxLoad.ContainsKey(key) ? elevatorMaxLoad[key] : 1;
+        float load = elevatorLoad.ContainsKey(key) ? elevatorLoad[key] : 0;
+
+        while (elevatorDistance[key] < 100)
+        {
+            float adjustedSpeed = Math.Abs(speed * (1 - (3 * (load / maxLoad))));
+            elevatorDistance[key] += adjustedSpeed * Time.deltaTime;
+            yield return null;
+        }
+
+        elevatorDistance[key] = 0;
+        atElevator[key] += direction;
+
         var targetFloor = floors
-            .OrderBy(f => Mathf.Abs(float.Parse(f.Key) - atElevator[elevatorName]))
+            .OrderBy(f => Mathf.Abs(float.Parse(f.Key) - atElevator[key]))
             .First().Value;
-
-        float cabinOffset = -0.5f;
 
         Vector3 targetPosition = new Vector3(
             elevator.transform.position.x,
-            targetFloor.transform.position.y + cabinOffset,
+            targetFloor.transform.position.y - 0.5f,
             elevator.transform.position.z
         );
 
-        Debug.Log($"[MoveElevator] {elevatorName} moving {(direction > 0 ? "up" : "down")} to floor {atElevator[elevatorName]}");
         yield return MoveToPosition(elevator, targetPosition);
     }
 
@@ -152,14 +231,17 @@ public class ElevatorPlanExecutorEvent: MonoBehaviour
         if (!TryGetPerson(personName, out GameObject person)) yield break;
         if (!elevators.TryGetValue(elevatorName.ToLower(), out GameObject elevator)) yield break;
 
+        if (elevatorPassengers[elevatorName] + 1 > elevatorCapacity[elevatorName] ||
+            elevatorLoad[elevatorName] + personWeight[personName] > elevatorMaxLoad[elevatorName])
+        {
+            Debug.LogWarning($"{personName} cannot enter {elevatorName} due to limits.");
+            yield break;
+        }
+
         Transform inside = elevator.transform.Find("Inside");
         Transform outside = elevator.transform.Find("Outside");
 
-        if (inside == null || outside == null)
-        {
-            Debug.LogWarning($"Missing 'Inside' or 'Outside' in elevator {elevatorName}");
-            yield break;
-        }
+        if (inside == null || outside == null) yield break;
 
         person.GetComponentInChildren<PersonMovement>()?.SetMoving(true);
 
@@ -168,13 +250,16 @@ public class ElevatorPlanExecutorEvent: MonoBehaviour
         yield return MoveToPosition(person, outsidePos);
 
         Vector3 insidePos = inside.position;
-        insidePos.y = person.transform.position.y;
+        insidePos.y = outsidePos.y;
         yield return MoveToPosition(person, insidePos);
 
         person.transform.SetParent(elevator.transform);
         Vector3 insideLocal = elevator.transform.InverseTransformPoint(person.transform.position);
         insideLocal.y = 0.5f;
         person.transform.localPosition = insideLocal;
+
+        elevatorPassengers[elevatorName]++;
+        elevatorLoad[elevatorName] += personWeight[personName];
 
         Debug.Log($"{personName} loaded into {elevatorName}");
         person.GetComponentInChildren<PersonMovement>()?.SetMoving(false);
@@ -186,7 +271,6 @@ public class ElevatorPlanExecutorEvent: MonoBehaviour
         if (!elevators.TryGetValue(elevatorName.ToLower(), out GameObject elevator)) yield break;
 
         Transform outside = elevator.transform.Find("Outside");
-
         person.GetComponentInChildren<PersonMovement>()?.SetMoving(true);
 
         Vector3 exitPos = outside.position;
@@ -195,6 +279,9 @@ public class ElevatorPlanExecutorEvent: MonoBehaviour
 
         person.transform.SetParent(null);
         person.transform.position = new Vector3(exitPos.x, exitPos.y, exitPos.z);
+
+        elevatorPassengers[elevatorName]--;
+        elevatorLoad[elevatorName] -= personWeight[personName];
 
         Debug.Log($"{personName} unloaded from {elevatorName}");
 
@@ -205,7 +292,11 @@ public class ElevatorPlanExecutorEvent: MonoBehaviour
             yield return MoveToPosition(person, target);
         }
 
+        Debug.Log("Arrived");
+
         person.GetComponentInChildren<PersonMovement>()?.SetMoving(false);
+
+        Debug.Log("Moving to next");
     }
 
     IEnumerator MoveToPosition(GameObject obj, Vector3 target, float speed = 2f)
@@ -232,4 +323,3 @@ public class ElevatorPlanExecutorEvent: MonoBehaviour
         return false;
     }
 }
-
