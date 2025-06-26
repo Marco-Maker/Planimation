@@ -1,0 +1,30 @@
+﻿Number of literals: 2
+Constructing lookup tables:
+Post filtering unreachable actions: 
+No semaphore facts found, returning
+(distance-run truck1) has a finite lower bound: [0.000,inf]
+Have identified that smaller values of (distance-run truck1) are preferable
+[01;34mNo analytic limits found, not considering limit effects of goal-only operators[00m
+Action 2 - (drive-truck truck1 loca locb citya cityb) is uninteresting once we have fact (at truck1 locb)
+None of the ground temporal actions in this problem have been recognised as compression-safe
+Initial heuristic = 2.000, admissible cost estimate 0.000
+b (1.000 | 50.000)(G)
+; No metric specified - using makespan
+
+; Plan found with metric 50.000
+; States evaluated so far: 3
+; States pruned based on pre-heuristic cost lower bound: 0
+; Time 0.04
+0.000: (drive-truck truck1 loca locb citya cityb)  [50.000]
+
+ * All goal deadlines now no later than 50.000
+
+Resorting to best-first search
+Running WA* with W = 5.000, not restarting with goal states
+b (1.000 | 50.000)
+Problem Unsolvable
+;;;; Solution Found
+; States evaluated: 4
+; Cost: 50.000
+; Time 0.04
+0.000: (drive-truck truck1 loca locb citya cityb)  [50.000]
