@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
@@ -6,18 +7,23 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 
+[RequireComponent(typeof(ProblemGenerator))]
 public class RobotPlanExecutorTemporal : MonoBehaviour
 {
+    [Header("Domain PDDL (assegna in Inspector)")]
+    [Tooltip("File .pddl del dominio, importato come TextAsset")]
+    [SerializeField] private TextAsset domainPddlAsset;
+
+    [Header("Default action delay (fallback)")]
     public float defaultActionDelay = 1.0f;
+
+    // verrà popolato con il testo restituito dal planner
     public string planText;
 
-    private Dictionary<string, GameObject> rooms;
-    private Dictionary<string, GameObject> robots;
-    private Dictionary<string, GameObject> objects;
-
-    private string planFilePath;
+    private Dictionary<string, GameObject> rooms, robots, objects;
     private float robotHeight;
 
+    // oggetto di supporto per le azioni temporali
     private class TimedAction
     {
         public float startTime;
@@ -27,192 +33,206 @@ public class RobotPlanExecutorTemporal : MonoBehaviour
 
     void Start()
     {
-        planFilePath = "." + Const.PDDL_FOLDER + Const.OUTPUT_PLAN;
-        LoadPlanFromFile();
-        FindSceneObjects();
-        robotHeight = GameObject.FindGameObjectWithTag("Robot").transform.position.y;
-        StartCoroutine(ExecutePlan());
-    }
-
-    void LoadPlanFromFile()
-    {
-        if (!File.Exists(planFilePath))
+        // 0) Controlli preliminari
+        if (domainPddlAsset == null)
         {
-            Debug.LogError($"Plan file not found at path: {planFilePath}");
+            Debug.LogError("⚠️ Assegna il TextAsset del dominio PDDL in Inspector!");
             return;
         }
 
-        string[] allLines = File.ReadAllLines(planFilePath);
-        var planLines = allLines
-            .Where(line => line.Trim().Length > 0 && char.IsDigit(line.Trim()[0]))
-            .ToList();
+        // 1) Carica il problema dal file generato
+        string problemRel = Const.PDDL_FOLDER.TrimStart('/', '\\') + Const.PROBLEM; 
+        string problemPath = Path.Combine(Application.dataPath, problemRel);
+        if (!File.Exists(problemPath))
+        {
+            Debug.LogError($"PDDL problem non trovato: {problemPath}");
+            return;
+        }
+        string problemPddl = File.ReadAllText(problemPath);
 
-        planText = string.Join("\n", planLines);
+        // 2) Prendi il dominio dal TextAsset
+        string domainPddl = domainPddlAsset.text;
+
+        Debug.Log("[DEBUG] Domain PDDL (prima di invio):\n" +
+                  domainPddl.Substring(0, Mathf.Min(200, domainPddl.Length)) + "…");
+        Debug.Log("[DEBUG] Problem PDDL (prima di invio):\n" +
+                  problemPddl.Substring(0, Mathf.Min(200, problemPddl.Length)) + "…");
+
+        // 3) Chiamata al planner remoto
+        StartCoroutine(RemotePlan(domainPddl, problemPddl));
     }
 
-    void FindSceneObjects()
+    private IEnumerator RemotePlan(string domainPddl, string problemPddl)
     {
-        rooms = GameObject.FindGameObjectsWithTag("Room").ToDictionary(r => r.name.ToLower());
-        robots = GameObject.FindGameObjectsWithTag("Robot").ToDictionary(r => r.name.ToLower());
-        objects = GameObject.FindGameObjectsWithTag("Ball").ToDictionary(o => o.name.ToLower());
+        Debug.Log("[RobotPlanExecutorTemporal] Invio al planner…");
+
+        List<string> planLines = null;
+        string errorMsg = null;
+
+        yield return StartCoroutine(
+            PddlApiClient.RequestPlan(
+                domainPddl,
+                problemPddl,
+                steps => planLines = steps,
+                err   => errorMsg  = err
+            )
+        );
+
+        if (!string.IsNullOrEmpty(errorMsg))
+        {
+            Debug.LogError("Errore OPTIC: " + errorMsg);
+            yield break;
+        }
+
+        // 4) Prepara esecuzione
+        planText = string.Join("\n", planLines);
+        Debug.Log("📄 Piano OPTIC ricevuto:\n" + planText);
+
+        // 5) Inizializza riferimenti scena
+        rooms  = GameObject.FindGameObjectsWithTag("Room")
+                    .ToDictionary(r => r.name.ToLower());
+        robots = GameObject.FindGameObjectsWithTag("Robot")
+                    .ToDictionary(r => r.name.ToLower());
+        objects= GameObject.FindGameObjectsWithTag("Ball")
+                    .ToDictionary(o => o.name.ToLower());
+        robotHeight = robots.Values.First().transform.position.y;
+
+        // 6) Esegui il piano
+        StartCoroutine(ExecutePlan());
     }
 
-    List<TimedAction> ParsePlan()
+    private List<TimedAction> ParsePlan()
     {
         var actions = new List<TimedAction>();
-        var lines = planText.Split('\n');
 
-        foreach (var raw in lines)
+        foreach (var raw in planText.Split('\n'))
         {
             var line = raw.Trim();
             if (string.IsNullOrEmpty(line)) continue;
 
             try
             {
-                // es: 0.000: (move r1 room1 room2) [5.000]
-                int colonIndex = line.IndexOf(':');
-                float start = float.Parse(line.Substring(0, colonIndex), CultureInfo.InvariantCulture);
+                int ci = line.IndexOf(':');
+                float start = float.Parse(line.Substring(0, ci), CultureInfo.InvariantCulture);
 
-                string afterColon = line.Substring(colonIndex + 1).Trim();
-                int bracketIndex = afterColon.LastIndexOf('[');
-                float duration = 0f;
+                string after = line.Substring(ci + 1).Trim();
+                int bi = after.LastIndexOf('[');
 
-                string actionPart = afterColon;
-                if (bracketIndex >= 0)
+                float dur = defaultActionDelay;
+                string part = after;
+                if (bi >= 0)
                 {
-                    string durationStr = afterColon.Substring(bracketIndex + 1).Trim(' ', ']');
-                    duration = float.Parse(durationStr, CultureInfo.InvariantCulture);
-                    actionPart = afterColon.Substring(0, bracketIndex).Trim();
+                    dur = float.Parse(after.Substring(bi + 1).Trim(' ', ']'),
+                                      CultureInfo.InvariantCulture);
+                    part = after.Substring(0, bi).Trim();
                 }
 
-                string action = actionPart.Trim('(', ')').ToLower();
-
-                actions.Add(new TimedAction
-                {
-                    startTime = start,
-                    duration = duration,
-                    action = action
-                });
+                string act = part.Trim('(', ')').ToLower();
+                actions.Add(new TimedAction { startTime = start, duration = dur, action = act });
             }
-            catch
+            catch (Exception ex)
             {
-                Debug.LogWarning("Failed to parse plan line: " + line);
+                Debug.LogWarning("Failed to parse plan line: " + line + " — " + ex.Message);
             }
         }
 
         return actions;
     }
 
-    IEnumerator ExecutePlan()
+    private IEnumerator ExecutePlan()
     {
-        var actions = ParsePlan();
+        var actions = ParsePlan()
+            .OrderBy(a => a.startTime)
+            .ToList();
 
-        float currentTime = 0f;
-        foreach (var timedAction in actions.OrderBy(a => a.startTime))
+        float current = 0f;
+        foreach (var ta in actions)
         {
-            float waitTime = timedAction.startTime - currentTime;
-            if (waitTime > 0f)
-                yield return new WaitForSeconds(waitTime);
+            float wait = ta.startTime - current;
+            if (wait > 0f) yield return new WaitForSeconds(wait);
+            current = ta.startTime;
 
-            currentTime = timedAction.startTime;
-
-            yield return ExecuteAction(timedAction.action, timedAction.duration);
+            yield return ExecuteAction(ta.action, ta.duration);
         }
     }
 
-    IEnumerator ExecuteAction(string action, float duration)
+    private IEnumerator ExecuteAction(string action, float duration)
     {
-        string[] parts = action.Split(' ');
-        GameObject.FindWithTag("ActionText").GetComponent<TextMeshProUGUI>().text = action;
+        var parts = action.Split(' ');
         switch (parts[0])
         {
             case "move":
-                yield return MoveRobot(parts[1], parts[2], parts[3], duration);
+                if (parts.Length >= 4)
+                    yield return MoveRobot(parts[1], parts[2], parts[3], duration);
                 break;
-
             case "pick":
-                yield return PickObject(parts[1], parts[2], parts[3]);
+                if (parts.Length >= 4)
+                    yield return PickObject(parts[1], parts[2], parts[3]);
                 break;
-
             case "drop":
-                yield return DropObject(parts[1], parts[2], parts[3]);
+                if (parts.Length >= 4)
+                    yield return DropObject(parts[1], parts[2], parts[3]);
                 break;
-
             default:
                 Debug.LogWarning($"Unknown action: {action}");
                 break;
         }
     }
 
-    IEnumerator MoveRobot(string robotName, string fromRoom, string toRoom, float duration)
+    private IEnumerator MoveRobot(string robotName, string fromRoom, string toRoom, float duration)
     {
-        if (!robots.TryGetValue(robotName, out var robot) || !rooms.TryGetValue(toRoom, out var room))
+        if (!robots.TryGetValue(robotName, out var robot) ||
+            !rooms.TryGetValue(toRoom,   out var room))
         {
             Debug.LogWarning($"Missing robot or room: {robotName}, {toRoom}");
             yield break;
         }
 
-        Vector3 targetPosition = new Vector3(
+        Vector3 target = new Vector3(
             room.transform.position.x,
             robotHeight,
             room.transform.position.z
         );
-
-        Debug.Log($"Moving {robotName} from {fromRoom} to {toRoom} over {duration} seconds");
-        yield return MoveToPosition(robot, targetPosition, duration);
+        yield return MoveToPosition(robot, target, duration);
     }
 
-    IEnumerator MoveToPosition(GameObject obj, Vector3 target, float duration)
+    private IEnumerator MoveToPosition(GameObject obj, Vector3 target, float duration)
     {
         Vector3 start = obj.transform.position;
         float elapsed = 0f;
-
         while (elapsed < duration)
         {
             obj.transform.position = Vector3.Lerp(start, target, elapsed / duration);
             elapsed += Time.deltaTime;
             yield return null;
         }
-
         obj.transform.position = target;
     }
 
-    IEnumerator PickObject(string objectName, string roomName, string robotName)
+    private IEnumerator PickObject(string objectName, string roomName, string robotName)
     {
-        if (!objects.TryGetValue(objectName, out var obj) || 
+        if (!objects.TryGetValue(objectName, out var obj) ||
             !robots.TryGetValue(robotName, out var robot))
         {
             Debug.LogWarning($"Missing object or robot: {objectName}, {robotName}");
             yield break;
         }
-
-        Debug.Log($"{robotName} picking up {objectName} in {roomName}");
-
         obj.transform.SetParent(robot.transform);
-        obj.transform.localPosition = new Vector3(0, 1f, 0);
+        obj.transform.localPosition = Vector3.up * 1f;
         yield return null;
     }
 
-    IEnumerator DropObject(string objectName, string roomName, string robotName)
+    private IEnumerator DropObject(string objectName, string roomName, string robotName)
     {
-        if (!robots.TryGetValue(robotName, out var robot) || 
-            !objects.TryGetValue(objectName, out var obj) || 
-            !rooms.TryGetValue(roomName, out var room))
+        if (!robots.TryGetValue(robotName, out var robot) ||
+            !objects.TryGetValue(objectName, out var obj)   ||
+            !rooms.TryGetValue(roomName,   out var room))
         {
             Debug.LogWarning($"Missing robot/object/room: {robotName}, {objectName}, {roomName}");
             yield break;
         }
-
-        Debug.Log($"{robotName} dropping {objectName} in {roomName}");
-
         obj.transform.SetParent(null);
-        obj.transform.position = new Vector3(
-            room.transform.position.x,
-            room.transform.position.y + 1f,
-            room.transform.position.z
-        );
-
+        obj.transform.position = room.transform.position + Vector3.up * 1f;
         yield return null;
     }
 }
-

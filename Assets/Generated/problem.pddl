@@ -1,25 +1,19 @@
 ﻿(define (problem p)
-	(:domain domain-robot-event)
+	(:domain domain-elevator-normal-capacity-infinity)
 	(:objects
-		garden1 garden2 - garden
-		obj1 - obj
-		robot1 - robot
+		elevator1 - elevator
+		floor1 floor2 - floor
+		person1 - person
 	)
 	(:init
-		(at-robot robot1 garden1)
-		(at-obj obj1 garden1)
-		(free robot1)
-		(allowed robot1 garden1)
-		(allowed robot1 garden2)
-		(path garden1 garden2)
-		(= (battery robot1) 25)
-		(= (distance garden1 garden2) 30)
-		(= (distance garden2 garden1) 30)
-		(= (speed robot1) 1)
+		(above floor2 floor1)
+		(target person1 floor2)
+		(at-elevator elevator1 floor1)
+		(at-person person1 floor1)
 	)
 	(:goal
 		(and
-			(at-obj obj1 garden2)
+			(reached person1)
 		)
 	)
 )

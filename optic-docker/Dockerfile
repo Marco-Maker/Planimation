@@ -2,7 +2,7 @@
 FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND=noninteractive
 
-# 2) Installa tool di build, CMake, Ninja, COIN-OR, GSL, Flask e Git
+# 2) Installa tool di build, CMake, Ninja, COIN-OR, GSL, Flask, Flask-CORS e Git
 RUN apt-get update && \
     apt-get install -y \
       build-essential \
@@ -20,30 +20,26 @@ RUN apt-get update && \
       python3 \
       python3-pip \
       git && \
-    pip3 install flask && \
+    pip3 install flask flask-cors && \
     rm -rf /var/lib/apt/lists/*
 
-# 3) Clona il sorgente OPTIC
+# 3) Clona OPTIC e build
 WORKDIR /opt
 RUN git clone https://github.com/KavrakiLab/optic.git
-
-# 4) Genera la build con CMake + Ninja
 WORKDIR /opt/optic
 RUN mkdir build && cd build && \
     cmake -G Ninja .. && \
     ninja && \
-    echo "OPTIC compilato con Ninja" 
+    echo "OPTIC compilato con Ninja"
 
-# 5) Copia l’eseguibile in /app
-#    Il solver optic-clp si trova in build/src/optic/optic-clp
+# 4) Copia l’eseguibile in /app
 RUN mkdir /app && \
     cp /opt/optic/build/src/optic/optic-clp /app/optic && \
     chmod +x /app/optic
 
-# 6) Aggiungi il server Flask
+# 5) Aggiungi server Flask
 WORKDIR /app
 COPY server.py .
 
-# 7) Espone la porta e avvia Flask
 EXPOSE 5000
-CMD ["python3", "server.py"]
+CMD ["python3", "-u", "server.py"]

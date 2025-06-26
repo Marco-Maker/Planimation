@@ -31,6 +31,12 @@ public class ProblemGenerator : MonoBehaviour
     private string outputPath = "Assets/Generated/problem.pddl";
     private string domainPath;
 
+
+    [Header("Planner remoto (OPTIC)")]
+    [Tooltip("Se true invia il problema al server OPTIC, altrimenti no.")]
+    public bool useRemotePlanner = false;
+
+
     /* ---------------------------------------------------------- */
 
     /// <summary>
@@ -102,17 +108,17 @@ public class ProblemGenerator : MonoBehaviour
             sb.AppendLine("\t\t" + FormatAtomic(p.name, p.values));
 
         // Aggiungi le funzioni solo se il dominio è numerico
-        if (!Mathf.Approximately(domainType % 1f, 0.0f) && funcs != null)
+        // all’interno di BuildPddl, subito dopo i predicati:
+        if ((int)domainType == 1 || (int)domainType == 2)
         {
             var uniqueFuncs = funcs
                 .GroupBy(f => f.name + "_" + string.Join(",", f.values))
                 .Select(g => g.First());
 
             foreach (var f in uniqueFuncs)
-            {
                 sb.AppendLine("\t\t" + FormatFunctionAssignment(f));
-            }
         }
+
 
         sb.AppendLine("\t)");
 
