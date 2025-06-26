@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 
 public class RobotPlanExecutorTemporal : MonoBehaviour
@@ -122,7 +123,7 @@ public class RobotPlanExecutorTemporal : MonoBehaviour
     IEnumerator ExecuteAction(string action, float duration)
     {
         string[] parts = action.Split(' ');
-
+        GameObject.FindWithTag("ActionText").GetComponent<TextMeshProUGUI>().text = action;
         switch (parts[0])
         {
             case "move":

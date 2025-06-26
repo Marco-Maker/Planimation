@@ -15,6 +15,7 @@ TagManager:
   - Vehicle
   - Place
   - Garden
+  - ActionText
   layers:
   - Default
   - TransparentFX

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using TMPro;
 using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 public class ElevatorPlanExecutorNumeric : MonoBehaviour
@@ -102,6 +103,7 @@ public class ElevatorPlanExecutorNumeric : MonoBehaviour
     IEnumerator ExecuteAction(string action)
     {
         string[] parts = action.Split(' ');
+        GameObject.FindWithTag("ActionText").GetComponent<TextMeshProUGUI>().text = action;
         switch (parts[0])
         {
             case "move-up":

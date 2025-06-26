@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 
 public class LogisticPlanExecutor : MonoBehaviour
@@ -76,7 +77,7 @@ public class LogisticPlanExecutor : MonoBehaviour
     IEnumerator ExecuteAction(string action)
     {
         string[] parts = action.Split(' ');
-
+        GameObject.FindWithTag("ActionText").GetComponent<TextMeshProUGUI>().text = action;
         switch (parts[0])
         {
             case "load-truck":
