@@ -66,7 +66,7 @@ public class RobotProblemGenerator : MonoBehaviour
         }
 
         // Se è dominio temporale ma non ci sono "connected", deduciamo dai "allowed"
-        if (domainType == 1.0f && connectedRooms.Count == 0)
+        if (domainType == 1.1f && connectedRooms.Count == 0)
         {
             HashSet<(string, string)> tempConnections = new();
             foreach (var list in allowedMap.Values)
