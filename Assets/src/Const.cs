@@ -10,7 +10,7 @@ public static class Const
     public const string PROBLEM = @"\Assets\Generated\problem.pddl";
 
     public const string DOMAIN_NAME_ELEVATOR_NORMAL = "domain-elevator-normal-capacity-infinity.pddl";
-    public const string DOMAIN_NAME_ELEVATOR_2_1 = "domain-elevator-numeric.pddl";
+    public const string DOMAIN_NAME_ELEVATOR_2_1 = "domain-elevator-temporal.pddl";
     public const string DOMAIN_NAME_ELEVATOR_PLUS = "domain-elevator-event.pddl";
 
     public const string DOMAIN_NAME_LOGISTIC_NORMAL = "domain-logistic-normal.pddl";
