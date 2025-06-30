@@ -102,8 +102,8 @@ PARTE DI OPTIC/ BOOOOH
 
 This project was developed by:
 
-- **Martino Marco** [@Marco-Maker](https://github.com/Marco-Maker)  
-- **Nicole Arnieri** [@nicolearnieri](https://github.com/nicolearnieri)  
+- **Arnieri Nicole** [@nicolearnieri](https://github.com/nicolearnieri) 
+- **Martino Marco** [@Marco-Maker](https://github.com/Marco-Maker)   
 
 As part of the final project for the *Automated Planning* module in the course **“Intelligent Systems and Automated Planning”** (A.Y. 2024–2025), part of the **Master's Degree in Artificial Intelligence and Computer Science** at **UNICAL – University of Calabria**.
 
