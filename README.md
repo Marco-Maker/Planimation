@@ -1,4 +1,5 @@
 # Planimation – A PDDL Plan Visualizer
+![ProjectLogo](metterepath.png)
 
 ## 🧠 What the Project Is About
 
