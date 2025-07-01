@@ -1,5 +1,9 @@
 # Planimation – A PDDL Plan Visualizer
-![ProjectLogo](metterepath.png)
+<div align="center">
+  <img src="/Images/ProjectLogo.png" alt="ProjectLogo" width="400"/>
+</div>
+
+
 
 ## 🧠 What the Project Is About
 
@@ -44,7 +48,11 @@ The project currently supports **three planning domains**:
 - Simulates the movement of an elevator between floors, managing floor requests.
 
 You can select the **domain** from the **first interface**, which is shown here : 
-![First Selection Interface](metterepath.png)
+
+<div align="center">
+  <img src="/Images/FirstInterface.png" alt="FirstSelectionInterface" width="900"/>
+</div>
+
 
 Once a domain is selected, you can choose the **problem version** using the **second interface**, including:
 
