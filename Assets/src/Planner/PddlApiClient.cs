@@ -60,11 +60,19 @@ public static class PddlApiClient
             Debug.Log("[DEBUG] Received response: " + req.downloadHandler.text);
             var resp = JsonUtility.FromJson<PlannerResponse>(req.downloadHandler.text);
 
-            if (resp.returncode != 0 || !string.IsNullOrEmpty(resp.stderr))
+            if (resp.returncode != 0)
             {
-                onError?.Invoke($"Planner Error:\n{resp.stderr}");
+                if (!string.IsNullOrEmpty(resp.stdout) && resp.stdout.Contains("No solution"))
+                {
+                    onSuccess?.Invoke(new List<string>()); // Lista vuota: nessun piano
+                }
+                    else
+                    {
+                        onError?.Invoke($"Planner Error:\n{resp.stderr}");
+                    }
                 yield break;
             }
+
 
             // 5) Estrai righe del piano
             var steps = new List<string>();

@@ -43,3 +43,9 @@ COPY server.py .
 
 EXPOSE 5000
 CMD ["python3", "-u", "server.py"]
+
+## come eseguire: 
+# 1) docker build -t optic-docker .
+# così si crea l'immagine Docker, poi si può eseguire il container:
+# 2) docker run -p 5000:5000 optic-docker
+# Per testare il server Flask (server.py), puoi usare curl o Postman per inviare richieste POST a http://localhost:5000/ping
