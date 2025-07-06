@@ -8,6 +8,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
+using System.IO;
+
 
 #if UNITY_EDITOR
 using UnityEditor.Animations;
@@ -1045,62 +1047,120 @@ public class MenuManager : MonoBehaviour
 
     public void Simulate()
     {
-        // Validazioni preliminari
-         
+        // --- 1) Validazioni preliminari (invariate) ---
         if (objectsToAdd.Count == 0)
         {
-            errorArea.SetActive(true);
-            errorText.text = "You need at least an object.";
+            ShowError("You need at least an object.");
             return;
         }
-        if (currentType == 0 && predicatesToAdd.Count == 0) //currentType == 0 serve perchè ci possono essere problemi senza predicati in alcuni casi
+        if (currentType == 0 && predicatesToAdd.Count == 0)
         {
-            errorArea.SetActive(true);
-            errorText.text = "You need at least a predicate";
+            ShowError("You need at least a predicate.");
             return;
         }
-        if(currentType != 0)
+        if (currentType != 0 && functionsToAdd.Count == 0)
         {
-            if (functionsToAdd.Count == 0)
-            {
-                errorArea.SetActive(true);
-                errorText.text = "You need at least a function.";
-                return;
-            }
+            ShowError("You need at least a function.");
+            return;
         }
         if (goalsToAdd.Count == 0)
         {
-            errorArea.SetActive(true);
-            errorText.text = "You need at least a goal.";
+            ShowError("You need at least a goal.");
             return;
         }
-        
-        // Salva dati e genera PDDL
-        PlanInfo.GetInstance().SetObjects(objectsToAdd);
-        PlanInfo.GetInstance().SetPredicates(predicatesToAdd);
-        PlanInfo.GetInstance().SetFunctions(functionsToAdd);
-        PlanInfo.GetInstance().SetGoals(goalsToAdd);
-        PlanInfo.GetInstance().SetDomainType(currentProblem, currentType);
 
-        generator.SetDomainName(PlanInfo.GetInstance().GetDomainName());
+        // --- 2) Genera e salva i PDDL ---
+        var pi = PlanInfo.GetInstance();
+        pi.SetObjects(objectsToAdd);
+        pi.SetPredicates(predicatesToAdd);
+        pi.SetFunctions(functionsToAdd);
+        pi.SetGoals(goalsToAdd);
+        pi.SetDomainType(currentProblem, currentType);
+
+        generator.SetDomainName(pi.GetDomainName());
         generator.GenerateAndSave();
-        planner.RunShellCommand();
 
+        // --- 3) Costruisci path a dominio e problema ---
+        string domainFilename = pi.GetDomainName(); // es. "domain-robot-temporal.pddl"
+        string domainPath = Path.Combine(
+            Application.dataPath,
+            "PDDL", "AllFile",
+            GetDomainFolder(currentProblem),
+            domainFilename
+        );
+        string problemPath = Path.Combine(
+            Application.dataPath,
+            "Generated",
+            "problem.pddl"
+        );
+
+        // --- 4) Se TEMPORAL → invia a OPTIC in Docker ---
+        if (domainFilename.ToLower().Contains("temporal") || domainFilename.ToLower().Contains("2-1"))
+        {
+            string domainPddl  = File.ReadAllText(domainPath);
+            string problemPddl = File.ReadAllText(problemPath);
+
+            StartCoroutine(PddlApiClient.RequestPlan(
+                domainPddl,
+                problemPddl,
+                onSuccess: steps =>
+                {
+                    if (steps.Count == 0)
+                    {
+                        ShowError("No plan found by OPTIC.");
+                        return;
+                    }
+                    // usa SetPlan, non SetPlanSteps
+                    pi.SetPlan(steps);
+                    SceneManager.LoadScene(GetSceneName(currentProblem));
+                },
+                onError: err =>
+                {
+                    ShowError("OPTIC Error:\n" + err);
+                }
+            ));
+            return; // non esegue il planner locale
+        }
+
+        // --- 5) Altrimenti → planner locale (.jar) ---
+        planner.RunShellCommand();
         if (planner.CheckError())
         {
-            // Carica la scena corretta
-            switch (currentProblem)
-            {
-                case 0: SceneManager.LoadScene("LogisticScene"); break;
-                case 1: SceneManager.LoadScene("RobotScene"); break;
-                case 2: SceneManager.LoadScene("ElevatorScene"); break;
-            }
+            SceneManager.LoadScene(GetSceneName(currentProblem));
         }
         else
         {
-            errorArea.SetActive(true);
-            errorText.text = "Plan not found.";
+            ShowError("Plan not found.");
         }
+    }
+
+    // ─────── helper methods ───────
+    private string GetDomainFolder(int problem)
+    {
+        return problem switch
+        {
+            0 => "Logistic",
+            1 => "Robot",
+            2 => "Elevator",
+            _ => throw new ArgumentException("Unknown problem")
+        };
+    }
+
+    private string GetSceneName(int problem)
+    {
+        return problem switch
+        {
+            0 => "LogisticScene",
+            1 => "RobotScene",
+            2 => "ElevatorScene",
+            _ => "MainMenu"
+        };
+    }
+
+    private void ShowError(string msg)
+    {
+        errorArea.SetActive(true);
+        errorText.text = msg;
     }
 
 }

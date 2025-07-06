@@ -1,19 +1,29 @@
 ﻿(define (problem p)
-	(:domain domain-elevator-normal-capacity-infinity)
+	(:domain domain-logistic-2-1)
 	(:objects
-		elevator1 - elevator
-		floor1 floor2 - floor
-		person1 - person
+		airplane1 - airplane
+		airport1 airport2 - airport
+		city1 city2 - city
+		location1 location2 - location
+		package1 - package
+		truck1 - truck
 	)
 	(:init
-		(above floor2 floor1)
-		(target person1 floor2)
-		(at-elevator elevator1 floor1)
-		(at-person person1 floor1)
+		(in-city airport1 city1)
+		(in-city airport2 city2)
+		(in-city location2 city2)
+		(in-city location1 city1)
+		(at airplane1 airport1)
+		(at package1 location1)
+		(at truck1 location1)
+		(link city1 city2)
+		(link city2 city1)
+		(is-petrol-station location1)
+		(is-petrol-station location2)
 	)
 	(:goal
 		(and
-			(reached person1)
+			(at package1 location2)
 		)
 	)
 )
