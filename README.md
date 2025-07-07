@@ -95,15 +95,82 @@ This project relies on external planners to generate PDDL plans at run-time, rig
 - Website: https://github.com/aiplan4eu/enhsp
 - Used for solving both classical and numeric planning problems.
 
-<!--
-PARTE DI OPTIC/ BOOOOH
-### 🧪 OPTIC (To be confirmed)
-- If used with Docker:
-  - Docker image setup instructions will be provided.
-  - Example run command:
 
-  DA COMPLETAREEEE
--->
+### 🧪 OPTIC (Optimising Preferences and Time-Dependent Costs) via Docker
+- Website: https://github.com/KavrakiLab/optic.git
+- Used for solving problems in PDDL+.
+  
+We provide a fully working Docker-based server for the OPTIC planner, accessible via a simple Flask API. This allows Planimation to request plans at runtime by sending domain/problem definitions directly.
+
+> ⚠️ **Important Note**: Planimation already sends the PDDL domain and problem definitions to the planner server at runtime.  
+> You do **not** need to generate the plan manually — the server will be contacted directly by the application after the user builds the problem.
+> Most of the following notions are examples: you simply need to start the Docker server, with one of the methods described.
+
+#### 🐳 Docker Setup
+To build and run the Docker container:
+1. Clone the repo and move to the folder containing the `Dockerfile` and `server.py`, the `optic-docker` folder.
+2. Run the following command to build the image:
+   ```bash
+   docker build -t optic-server .
+   ```
+3. To start the container manually:
+   ```bash
+    docker run -p 5000:5000 optic-server
+   ```
+
+- Once running, the planner will be available at `http://localhost:5000/plan` .
+- You can test the endpoint using `curl http://localhost:5000/ping` .
+- Expected response:
+    ```json
+    { "status": "ok" }
+    ```
+#### 🔁 Automated Run with PowerShell
+On Windows, you can use the provided script `runDocker.ps1` to automatize the processes of:
+- Building the Docker image
+- Removing any existing container with the same name (useful for multiple runs or different tryouts)
+- Launching the container in background
+- Retry `/ping` until the Flask server is ready
+
+To run the script: 
+    ```powershell
+    .\runDocker.ps1
+    ```
+✅ Once the server is up, you can send a POST request to /plan with your PDDL content. 
+  ```bash
+    curl -X POST http://localhost:5000/plan ^
+    -H "Content-Type: application/json" ^
+    -d "{\"domain_pddl\": \"(define ...)\", \"problem_pddl\": \"(define ...)\"}"
+  ```
+
+#### 📁 Folder Contents
+- `Dockerfile`: sets up Ubuntu, builds OPTIC, exposes a Flask server
+- `server.py`: handles /ping and /plan routes
+- `runDocker.ps1`: PowerShell automation script
+
+#### 🔒 Other notes
+- The planner executable is located in `/app/optic` inside the container
+- All `.pddl` content is sent via HTTP request body — no need to mount local files
+- Output includes `stdout`, `stderr`, and `returncode` for debugging
+
+#### 📦 Sample JSON Payload
+Example of how the requests should be sent: 
+  ```json
+  {
+  "domain_pddl": "(define (domain ...))",
+  "problem_pddl": "(define (problem ...))"
+  }
+  ```
+
+And the response:
+  ```json
+    {
+      "stdout": "0: (move r1 a b)\n1: ...",
+      "stderr": "",
+      "returncode": 0
+    }
+  ```
+
+
 
 ---
 
