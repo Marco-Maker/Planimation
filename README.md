@@ -98,8 +98,8 @@ This project relies on external planners to generate PDDL plans at run-time, rig
 
 ### 🧪 OPTIC (Optimising Preferences and Time-Dependent Costs) via Docker
 - Website: https://github.com/KavrakiLab/optic.git
-- Used for solving problems in PDDL+.
-  
+- Used for solving problems in **PDDL 2.1** (durative actions and time-based constraints).
+
 We provide a fully working Docker-based server for the OPTIC planner, accessible via a simple Flask API. This allows Planimation to request plans at runtime by sending domain/problem definitions directly.
 
 > ⚠️ **Important Note**: Planimation already sends the PDDL domain and problem definitions to the planner server at runtime.  
@@ -183,4 +183,4 @@ This project was developed by:
 
 As part of the final project for the *Automated Planning* module in the course **“Intelligent Systems and Automated Planning”** (A.Y. 2024–2025), part of the **Master's Degree in Artificial Intelligence and Computer Science** at **UNICAL – University of Calabria**.
 
-Most problem definitions were provided as part of the course material.
+Part of the problems' definitions were provided as part of the course material.
