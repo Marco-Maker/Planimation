@@ -12,10 +12,10 @@ public class DeterminePlan : MonoBehaviour
                 GetComponent<LogisticPlanExecutor>().enabled = true;
                 break;
             case 0.1f:
-                //GetComponent<LogisticPlanExecutorNumeric>().enabled = true; //Missing domain
+                //GetComponent<LogisticPlanExecutorNumeric>().enabled = true;
                 break;
             case 0.2f:
-                //GetComponent<LogisticPlanExecutorEvent>().enabled = true; //Missing domain
+                GetComponent<LogisticPlanExecutorEvent>().enabled = true;
                 break;
             case 1.0f:
                 GetComponent<RobotPlanExecutor>().enabled = true;

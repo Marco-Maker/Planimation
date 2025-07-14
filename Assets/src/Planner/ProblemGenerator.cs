@@ -12,6 +12,7 @@ using System.Text;
 using System.Linq;
 using System.IO;
 using UnityEngine;
+using System;
 
 public class ProblemGenerator : MonoBehaviour
 {
@@ -51,7 +52,17 @@ public class ProblemGenerator : MonoBehaviour
         var predicates = planInfo.GetPredicates();       // List<PredicateToAdd>
         var goals = planInfo.GetGoals();                 // List<GoalToAdd>
         var functions = planInfo.GetFunctions();         // ✅ functions
-        var domainType = planInfo.GetDomainType();       // ✅ domain type
+        //Stampa le functions per debug
+        if (functions != null && functions.Count > 0)
+        {
+            Debug.Log("Functions:");
+            foreach (var func in functions)
+            {
+                Debug.Log($"Function: {func.name}, Values: {string.Join(", ", func.values)}");
+            }
+        }
+        var domainType = (int)((planInfo.GetDomainType() - Math.Floor(planInfo.GetDomainType())) * 10);
+
 
         string pddl = BuildPddl(problemName, domainName, objects, predicates, goals, functions, domainType);
 
@@ -109,6 +120,7 @@ public class ProblemGenerator : MonoBehaviour
 
         // Aggiungi le funzioni solo se il dominio è numerico
         // all’interno di BuildPddl, subito dopo i predicati:
+        Debug.Log($"Domain Type: {domainType}"); // Debug per il tipo di dominio
         if ((int)domainType == 1 || (int)domainType == 2)
         {
             var uniqueFuncs = funcs
@@ -168,6 +180,8 @@ public class ProblemGenerator : MonoBehaviour
     /// </summary>
     private string FormatFunctionAssignment(FunctionToAdd func)
     {
+        //Stampa func
+        Debug.Log($"Function: {func.name}, Values: {string.Join(", ", func.values)}");  
         if (func.values == null || func.values.Count < 1)
             return ""; // Ignora assegnazioni mal formate
 

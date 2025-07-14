@@ -14,8 +14,8 @@ public static class Const
     public const string DOMAIN_NAME_ELEVATOR_PLUS = "domain-elevator-event.pddl";
 
     public const string DOMAIN_NAME_LOGISTIC_NORMAL = "domain-logistic-normal.pddl";
-    public const string DOMAIN_NAME_LOGISTIC_2_1 = "domain-logistic-2-1.pddl";
-    public const string DOMAIN_NAME_LOGISTIC_PLUS = "domain-logistic-plus.pddl";
+    public const string DOMAIN_NAME_LOGISTIC_2_1 = "domain-logistic-temporal.pddl";
+    public const string DOMAIN_NAME_LOGISTIC_PLUS = "domain-logistic-event.pddl";
 
     public const string DOMAIN_NAME_ROBOT_NORMAL = "domain-robot-normal.pddl";
     public const string DOMAIN_NAME_ROBOT_2_1 = "domain-robot-temporal.pddl";

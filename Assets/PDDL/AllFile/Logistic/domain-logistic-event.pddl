@@ -1,4 +1,4 @@
-(define (domain logistics-pddlplus)
+(define (domain domain-logistic-event)
   (:requirements :strips :typing :fluents :durative-actions :processes :events)
   (:types
     truck airplane - vehicle
