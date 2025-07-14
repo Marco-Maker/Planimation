@@ -30,11 +30,11 @@ WORKDIR /opt/optic
 RUN mkdir build && cd build && \
     cmake -G Ninja .. && \
     ninja && \
-    echo "OPTIC compilato con Ninja"
+    echo "✅ OPTIC compilato con Ninja"
 
-# 4) Copia l’eseguibile in /app
+# 4) Copia il binario corretto in /app
 RUN mkdir /app && \
-    cp /opt/optic/build/src/optic/optic-clp /app/optic && \
+    cp /opt/optic/build/src/optic/optic /app/optic && \
     chmod +x /app/optic
 
 # 5) Aggiungi server Flask
@@ -43,6 +43,7 @@ COPY server.py .
 
 EXPOSE 5000
 CMD ["python3", "-u", "server.py"]
+
 
 ## come eseguire: 
 # 1) docker build -t optic-docker .

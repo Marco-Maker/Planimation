@@ -1,29 +1,22 @@
 ﻿(define (problem p)
-	(:domain domain-logistic-2-1)
+	(:domain domain-robot-temporal)
 	(:objects
-		airplane1 - airplane
-		airport1 airport2 - airport
-		city1 city2 - city
-		location1 location2 - location
-		package1 - package
-		truck1 - truck
+		room1 room2 - room
+		obj1 - obj
+		robot1 - robot
 	)
 	(:init
-		(in-city airport1 city1)
-		(in-city airport2 city2)
-		(in-city location2 city2)
-		(in-city location1 city1)
-		(at airplane1 airport1)
-		(at package1 location1)
-		(at truck1 location1)
-		(link city1 city2)
-		(link city2 city1)
-		(is-petrol-station location1)
-		(is-petrol-station location2)
+		(at-robot robot1 room1)
+		(at-obj obj1 room1)
+		(free robot1)
+		(allowed robot1 room1)
+		(allowed robot1 room2)
+		(= (move-time robot1) 1)
+		(= (battery robot1) 53)
 	)
 	(:goal
 		(and
-			(at package1 location2)
+			(at-obj obj1 room2)
 		)
 	)
 )

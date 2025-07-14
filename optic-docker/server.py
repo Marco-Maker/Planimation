@@ -24,7 +24,12 @@ def extract_text_field(field):
 
 @app.route('/plan', methods=['POST'])
 def plan():
+    print("🟢 Richiesta ricevuta su /plan")
     data = request.get_json(force=True)
+    print("📦 JSON ricevuto:", data)
+    
+    if not data:
+        return jsonify(stdout="", stderr="Nessun JSON ricevuto", returncode=-1), 400
     # Estrai SEMPRE una stringa corretta, qualunque formato arrivi
     domain_raw  = data.get('domain_pddl', '')
     problem_raw = data.get('problem_pddl', '')
@@ -45,8 +50,9 @@ def plan():
         # Esegui planner
         cmd = ['/app/optic', dom, prob]
         try:
-            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+            proc = subprocess.run(cmd, capture_output=True, text=True )
         except Exception as e:
+            print("🔥 Errore durante l'esecuzione di OPTIC:", str(e))
             return jsonify(stdout="", stderr=str(e), returncode=-1), 500
 
     return jsonify(stdout=proc.stdout, stderr=proc.stderr, returncode=proc.returncode)

@@ -23,65 +23,106 @@ public static class PddlApiClient
         public int returncode;
     }
 
-    /// <summary>
-    /// Manda i PDDL al server e restituisce la lista di step del piano.
-    /// </summary>
     public static IEnumerator RequestPlan(
         string domainPddl,
         string problemPddl,
         Action<List<string>> onSuccess,
         Action<string> onError
     ) {
-        // 1) Usa una classe serializzabile anziché un anonymous type
         var payload = new PlannerRequest {
-            domain_pddl  = domainPddl,
+            domain_pddl = domainPddl,
             problem_pddl = problemPddl
         };
+
         string json = JsonUtility.ToJson(payload);
-        Debug.Log("[DEBUG] Sending JSON: " + json);
+        Debug.Log("[DEBUG] Sending JSON to planner:\n" + json);
 
         using (var req = new UnityWebRequest(PlannerUrl, "POST"))
         {
             byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(json);
-            req.uploadHandler   = new UploadHandlerRaw(bodyRaw);
+            req.uploadHandler = new UploadHandlerRaw(bodyRaw);
             req.downloadHandler = new DownloadHandlerBuffer();
             req.SetRequestHeader("Content-Type", "application/json");
             req.SetRequestHeader("Accept", "application/json");
-            req.timeout = 60;
+            req.timeout = 180;
 
             yield return req.SendWebRequest();
 
+            Debug.Log($"[DEBUG] Request result: {req.result}, Code: {req.responseCode}");
+
+            string responseText = req.downloadHandler.text;
+
+            // ❗ Leggi sempre il JSON, anche in caso di errore HTTP
             if (req.result != UnityWebRequest.Result.Success)
             {
-                onError?.Invoke($"HTTP Error: {req.error}");
+                if (!string.IsNullOrEmpty(responseText))
+                {
+                    try
+                    {
+                        var errorResp = JsonUtility.FromJson<PlannerResponse>(responseText);
+                        onError?.Invoke($"Planner Error:\n{errorResp.stderr}");
+                    }
+                    catch (Exception parseErr)
+                    {
+                        onError?.Invoke($"HTTP Error: {req.error}\n(Parse failed: {parseErr.Message})");
+                    }
+                }
+                else
+                {
+                    onError?.Invoke($"HTTP Error: {req.error}");
+                }
                 yield break;
             }
 
-            Debug.Log("[DEBUG] Received response: " + req.downloadHandler.text);
-            var resp = JsonUtility.FromJson<PlannerResponse>(req.downloadHandler.text);
+            Debug.Log("[DEBUG] Received response:\n" + responseText);
 
+            PlannerResponse resp;
+            try
+            {
+                resp = JsonUtility.FromJson<PlannerResponse>(responseText);
+            }
+            catch (Exception e)
+            {
+                onError?.Invoke("Errore nel parsing della risposta JSON:\n" + e.Message);
+                yield break;
+            }
+
+            // 🔴 Errore da OPTIC (ma senza crash HTTP)
             if (resp.returncode != 0)
             {
                 if (!string.IsNullOrEmpty(resp.stdout) && resp.stdout.Contains("No solution"))
                 {
-                    onSuccess?.Invoke(new List<string>()); // Lista vuota: nessun piano
+                    onSuccess?.Invoke(new List<string>()); // valido ma senza piano
                 }
-                    else
-                    {
-                        onError?.Invoke($"Planner Error:\n{resp.stderr}");
-                    }
+                else
+                {
+                    onError?.Invoke($"Planner Error:\n{resp.stderr}");
+                }
                 yield break;
             }
 
-
-            // 5) Estrai righe del piano
+            // ✅ Parsing del piano
             var steps = new List<string>();
-            foreach (var line in resp.stdout
-                     .Split(new[]{'\n'}, StringSplitOptions.RemoveEmptyEntries))
+            var lines = resp.stdout.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var line in lines)
             {
-                if (line.Contains(": ("))
-                    steps.Add(line.Trim());
+                var trimmed = line.Trim();
+                Debug.Log("[DEBUG] LINEA:\n" + trimmed);
+                if (trimmed.Contains(": ("))
+                {
+                    steps.Add(trimmed);
+                    Debug.Log("[DEBUG] ➕ Step aggiunto: " + trimmed);
+                }
             }
+
+            if (steps.Count == 0)
+            {
+                Debug.LogWarning("[DEBUG] Nessun passo riconosciuto nel piano.");
+                onError?.Invoke("OPTIC ha restituito output, ma nessun passo è stato riconosciuto.");
+                yield break;
+            }
+
+            Debug.Log("[DEBUG] Steps finali trovati:\n" + string.Join("\n", steps));
             onSuccess?.Invoke(steps);
         }
     }
