@@ -12,7 +12,7 @@ public class DeterminePlan : MonoBehaviour
                 GetComponent<LogisticPlanExecutor>().enabled = true;
                 break;
             case 0.1f:
-                //GetComponent<LogisticPlanExecutorNumeric>().enabled = true;
+                GetComponent<LogisticPlanExecutorTemporal>().enabled = true;
                 break;
             case 0.2f:
                 GetComponent<LogisticPlanExecutorEvent>().enabled = true;

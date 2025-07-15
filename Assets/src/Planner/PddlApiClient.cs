@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;                 // <- aggiungi
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -52,7 +53,6 @@ public static class PddlApiClient
 
             string responseText = req.downloadHandler.text;
 
-            // ❗ Leggi sempre il JSON, anche in caso di errore HTTP
             if (req.result != UnityWebRequest.Result.Success)
             {
                 if (!string.IsNullOrEmpty(responseText))
@@ -87,12 +87,11 @@ public static class PddlApiClient
                 yield break;
             }
 
-            // 🔴 Errore da OPTIC (ma senza crash HTTP)
             if (resp.returncode != 0)
             {
                 if (!string.IsNullOrEmpty(resp.stdout) && resp.stdout.Contains("No solution"))
                 {
-                    onSuccess?.Invoke(new List<string>()); // valido ma senza piano
+                    onSuccess?.Invoke(new List<string>());
                 }
                 else
                 {
@@ -101,28 +100,41 @@ public static class PddlApiClient
                 yield break;
             }
 
-            // ✅ Parsing del piano
+            // Parsing del piano
             var steps = new List<string>();
             var lines = resp.stdout.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (var line in lines)
             {
                 var trimmed = line.Trim();
-                Debug.Log("[DEBUG] LINEA:\n" + trimmed);
                 if (trimmed.Contains(": ("))
-                {
                     steps.Add(trimmed);
-                    Debug.Log("[DEBUG] ➕ Step aggiunto: " + trimmed);
-                }
             }
 
             if (steps.Count == 0)
             {
-                Debug.LogWarning("[DEBUG] Nessun passo riconosciuto nel piano.");
                 onError?.Invoke("OPTIC ha restituito output, ma nessun passo è stato riconosciuto.");
                 yield break;
             }
 
-            Debug.Log("[DEBUG] Steps finali trovati:\n" + string.Join("\n", steps));
+            // ─── Qui salviamo il piano su file ────────────────────────────────────
+            try
+            {
+                // percorso relativo alla cartella di lavoro: "./PDDL/output_plan.txt"
+                string folderPath = Application.dataPath + "/PDDL";
+                if (!Directory.Exists(folderPath))
+                    Directory.CreateDirectory(folderPath);
+
+                string filePath = Path.Combine(folderPath, "output_plan.txt");
+                File.WriteAllLines(filePath, steps);
+                Debug.Log($"[DEBUG] Piano salvato in: {filePath}");
+            }
+            catch (Exception fileEx)
+            {
+                Debug.LogError("[DEBUG] Errore durante il salvataggio del piano:\n" + fileEx);
+                // non blocchiamo il callback: proseguiamo comunque
+            }
+            // ─────────────────────────────────────────────────────────────────────
+
             onSuccess?.Invoke(steps);
         }
     }
