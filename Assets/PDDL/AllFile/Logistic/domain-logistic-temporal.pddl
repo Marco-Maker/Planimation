@@ -1,4 +1,4 @@
-(define (domain logistics)
+(define (domain domain-logistic-temporal)
   (:requirements :strips :typing :durative-actions :fluents)
   (:types
     truck airplane - vehicle
