@@ -388,6 +388,46 @@ PrefabInstance:
       propertyPath: mainCamera
       value: 
       objectReference: {fileID: 539849769}
+    - target: {fileID: 791203909183508956, guid: 97cc619582c376c4fb6ab999ac1709f7, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 791203909183508956, guid: 97cc619582c376c4fb6ab999ac1709f7, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 791203909183508956, guid: 97cc619582c376c4fb6ab999ac1709f7, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 791203909183508956, guid: 97cc619582c376c4fb6ab999ac1709f7, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1479452549660386204, guid: 97cc619582c376c4fb6ab999ac1709f7, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2231239658815797783, guid: 97cc619582c376c4fb6ab999ac1709f7, type: 3}
+      propertyPath: m_text
+      value: Plan
+      objectReference: {fileID: 0}
+    - target: {fileID: 2552432266452888616, guid: 97cc619582c376c4fb6ab999ac1709f7, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2552432266452888616, guid: 97cc619582c376c4fb6ab999ac1709f7, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3422639209087444143, guid: 97cc619582c376c4fb6ab999ac1709f7, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3422639209087444143, guid: 97cc619582c376c4fb6ab999ac1709f7, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4173210774114219090, guid: 97cc619582c376c4fb6ab999ac1709f7, type: 3}
       propertyPath: m_Name
       value: General Menu Overlay 1
@@ -430,6 +470,22 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5586630669587881273, guid: 97cc619582c376c4fb6ab999ac1709f7, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8148329139754727582, guid: 97cc619582c376c4fb6ab999ac1709f7, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8148329139754727582, guid: 97cc619582c376c4fb6ab999ac1709f7, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8860089429832952623, guid: 97cc619582c376c4fb6ab999ac1709f7, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8860089429832952623, guid: 97cc619582c376c4fb6ab999ac1709f7, type: 3}
+      propertyPath: m_SizeDelta.x
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -577,7 +633,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76d5d49d9eac9b6479f0988f6222a3fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultActionDelay: 1
+  actionDelay: 1
   planText: 
 --- !u!114 &2108507915
 MonoBehaviour:

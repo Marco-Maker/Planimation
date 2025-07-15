@@ -141,18 +141,22 @@ public class UIManager : MonoBehaviour
     }
 
     public void ShowPlan()
+{
+    planPanel.SetActive(!planPanel.activeSelf);
+    if (!planPanel.activeSelf) return;
+
+    var planPath = Path.Combine(Application.dataPath, "PDDL", "output_plan.txt");
+    if (!File.Exists(planPath))
     {
-        planPanel.SetActive(!planPanel.activeSelf);
-        if (!planPanel.activeSelf) return;
+        planText.text = "Error: couldn't load plan.";
+        return;
+    }
 
-        var planPath = Path.Combine(Application.dataPath, "PDDL", "output_plan.txt");
-        if (!File.Exists(planPath))
-        {
-            planText.text = "Error: couldn't load plan.";
-            return;
-        }
+    var lines = File.ReadAllLines(planPath);
 
-        var lines = File.ReadAllLines(planPath);
+    // Se il file contiene "Found Plan:", usiamo il parser "Logistic"
+    if (lines.Any(l => l.StartsWith("Found Plan:")))
+    {
         planText.text = string.Join("\n",
             lines
             .SkipWhile(l => !l.StartsWith("Found Plan:"))
@@ -165,6 +169,17 @@ public class UIManager : MonoBehaviour
             .Select(l => l.Trim())
         );
     }
+    else
+    {
+        // Altrimenti mostriamo tutte le righe che iniziano con un numero (formato OPTIC)
+        planText.text = string.Join("\n",
+            lines
+            .Where(l => !string.IsNullOrWhiteSpace(l) && char.IsDigit(l.Trim()[0]))
+            .Select(l => l.Trim())
+        );
+    }
+}
+
 
     public void NextFocus()
     {

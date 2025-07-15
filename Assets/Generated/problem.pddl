@@ -12,7 +12,7 @@
 		(allowed robot1 room1)
 		(allowed robot1 room2)
 		(= (move-time robot1) 1)
-		(= (battery robot1) 22)
+		(= (battery robot1) 21)
 	)
 	(:goal
 		(and
