@@ -9,6 +9,10 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
 using System.IO;
+using UnityEditor;
+using System.Text.RegularExpressions;
+
+
 
 
 #if UNITY_EDITOR
@@ -150,6 +154,15 @@ public class MenuManager : MonoBehaviour
     [SerializeField] private GameObject elevatorGoalsField;
     [SerializeField] private List<Goals> goalsList;
     private List<GoalToAdd> goalsToAdd;
+
+    [Header("IMPORT")]
+    [SerializeField] private GameObject importField;
+    [SerializeField] private TextMeshProUGUI textAreaProblem;
+    [SerializeField] private List<UnityEngine.UI.Toggle> problemToggle;
+    [SerializeField] private List<UnityEngine.UI.Toggle> typeToggle;
+
+
+
 
     [Header("GENERATOR")]
     [SerializeField] private ProblemGenerator generator;
@@ -1043,6 +1056,278 @@ public class MenuManager : MonoBehaviour
     }
 
     // ---------------------------------------------------------------END GOALS---------------------------------------------------------------------------
+    // ---------------------------------------------------------------START IMPORT---------------------------------------------------------------------------
+
+    public void OpenImport()
+    {
+        importField.SetActive(true);
+    }
+
+    public void CloseImport()
+    {
+        importField.SetActive(false);
+    }
+
+    private void ReadPDDLFile(string filePath)
+    {
+        if (!File.Exists(filePath))
+        {
+            Debug.LogError("File non trovato: " + filePath);
+            return;
+        }
+
+        string fileContent = File.ReadAllText(filePath);
+        objectsToAdd = new List<ObjectToAdd>();
+        predicatesToAdd = new List<PredicateToAdd>();
+        functionsToAdd = new List<FunctionToAdd>();
+        goalsToAdd = new List<GoalToAdd>();
+
+        // Dizionario per mappare i nomi originali ai nuovi nomi
+        Dictionary<string, string> nameMapping = new Dictionary<string, string>();
+
+        // Funzione helper per sostituire i nomi negli elenchi di valori
+        List<string> RemapNames(List<string> values)
+        {
+            return values.Select(v => nameMapping.ContainsKey(v) ? nameMapping[v] : v).ToList();
+        }
+
+        // -------------------- OBJECTS --------------------
+        Match objectsMatch = Regex.Match(fileContent, @"\(:objects([\s\S]*?)\)", RegexOptions.IgnoreCase);
+        if (objectsMatch.Success)
+        {
+            string raw = objectsMatch.Groups[1].Value;
+            string[] lines = raw.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+
+            // Dizionario per tenere traccia dei contatori per ogni tipo
+            Dictionary<string, int> typeCounters = new Dictionary<string, int>();
+
+            foreach (var line in lines)
+            {
+                string trimmedLine = line.Trim();
+                if (string.IsNullOrWhiteSpace(trimmedLine)) continue;
+
+                var parts = trimmedLine.Split('-');
+                if (parts.Length == 2)
+                {
+                    string[] names = parts[0].Trim().Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                    string type = parts[1].Trim();
+
+                    // Inizializza il contatore per questo tipo se non esiste
+                    if (!typeCounters.ContainsKey(type))
+                    {
+                        typeCounters[type] = 1;
+                    }
+
+                    foreach (var originalName in names)
+                    {
+                        // Genera il nuovo nome usando il tipo + numero progressivo
+                        string newName = type + typeCounters[type];
+                        typeCounters[type]++;
+
+                        // Aggiungi la mappatura nome originale -> nuovo nome
+                        nameMapping[originalName] = newName;
+
+                        objectsToAdd.Add(new ObjectToAdd { name = newName, type = type });
+                    }
+                }
+            }
+        }
+
+        // -------------------- INIT --------------------
+        Match initMatch = Regex.Match(fileContent, @"\(:init([\s\S]*?)\)(?:\s*\(:goal|\s*$)", RegexOptions.IgnoreCase);
+        if (initMatch.Success)
+        {
+            string raw = initMatch.Groups[1].Value;
+
+            // Trova tutte le espressioni tra parentesi, gestendo parentesi annidate
+            MatchCollection matches = Regex.Matches(raw, @"\(([^()]*(?:\([^()]*\)[^()]*)*)\)", RegexOptions.IgnoreCase);
+
+            foreach (Match m in matches)
+            {
+                string content = m.Groups[1].Value.Trim();
+                if (string.IsNullOrWhiteSpace(content)) continue;
+
+                // Controlla se è una funzione numerica (inizia con =)
+                if (content.StartsWith("="))
+                {
+                    // Parsing per funzioni numeriche: (= (function-name args) value)
+                    Match funcMatch = Regex.Match(content, @"=\s*\(([^)]+)\)\s*(.+)", RegexOptions.IgnoreCase);
+                    if (funcMatch.Success)
+                    {
+                        string funcCall = funcMatch.Groups[1].Value.Trim();
+                        string value = funcMatch.Groups[2].Value.Trim();
+
+                        string[] funcParts = funcCall.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                        if (funcParts.Length > 0)
+                        {
+                            string functionName = funcParts[0];
+                            List<string> args = funcParts.Skip(1).ToList();
+                            args.Add(value); // Aggiungi il valore come ultimo argomento
+
+                            // Rimappa i nomi degli oggetti
+                            args = RemapNames(args);
+
+                            functionsToAdd.Add(new FunctionToAdd { name = functionName, values = args });
+                        }
+                    }
+                }
+                else
+                {
+                    // Parsing per predicati booleani normali
+                    string[] parts = content.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (parts.Length > 0)
+                    {
+                        string name = parts[0];
+                        List<string> values = parts.Skip(1).ToList();
+
+                        // Rimappa i nomi degli oggetti
+                        values = RemapNames(values);
+
+                        predicatesToAdd.Add(new PredicateToAdd { name = name, values = values });
+                    }
+                }
+            }
+        }
+
+        // -------------------- GOALS --------------------
+        Match goalMatch = Regex.Match(fileContent, @"\(:goal\s*\(and([\s\S]*?)\)\s*\)", RegexOptions.IgnoreCase);
+        if (goalMatch.Success)
+        {
+            string raw = goalMatch.Groups[1].Value;
+
+            // Parsing più robusto per i goal
+            MatchCollection matches = Regex.Matches(raw, @"\(([^()]*(?:\([^()]*\)[^()]*)*)\)", RegexOptions.IgnoreCase);
+
+            foreach (Match m in matches)
+            {
+                string content = m.Groups[1].Value.Trim();
+                if (string.IsNullOrWhiteSpace(content)) continue;
+
+                string[] parts = content.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length > 0)
+                {
+                    string name = parts[0];
+                    List<string> values = parts.Skip(1).ToList();
+
+                    // Rimappa i nomi degli oggetti
+                    values = RemapNames(values);
+
+                    goalsToAdd.Add(new GoalToAdd { name = name, values = values });
+                }
+            }
+        }
+
+        Debug.Log("Import completato:\n" +
+                  $"Oggetti: {objectsToAdd.Count}\n" +
+                  $"Predicati: {predicatesToAdd.Count}\n" +
+                  $"Funzioni: {functionsToAdd.Count}\n" +
+                  $"Goal: {goalsToAdd.Count}");
+    }
+
+    public void ChoosePDDLFile()
+    {
+#if UNITY_EDITOR
+        string path = EditorUtility.OpenFilePanel("Seleziona un file PDDL", "", "pddl");
+        if (!string.IsNullOrEmpty(path))
+        {
+            ReadPDDLFile(path);
+            string fileContent = File.ReadAllText(path);
+            textAreaProblem.text = fileContent;
+        }
+#else
+    Debug.LogWarning("File chooser non supportato fuori da Unity Editor.");
+#endif
+    }
+
+    public void SimulateImport()
+    {
+        //Stampa i valori dentro la lista problemToggle
+        string problemName = "";
+        string typeName = "";
+        foreach (var toggle in problemToggle)
+        {
+            //Debug.Log($"Problem: {toggle.name}, Value: {toggle.isOn}");
+            if (toggle.isOn)
+            {
+                problemName = toggle.name;
+            }
+        }
+        foreach (var toggle in typeToggle)
+        {
+            //Debug.Log($"Problem: {toggle.name}, Value: {toggle.isOn}");
+            if (toggle.isOn)
+            {
+                typeName = toggle.name;
+            }
+        }
+        //Fai due switch per settare currentProblem e currentType basandosi sui possibili valori
+        //    private int currentProblem = -1; // -1 = no problem selected, 0 = logistic, 1 = robot, 2 = elevator
+        //    private int currentType = -1; // -1 = no type selected, 0 = normal, 1 = numeric/temporal, 2 = event
+        switch (problemName.Replace("Toggle", ""))
+            {
+            case "Logistic":
+                currentProblem = 0;
+                break;
+            case "Robot":
+                currentProblem = 1;
+                break;
+            case "Elevator":
+                currentProblem = 2;
+                break;
+            default:
+                Debug.LogError("Problema non valido selezionato.");
+                currentProblem = -1;
+                return;
+        }
+        switch (typeName.Replace("Toggle", ""))
+        {
+            case "Normal":
+                currentType = 0;
+                break;
+            case "Temporal":
+                currentType = 1;
+                break;
+            case "Event":
+                currentType = 2;
+                break;
+            default:
+                Debug.LogError("Tipo non valido selezionato.");
+                currentType = -1;
+                return;
+        }
+        if (currentProblem == -1 || currentType == -1)
+        {
+            ShowError("Please select a valid problem and type.");
+            return;
+        }
+        //Debug.Log($"Selected Problem: {currentProblem}, Type: {currentType}");
+        //Stampa le liste objectsToAdd  predicatesToAdd functionsToAdd goalsToAdd
+        Debug.Log("Oggetti importati:");
+        foreach (var obj in objectsToAdd)
+        {
+            Debug.Log($"- {obj.name} ({obj.type})");
+        }
+        Debug.Log("Predicati importati:");
+        foreach (var pred in predicatesToAdd)
+        {
+            Debug.Log($"- {pred.name}({string.Join(", ", pred.values)})");
+        }
+        Debug.Log("Funzioni importate:");
+        foreach (var func in functionsToAdd)
+        {
+            Debug.Log($"- {func.name}({string.Join(", ", func.values)})");
+        }
+        Debug.Log("Goal importati:");
+        foreach (var goal in goalsToAdd)
+        {
+            Debug.Log($"- {goal.name}({string.Join(", ", goal.values)})");
+        }
+        // Esegui la simulazione
+        Simulate();
+
+    }
+
+    // ---------------------------------------------------------------END IMPORT---------------------------------------------------------------------------
     // ---------------------------------------------------------------SIMULATE----------------------------------------------------------------------------
 
     public void Simulate()
