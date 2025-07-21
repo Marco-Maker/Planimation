@@ -17,8 +17,6 @@ This allows for flexible testing, custom problem generation, and exploration of 
 
 ## 🚀 How to Try the Project
 
-In the repository (specifically in the folder `Build/PlanimationDemo/`), you will find a **fully working demo** you can run directly without needing Unity.
-
 If you'd like to modify or extend the project, you can run it through Unity:
 
 1. Download and install Unity Hub: https://unity.com/unity-hub  
@@ -60,6 +58,23 @@ Once a domain is selected, you can choose the **problem version** using the **se
 - `PDDL+`: includes continuous processes and events.
 - `PDDL 2.1`: supports durative actions and time-based constraints.
 
+---
+
+## 📂 Problem Files
+In addition to interactive problem creation, Planimation also supports loading external .pddl files, enabling advanced users to test fully custom problem definitions.
+
+Supported modes:
+- Interactive Editing: Start from a default problem and modify object quantities, initial state, and goals through the GUI.
+- External Loading: Upload your own .pddl problem file, which will be validated before being passed to the planner.
+  Upload Procedure:
+  1. Choose a domain and PDDL version from the main interface.
+  2. Select the “Load from File” option.
+  3. Upload a valid .pddl problem file.
+The system will automatically pair the problem with the correct (predefined) domain, and then serialize and send both to the planner backend.
+
+The generated plan will be visualized automatically in the simulation.
+
+ℹ️ You do not need to provide the domain file — the system selects it automatically based on the chosen scenario.
 ---
 
 ## 👁️ Visualization
