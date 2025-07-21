@@ -1,6 +1,80 @@
-0.000: (pick obj1 room1 robot1)  [0.001]
-0.001: (move robot1 room1 room2)  [1.000]
-1.002: (drop obj1 room2 robot1)  [0.001]
-0.000: (pick obj1 room1 robot1)  [0.001]
-0.001: (move robot1 room1 room2)  [1.000]
-1.002: (drop obj1 room2 robot1)  [0.001]
+Domain parsed
+Problem parsed
+Grounding..
+Grounding Time: 52
+Aibr Preprocessing
+|F|:192
+|X|:0
+|A|:1040
+|P|:0
+|E|:0
+H1 Setup Time (msec): 31
+Setting horizon to:NaN
+Running Greedy Best First Search
+h(n = s_0)=24.0
+ g(n)= 1.0 h(n)=23.0
+ g(n)= 2.0 h(n)=22.0
+ g(n)= 3.0 h(n)=21.0
+ g(n)= 4.0 h(n)=20.0
+ g(n)= 5.0 h(n)=19.0
+ g(n)= 6.0 h(n)=18.0
+ g(n)= 7.0 h(n)=17.0
+ g(n)= 8.0 h(n)=16.0
+ g(n)= 9.0 h(n)=15.0
+ g(n)= 10.0 h(n)=14.0
+ g(n)= 11.0 h(n)=13.0
+ g(n)= 12.0 h(n)=12.0
+ g(n)= 14.0 h(n)=11.0
+ g(n)= 15.0 h(n)=10.0
+ g(n)= 16.0 h(n)=9.0
+ g(n)= 17.0 h(n)=8.0
+ g(n)= 19.0 h(n)=7.0
+ g(n)= 20.0 h(n)=6.0
+ g(n)= 21.0 h(n)=5.0
+ g(n)= 22.0 h(n)=4.0
+ g(n)= 25.0 h(n)=3.0
+ g(n)= 26.0 h(n)=2.0
+ g(n)= 27.0 h(n)=1.0
+ g(n)= 28.0 h(n)=0.0
+Problem Solved
+
+Found Plan:
+0.0: (load-truck package4 truck2 location2)
+1.0: (load-truck package8 truck3 location3)
+2.0: (load-truck package12 truck4 location4)
+3.0: (drive-truck truck3 location3 airport4 city3)
+4.0: (drive-truck truck2 location2 airport3 city2)
+5.0: (load-truck package3 truck1 location1)
+6.0: (drive-between-cities truck1 location1 airport3 city1 city2)
+7.0: (load-truck package11 truck4 location4)
+8.0: (drive-between-cities truck4 location4 location1 city4 city1)
+9.0: (unload-truck package3 truck1 airport3)
+10.0: (unload-truck package4 truck2 airport3)
+11.0: (unload-truck package8 truck3 airport4)
+12.0: (drive-truck truck3 airport4 location3 city3)
+13.0: (load-truck package7 truck3 location3)
+14.0: (drive-between-cities truck3 location3 location4 city3 city4)
+15.0: (drive-between-cities truck3 location4 location1 city4 city1)
+16.0: (unload-truck package7 truck3 location1)
+17.0: (drive-between-cities truck4 location1 location2 city1 city2)
+18.0: (unload-truck package12 truck4 location2)
+19.0: (drive-between-cities truck4 location2 location1 city2 city1)
+20.0: (drive-between-cities truck4 location1 airport1 city1 city4)
+21.0: (unload-truck package11 truck4 airport1)
+22.0: (drive-truck truck2 airport3 airport3 city2)
+23.0: (drive-between-cities truck4 airport1 location3 city4 city3)
+24.0: (load-truck package9 truck4 location3)
+25.0: (drive-between-cities truck4 location3 location4 city3 city4)
+26.0: (drive-between-cities truck4 location4 location1 city4 city1)
+27.0: (unload-truck package9 truck4 location1)
+
+Plan-Length:28
+Metric (Search):28.0
+Planning Time (msec): 651
+Heuristic Time (msec): 236
+Search Time (msec): 270
+Expanded Nodes:57
+States Evaluated:1394
+Fixed constraint violations during search (zero-crossing):0
+Number of Dead-Ends detected:28
+Number of Duplicates detected:351
